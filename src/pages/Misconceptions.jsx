@@ -10,7 +10,7 @@ const TOPICS = [
 export default function Misconceptions() {
   return (
     <div className="misconceptions-page">
-      <h1>Misconceptions</h1>
+      <h1 className="hub-title">Misconceptions</h1>
       <p className="misconceptions-intro">
         Common myths about Jews, Israel, and antisemitism—and the facts.
       </p>

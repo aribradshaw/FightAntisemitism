@@ -752,13 +752,23 @@ h3 { font-size: 1.2rem; }
 .agitator-timeline p { margin: 0.25rem 0 0; }
 .agitator-timeline a { font-size: 0.9rem; }
 
-/* Misconceptions */
-.misconceptions-page h1 { margin-bottom: 0.5rem; }
-.misconceptions-intro { color: var(--text-secondary); margin-bottom: 1.5rem; }
-.misconceptions-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
+/* Misconceptions — same 2×2 layout as Hub */
+.misconceptions-page h1 { margin-bottom: 0.5rem; text-align: center; }
+.misconceptions-intro { color: var(--text-secondary); margin-bottom: 2rem; text-align: center; }
+.misconceptions-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  max-width: 560px;
+  margin: 0 auto;
+}
 .misconceptions-card {
-  display: block;
-  padding: 1.25rem;
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -766,9 +776,9 @@ h3 { font-size: 1.2rem; }
   color: inherit;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
-.misconceptions-card:hover { border-color: var(--accent-gold); box-shadow: var(--shadow); text-decoration: none; color: inherit; }
-.misconceptions-card h3 { margin: 0 0 0.5rem; }
-.misconceptions-card p { margin: 0; font-size: 0.95rem; color: var(--text-secondary); }
+.misconceptions-card:hover { border-color: var(--accent-gold); box-shadow: var(--shadow-hover); text-decoration: none; color: inherit; }
+.misconceptions-card h3 { margin: 0 0 0.5rem; font-size: 1.1rem; color: var(--text-primary); text-align: center; }
+.misconceptions-card p { margin: 0; font-size: 0.95rem; color: var(--text-secondary); text-align: center; }
 
 .misconception-topic .misconception-back { display: inline-block; margin-bottom: 1rem; }
 .misconception-body p { margin-bottom: 1rem; }

@@ -59,6 +59,7 @@ export const AGITATORS = [
     slug: 'candace-owens',
     name: 'Candace Owens',
     subtitle: 'Downplaying antisemitism and defending antisemitic figures',
+    image: 'https://commons.wikimedia.org/wiki/Special:FilePath/Candace_Owens_by_Gage_Skidmore_%28cropped%29.jpg',
     description: 'Commentator and host who has repeatedly downplayed antisemitism and defended figures who made antisemitic statements. She has suggested that discussion of the Holocaust is overemphasized and defended Kanye West after his antisemitic outbursts, framing criticism as political rather than a response to hate speech.',
     sources: [
       { date: '2022', text: 'Defended Ye (Kanye West) after antisemitic comments; suggested the issue was being weaponized.', url: '#' },
@@ -69,7 +70,7 @@ export const AGITATORS = [
     slug: 'marjorie-taylor-greene',
     name: 'Marjorie Taylor Greene',
     subtitle: 'Jewish space lasers, Soros tropes, and Holocaust comparisons',
-    image: 'https://commons.wikimedia.org/wiki/Special:FilePath/Rep._Marjorie_Taylor_Greene_Official_Portrait_117th_Congress.jpg',
+    image: 'https://commons.wikimedia.org/wiki/Special:FilePath/Marjorie_Taylor_Greene_117th_Congress_portrait.jpeg',
     description: 'U.S. Representative who has promoted antisemitic conspiracy imagery and tropes. She suggested that a Jewish family (Rothschilds) and space-based lasers were behind wildfires; has invoked George Soros in conspiratorial ways; and compared COVID safety measures to the Holocaust, trivializing the genocide of Jews.',
     sources: [
       { date: '2018', text: 'Facebook post linking Rothschild Inc. and space lasers to wildfires; later deleted.', url: '#' },
@@ -80,7 +81,7 @@ export const AGITATORS = [
     slug: 'greta-thunberg',
     name: 'Greta Thunberg',
     subtitle: 'Antisemitic imagery and tropes in Israel–Gaza activism',
-    image: 'https://commons.wikimedia.org/wiki/Special:FilePath/Greta_Thunberg_2024.jpg',
+    image: 'https://commons.wikimedia.org/wiki/Special:FilePath/Greta_Thunberg_2024_03.jpg',
     description: 'Climate activist who has been criticized for sharing and endorsing content that used antisemitic imagery and tropes in the context of Israel and Gaza. She posted an image of an octopus as a symbol of "colonization" that echoed classic antisemitic "Jewish control" imagery, and has repeated one-sided "genocide" framing that conflates Jews and the State of Israel.',
     sources: [
       { date: '2023', text: 'Shared octopus image with antisemitic connotations; later removed after criticism.', url: '#' },
@@ -91,7 +92,7 @@ export const AGITATORS = [
     slug: 'cenk-uygur',
     name: 'Cenk Uygur',
     subtitle: '"Jewish lobby" and dual-loyalty tropes',
-    image: 'https://commons.wikimedia.org/wiki/Special:FilePath/Cenk_Uygur_2014.jpg',
+    image: 'https://commons.wikimedia.org/wiki/Special:FilePath/Cenk_Uygur_hosting_The_Young_Turks_%2826942059034%29.jpg',
     description: 'Founder and host of The Young Turks who has been criticized for rhetoric that invokes antisemitic tropes about Jewish or "Israel lobby" control of U.S. policy and media. Critics point to language that suggests dual loyalty and secret influence, which echoes classic antisemitic canards.',
     sources: [
       { date: 'Various', text: 'Statements about "Jewish lobby," AIPAC, and U.S. policy that critics say use dual-loyalty tropes.', url: '#' },
@@ -101,7 +102,7 @@ export const AGITATORS = [
     slug: 'ana-kasparian',
     name: 'Ana Kasparian',
     subtitle: 'Tropes about Jewish influence and lobbying',
-    image: 'https://commons.wikimedia.org/wiki/Special:FilePath/Ana_Kasparian_2016.jpg',
+    image: 'https://commons.wikimedia.org/wiki/Special:FilePath/Ana_Kasparian_%2827871435561%29_%28cropped%29.jpg',
     description: 'Host and commentator at The Young Turks who has made statements about Israel and pro-Israel advocacy that critics say rely on antisemitic tropes—including suggestions of undue Jewish or "lobby" influence over politics and media, and framing that echoes dual-loyalty and control narratives.',
     sources: [
       { date: 'Various', text: 'Comments on Israel, AIPAC, and "lobby" influence that critics say invoke antisemitic tropes.', url: '#' },
@@ -111,6 +112,7 @@ export const AGITATORS = [
     slug: 'ms-rachel',
     name: 'Ms. Rachel',
     subtitle: 'Controversy over Gaza letter and perceived one-sidedness',
+    image: '/agitators/msrachel.webp',
     description: 'Children\'s educator and internet personality who faced criticism for signing an open letter related to Israel and Gaza that some Jewish and pro-Israel groups said was one-sided, downplayed Hamas terrorism, or contributed to an environment where antisemitic rhetoric flourishes. The controversy centers on the framing of the conflict and the impact of such statements on Jewish families and educators.',
     sources: [
       { date: '2023–2024', text: 'Signed open letter on Gaza that drew criticism from Jewish organizations and parents.', url: '#' },
@@ -120,6 +122,7 @@ export const AGITATORS = [
     slug: 'stew-peters',
     name: 'Stew Peters',
     subtitle: 'Antisemitic conspiracy theories and Great Replacement',
+    image: '/agitators/stewpeters.jpg',
     description: 'Far-right host and podcaster who has promoted antisemitic conspiracy theories, including Great Replacement rhetoric and tropes about "globalists" and elite control that antisemites interpret as Jews. His show has platformed guests who spread Holocaust denial and other antisemitic content.',
     sources: [
       { date: 'Ongoing', text: 'Show content and guests promoting replacement theory and antisemitic conspiracy tropes.', url: '#' },
@@ -129,6 +132,7 @@ export const AGITATORS = [
     slug: 'dan-bilzerian',
     name: 'Dan Bilzerian',
     subtitle: 'Antisemitic posts and memes on social media',
+    image: 'https://commons.wikimedia.org/wiki/Special:FilePath/Dan_Bilzerian.jpg',
     description: 'Social media personality and poker player who has posted antisemitic memes and comments online. His posts have included classic antisemitic imagery and conspiracy tropes, contributing to normalization of Jew-hatred in online spaces.',
     sources: [
       { date: 'Various', text: 'Social media posts containing antisemitic imagery and conspiracy rhetoric.', url: '#' },
@@ -138,6 +142,7 @@ export const AGITATORS = [
     slug: 'lucas-gage',
     name: 'Lucas Gage',
     subtitle: 'Antisemitic rhetoric and Holocaust minimization',
+    image: '/agitators/lucasgage.jpg',
     description: 'Streamer and online commentator who has promoted antisemitic rhetoric and Holocaust minimization. He has used "globalist" and "Zionist" conspiracy language and made statements that downplay or distort the Holocaust and Jewish experience.',
     sources: [
       { date: 'Ongoing', text: 'Streams and posts featuring antisemitic tropes and Holocaust minimization.', url: '#' },
@@ -147,6 +152,7 @@ export const AGITATORS = [
     slug: 'jackson-hinkle',
     name: 'Jackson Hinkle',
     subtitle: 'Anti-Israel rhetoric that crosses into antisemitic tropes',
+    image: 'https://commons.wikimedia.org/wiki/Special:FilePath/Jackson_Hinkle_2022.png',
     description: 'Social media commentator known for virulent anti-Israel content who has repeatedly used rhetoric that critics say crosses into antisemitic tropes: conspiracy framing about "Zionist" control of media and government, and content that blurs Jews with the Israeli state and dehumanizes Israelis.',
     sources: [
       { date: '2023–2024', text: 'Posts and commentary invoking "Zionist" control and conspiracy tropes; millions of followers.', url: '#' },
@@ -156,6 +162,7 @@ export const AGITATORS = [
     slug: 'jake-shields',
     name: 'Jake Shields',
     subtitle: 'Antisemitic conspiracy posts and "globalist" rhetoric',
+    image: '/agitators/jakeshields.jpg',
     description: 'MMA fighter and social media figure who has posted antisemitic conspiracy content online, including references to George Soros and "globalists" in ways that echo classic antisemitic tropes about Jewish power and control.',
     sources: [
       { date: 'Various', text: 'Social media posts promoting antisemitic conspiracy theories and "globalist" tropes.', url: '#' },
@@ -165,6 +172,7 @@ export const AGITATORS = [
     slug: 'ian-carroll',
     name: 'Ian Carroll',
     subtitle: 'Antisemitic and extreme anti-Israel conspiracy content',
+    image: '/agitators/iancarroll.jpg',
     description: 'Commentator and podcaster who has promoted or platformed antisemitic and extreme anti-Israel conspiracy content. His rhetoric and guests have included tropes about "Zionist" or Jewish control and narratives that demonize Israel and blur distinctions between Jews and Israeli policy.',
     sources: [
       { date: 'Ongoing', text: 'Content and guests that critics say promote antisemitic and conspiracy tropes.', url: '#' },
@@ -174,6 +182,7 @@ export const AGITATORS = [
     slug: 'james-fishback',
     name: 'James Fishback',
     subtitle: 'Rhetoric that invokes antisemitic conspiracy tropes',
+    image: '/agitators/jamesfishback.jpg',
     description: 'Commentator and writer who has been criticized for rhetoric that invokes antisemitic conspiracy tropes—including framing of "Zionist" or Jewish influence over media and institutions in ways that echo classic antisemitic narratives about secret control and dual loyalty.',
     sources: [
       { date: 'Various', text: 'Statements and writing that critics say rely on antisemitic conspiracy framing.', url: '#' },
