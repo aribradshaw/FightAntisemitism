@@ -3,6 +3,16 @@
 // startYear/endYear = approximate period of events or composition (BCE = negative).
 
 const GEO = '/geo'
+const MAPS = '/maps'
+
+// Israel borders (incl. Gaza & West Bank) – show for modern period (1948+)
+export const ISRAEL_LAYER = {
+  id: 'israel',
+  name: 'Israel',
+  url: `${MAPS}/israel.kml`,
+  startYear: 1948,
+  endYear: new Date().getFullYear() + 1,
+}
 
 export const BIBLE_GEOCOMPLETE = [
   { id: 'all', name: 'Complete Bible', url: `${GEO}/all.kmz`, type: 'kmz' },
@@ -84,4 +94,13 @@ const ALL_BOOKS = [...BIBLE_GEO_OT, ...BIBLE_GEO_NT]
 export function getBookForYear(year) {
   const y = Number(year)
   return ALL_BOOKS.find((b) => b.startYear != null && b.endYear != null && y >= b.startYear && y <= b.endYear) || null
+}
+
+/** Returns the map layer to show for a given year: Bible book for ancient/classical years, Israel (borders) for 1948+. */
+export function getMapLayerForYear(year) {
+  const y = Number(year)
+  const book = getBookForYear(y)
+  if (book) return book
+  if (y >= ISRAEL_LAYER.startYear && y <= ISRAEL_LAYER.endYear) return ISRAEL_LAYER
+  return null
 }

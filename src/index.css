@@ -405,16 +405,24 @@ h3 { font-size: 1.2rem; }
 .timeline-year-form button:active {
   transform: scale(0.98);
 }
-.timeline-current-year {
+.timeline-year-and-map {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 1.5rem;
   margin: 0.5rem 0 0;
   font-size: 0.8rem;
   font-style: italic;
   color: var(--text-muted);
 }
-.timeline-current-year strong {
+.timeline-year-and-map strong {
   color: var(--accent-blue);
   font-weight: 700;
   font-style: normal;
+}
+.timeline-current-year,
+.timeline-map-layer {
+  margin: 0;
 }
 .timeline-layout {
   display: grid;

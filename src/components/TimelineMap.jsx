@@ -3,10 +3,7 @@ import { MapContainer, TileLayer, GeoJSON } from 'react-leaflet'
 import { kml as kmlToGeoJSON } from '@tmcw/togeojson'
 import JSZip from 'jszip'
 import 'leaflet/dist/leaflet.css'
-import { BIBLE_GEOCOMPLETE, BIBLE_GEO_OT, BIBLE_GEO_NT, getBookForYear } from '../data/bibleGeocoding'
-
-const PRESET_IDS_TO_HIDE = ['all', 'all-books', 'all-chapters', 'all-most-likely']
-const BIBLE_GEO_BUTTONS = BIBLE_GEOCOMPLETE.filter((item) => !PRESET_IDS_TO_HIDE.includes(item.id))
+import { getMapLayerForYear } from '../data/bibleGeocoding'
 
 const MAP_CENTER = [32, 35]
 const MAP_ZOOM = 6
@@ -100,79 +97,21 @@ export default function TimelineMap({ currentYear }) {
     }
   }, [])
 
-  // When timeline year changes, show the Bible book for that year (if any)
+  // When timeline year changes, show Bible book for that year or Israel (1948+); clear layer for years with no match
   useEffect(() => {
     const y = currentYear != null ? Number(currentYear) : null
     if (y == null || Number.isNaN(y)) return
-    const book = getBookForYear(y)
-    if (book) loadItem(book)
+    const layerItem = getMapLayerForYear(y)
+    if (layerItem) {
+      loadItem(layerItem)
+    } else {
+      setLayer(null)
+    }
   }, [currentYear, loadItem])
-
-  const handleBibleGeoLoad = useCallback(
-    (item) => {
-      loadItem(item)
-    },
-    [loadItem]
-  )
 
   return (
     <div className="timeline-map-wrap">
-      <div className="timeline-map-actions">
-        <div className="timeline-map-bible-geo">
-          <div className="timeline-map-bible-geo-buttons">
-            {BIBLE_GEO_BUTTONS.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => handleBibleGeoLoad(item)}
-                disabled={loading}
-                className="timeline-map-preset-btn"
-              >
-                {item.name}
-              </button>
-            ))}
-          </div>
-          <div className="timeline-map-bible-geo-books">
-            <label>
-              <span>Old Testament:</span>
-              <select
-                value={layer?.id && BIBLE_GEO_OT.some((b) => b.id === layer.id) ? layer.id : ''}
-                onChange={(e) => {
-                  const id = e.target.value
-                  if (!id) return
-                  const item = BIBLE_GEO_OT.find((b) => b.id === id)
-                  if (item) handleBibleGeoLoad(item)
-                }}
-                disabled={loading}
-              >
-                <option value="">Select book…</option>
-                {BIBLE_GEO_OT.map((b) => (
-                  <option key={b.id} value={b.id}>{b.name}</option>
-                ))}
-              </select>
-            </label>
-            <label>
-              <span>New Testament:</span>
-              <select
-                value={layer?.id && BIBLE_GEO_NT.some((b) => b.id === layer.id) ? layer.id : ''}
-                onChange={(e) => {
-                  const id = e.target.value
-                  if (!id) return
-                  const item = BIBLE_GEO_NT.find((b) => b.id === id)
-                  if (item) handleBibleGeoLoad(item)
-                }}
-                disabled={loading}
-              >
-                <option value="">Select book…</option>
-                {BIBLE_GEO_NT.map((b) => (
-                  <option key={b.id} value={b.id}>{b.name}</option>
-                ))}
-              </select>
-            </label>
-          </div>
-        </div>
-        {error && <p className="timeline-map-error">{error}</p>}
-      </div>
+      {error && <p className="timeline-map-error">{error}</p>}
       <div className="timeline-map-container">
         <MapContainer
           center={MAP_CENTER}

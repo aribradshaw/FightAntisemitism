@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react'
 import { TbBook2, TbExternalLink } from 'react-icons/tb'
 import TimelineMap from '../components/TimelineMap'
+import { getMapLayerForYear } from '../data/bibleGeocoding'
 
 const MIN_YEAR = -1500
 const MAX_YEAR = new Date().getFullYear()
@@ -77,6 +78,9 @@ export default function Timeline() {
     }
   }
 
+  const mapLayer = getMapLayerForYear(clampedYear)
+  const mapBookLabel = mapLayer && mapLayer.id !== 'israel' ? mapLayer.name : '—'
+
   return (
     <div className="timeline-page">
       <h1 className="timeline-page-title">Timeline</h1>
@@ -109,7 +113,12 @@ export default function Timeline() {
             <button type="submit">Go</button>
           </form>
         </div>
-        <p className="timeline-current-year">Showing events near: <strong>{clampedYear}</strong></p>
+        <div className="timeline-year-and-map">
+          <span className="timeline-current-year">Showing events near: <strong>{clampedYear}</strong></span>
+          {mapBookLabel !== '—' && (
+            <span className="timeline-map-layer">Map by Bible book: <strong>{mapBookLabel}</strong></span>
+          )}
+        </div>
       </div>
 
       <div className="timeline-layout">
