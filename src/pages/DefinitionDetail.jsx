@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { DEFINITIONS } from '../data/definitions'
 import { DEFINITION_SOURCES, HASHEM_FAITH_LABEL } from '../data/hashemFaithSources'
@@ -53,8 +53,10 @@ const CONTENT = {
     title: 'Agitprop',
     body: (
       <>
-        <p>Agitprop (from “agitation” + “propaganda”) is political messaging designed to agitate and mobilize people rather than to inform. It uses slogans, imagery, and one-sided framing to provoke strong emotion and action.</p>
-        <p>Antisemitic and anti-Israel narratives are often spread through agitprop: memes, chants, and distorted claims that bypass critical thinking. Recognizing agitprop helps you separate emotional manipulation from factual argument.</p>
+        <p>Agitprop (from “agitation” + “propaganda”) is political messaging designed to agitate and mobilize people rather than to inform. It uses slogans, imagery, and one-sided framing to provoke strong emotion and action. The term has Soviet origins; the techniques are still used to spread antisemitic and anti-Israel narratives.</p>
+        <p>Common tactics include false historical claims (e.g. that Israel was “founded upon the mass displacement of Palestinians” while ignoring the 1948 war launched by Arab armies, the Balfour Declaration, and UN partition); the apartheid/Bantustan libel (false analogies to South African Bantustans when the legal and historical context is entirely different); and one-sided “peace” rhetoric that demands only Israeli concessions while ignoring Palestinian rejectionism and Hamas’s charter.</p>
+        <p>As Simon Plosker wrote in HonestReporting, opinion pieces that present themselves as critique can be “thinly veiled attack[s] on Israel” full of “anti-Israel propaganda and falsehoods.” South African DIRCO’s posture at the ICJ has been described as a “descent into what eerily looks like old Soviet Agitprop”—misusing terms like apartheid, colonialism, and genocide while ignoring South Africa’s own failure to arrest Omar al-Bashir for genocide, and Hamas’s atrocities and rejection of international law.</p>
+        <p>The “genocide” charge against Israel has a long agitprop pedigree: it originated with Soviet propagandists after 1967, resurfaced at Durban 2001, was amplified by Norman Finkelstein and others, and has been codified in resolutions and media headlines that present Potemkin consensus rather than sober legal or factual analysis. Recognizing agitprop helps you separate emotional manipulation and one-sided narrative from factual argument and international law.</p>
       </>
     ),
   },
@@ -134,6 +136,7 @@ const CONTENT = {
 
 function DefinitionDetail() {
   const { slug } = useParams()
+  const [showLong, setShowLong] = useState(false)
   const def = DEFINITIONS.find((d) => d.slug === slug)
   const content = slug ? CONTENT[slug] : null
 
@@ -146,19 +149,39 @@ function DefinitionDetail() {
   }
 
   const furtherReading = DEFINITION_SOURCES[slug]
+  const hasLong = content.body != null || slug === 'genocide'
 
   return (
     <div className="definition-detail">
       <h1>{content.title}</h1>
-      {slug === 'genocide' ? (
-        <GenocideInteractive />
-      ) : (
-        <div className="definition-body">{content.body}</div>
+      <p className="definition-short">{def.summary}</p>
+      {hasLong && (
+        <>
+          <button
+            type="button"
+            className="definition-toggle"
+            onClick={() => setShowLong((v) => !v)}
+            aria-expanded={showLong}
+          >
+            {showLong ? 'Show less' : 'Read full definition'}
+          </button>
+          {showLong && (
+            <div className="definition-long">
+              {slug === 'genocide' ? (
+                <GenocideInteractive />
+              ) : (
+                <div className="definition-body">{content.body}</div>
+              )}
+            </div>
+          )}
+        </>
       )}
       {furtherReading && furtherReading.length > 0 && (
         <section className="definition-sources" aria-label="Further reading">
           <h2>Further reading</h2>
-          <p className="definition-sources-attribution">From <a href="https://hashem.faith/" target="_blank" rel="noopener noreferrer">{HASHEM_FAITH_LABEL}</a>:</p>
+          {slug !== 'agitprop' && (
+            <p className="definition-sources-attribution">From <a href="https://hashem.faith/" target="_blank" rel="noopener noreferrer">{HASHEM_FAITH_LABEL}</a>:</p>
+          )}
           <ul>
             {furtherReading.map((s) => (
               <li key={s.url}>

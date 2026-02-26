@@ -19,11 +19,8 @@ export default function Conspiracies() {
   return (
     <div className="conspiracies-page">
       <h1 className="hub-title">Conspiracy Theories</h1>
-      <p className="conspiracies-intro">
-        Common antisemitic conspiracy myths—and the facts that refute them. Click a card for details, categories, and sources.
-      </p>
       {loading ? (
-        <p className="conspiracies-intro">Loading…</p>
+        <p className="conspiracies-loading">Loading…</p>
       ) : (
         <ul className="conspiracies-masonry">
           {conspiracies.map((c) => (

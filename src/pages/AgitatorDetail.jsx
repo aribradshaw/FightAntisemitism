@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { AGITATORS as FALLBACK_AGITATORS } from '../data/agitators'
 
 export default function AgitatorDetail() {
@@ -57,12 +57,19 @@ export default function AgitatorDetail() {
         <h2>Comments, actions &amp; sources</h2>
         <ul className="agitator-timeline">
           {person.sources.map((s, i) => (
-            <li key={i}>
-              <span className="agitator-date">{s.date}</span>
-              <p>{s.text}</p>
-              {s.url && s.url !== '#' && (
-                <a href={s.url} target="_blank" rel="noopener noreferrer">Source</a>
-              )}
+            <li key={i} className="agitator-source-item">
+              <div className="agitator-source-meta">
+                <span className="agitator-date">{s.date}</span>
+                {s.url && s.url !== '#' && (
+                  <span className="agitator-source-action">
+                    {s.url.startsWith('/')
+                      ? <Link to={s.url} className="agitator-source-btn agitator-source-btn-internal">Open</Link>
+                      : <a href={s.url} target="_blank" rel="noopener noreferrer" className="agitator-source-btn">Source</a>
+                    }
+                  </span>
+                )}
+              </div>
+              <p className="agitator-source-text">{s.text}</p>
             </li>
           ))}
         </ul>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { FALLBACK_TALMUD_ENTRIES } from '../data/talmud'
+import TagWithPopup from '../components/TagWithPopup'
 
 export default function TalmudDetail() {
   const { slug } = useParams()
@@ -39,20 +40,11 @@ export default function TalmudDetail() {
   }
 
   return (
-    <div className="talmud-detail">
+    <div className="talmud-detail detail-page-with-parent">
+      <div className="corner-parent-ribbon" aria-hidden="true"><span>TALMUD</span></div>
       <h1 className="talmud-title">&ldquo;{entry.title}&rdquo;</h1>
       {entry.category && (
-        <p className="talmud-category">
-          <strong>Category:</strong> {entry.category}
-        </p>
-      )}
-      {entry.tags && entry.tags.length > 0 && (
-        <div className="talmud-tags">
-          <strong>Tags:</strong>{' '}
-          {entry.tags.map((t, i) => (
-            <span key={i} className="talmud-tag">{t}</span>
-          ))}
-        </div>
+        <span className="talmud-category-pill">{entry.category}</span>
       )}
       <div className="talmud-body">
         {entry.body_text ? (
@@ -65,6 +57,19 @@ export default function TalmudDetail() {
           <p>{entry.summary}</p>
         ) : null}
       </div>
+      {entry.tags && entry.tags.length > 0 && (
+        <div className="talmud-tags" aria-label="Tags">
+          {entry.tags.map((t, i) => (
+            <TagWithPopup
+              key={i}
+              tag={t}
+              className="talmud-tag"
+              currentSlug={entry.slug}
+              currentParent="talmud"
+            />
+          ))}
+        </div>
+      )}
       {entry.sources && entry.sources.length > 0 && (
         <section className="talmud-sources" aria-label="Sources">
           <h2>Sources &amp; further reading</h2>

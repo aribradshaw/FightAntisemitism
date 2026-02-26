@@ -24,6 +24,9 @@ export default function Hub() {
             <h2 className="hub-card-title">{m.title}</h2>
           </Link>
         ))}
+        <Link to="/slideshow" className="hub-slideshow-button">
+          Slideshow
+        </Link>
       </div>
     </div>
   )

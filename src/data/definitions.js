@@ -12,5 +12,5 @@ export const DEFINITIONS = [
   { slug: 'zog', title: 'ZOG', summary: '"Zionist Occupied Government"—antisemitic conspiracy term.' },
   { slug: 'axis-of-evil', title: 'Axis of Evil', summary: 'U.S. phrase for state sponsors of terrorism; sometimes misused.' },
   { slug: 'fara', title: 'FARA', summary: 'Foreign Agents Registration Act and how it is weaponized against Jews.' },
-  { slug: 'agitprop', title: 'Agitprop', summary: 'Agitation and propaganda—how political messaging is used to sway opinion.' },
+  { slug: 'agitprop', title: 'Agitprop', summary: 'Agitation and propaganda—political messaging used to sway opinion, often with falsehoods.' },
 ]

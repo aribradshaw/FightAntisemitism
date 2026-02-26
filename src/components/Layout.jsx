@@ -1,5 +1,7 @@
+import { useState, useEffect } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { IoReturnUpBackOutline } from 'react-icons/io5'
+import { useTransitionState } from '../context/TransitionContext'
 
 function getParentPath(pathname) {
   // Detail pages → list page
@@ -21,6 +23,23 @@ export default function Layout() {
   const isExplore = pathname === '/explore'
   const parentPath = getParentPath(pathname)
   const isAtTop = pathname === '/explore'
+  const transitionState = useTransitionState()
+  const [enterActive, setEnterActive] = useState(false)
+
+  useEffect(() => {
+    if (transitionState === 'entering') {
+      const id = requestAnimationFrame(() => setEnterActive(true))
+      return () => cancelAnimationFrame(id)
+    }
+    setEnterActive(false)
+  }, [transitionState])
+
+  const transitionClass =
+    transitionState === 'exiting'
+      ? 'page-transition page-transition--exiting'
+      : transitionState === 'entering'
+        ? `page-transition page-transition--entering${enterActive ? ' page-transition--enter-active' : ''}`
+        : 'page-transition'
 
   return (
     <div className={`layout ${isExplore ? 'layout--explore' : ''}`}>
@@ -33,7 +52,9 @@ export default function Layout() {
         <IoReturnUpBackOutline aria-hidden />
       </button>
       <main className="layout-main">
-        <Outlet />
+        <div className={transitionClass} aria-busy={transitionState !== 'idle'}>
+          <Outlet />
+        </div>
       </main>
     </div>
   )

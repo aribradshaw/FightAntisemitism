@@ -51,7 +51,12 @@ export const DEFINITION_SOURCES = {
   zionism: [
     POSTS['what-does-israel-mean'],
   ].map((p) => ({ label: p.label, url: url(p.path) })),
-  agitprop: [],
+  agitprop: [
+    { label: 'Anti-Israel Agitprop in The Australian', url: 'https://honestreporting.com/anti-israel-agitprop-in-the-australian/' },
+    { label: "DIRCO's Descent into Palestinian Agitprop (Politicsweb)", url: 'https://www.politicsweb.co.za/opinion/dircos-descent-into-palestinian-agitprop' },
+    { label: 'Holocaust Agitprop in Berlin (Tablet)', url: 'https://www.tabletmag.com/sections/news/articles/holocaust-agitprop-in-berlin' },
+    { label: 'From Soviet Agitprop to Potemkin Scholarship (Times of Israel)', url: 'https://blogs.timesofisrael.com/from-soviet-agitprop-to-potemkin-scholarship-the-long-life-of-a-genocide-smear/' },
+  ],
   goy: [
     POSTS['where-do-gentiles-fit-into-the-jewish-world-view'],
     POSTS['gentiles-are-human'],

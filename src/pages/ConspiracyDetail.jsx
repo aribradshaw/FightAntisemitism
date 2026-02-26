@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { FALLBACK_CONSPIRACIES } from '../data/conspiracies'
+import TagWithPopup from '../components/TagWithPopup'
 
 export default function ConspiracyDetail() {
   const { slug } = useParams()
@@ -39,20 +40,11 @@ export default function ConspiracyDetail() {
   }
 
   return (
-    <div className="conspiracy-detail">
+    <div className="conspiracy-detail detail-page-with-parent">
+      <div className="corner-parent-ribbon" aria-hidden="true"><span>CONSPIRACIES</span></div>
       <h1 className="conspiracy-title">&ldquo;{conspiracy.title}&rdquo;</h1>
       {conspiracy.category && (
-        <p className="conspiracy-category">
-          <strong>Category:</strong> {conspiracy.category}
-        </p>
-      )}
-      {conspiracy.tags && conspiracy.tags.length > 0 && (
-        <div className="conspiracy-tags">
-          <strong>Tags:</strong>{' '}
-          {conspiracy.tags.map((t, i) => (
-            <span key={i} className="conspiracy-tag">{t}</span>
-          ))}
-        </div>
+        <span className="conspiracy-category-pill">{conspiracy.category}</span>
       )}
       <div className="conspiracy-body">
         {conspiracy.body_text ? (
@@ -65,6 +57,19 @@ export default function ConspiracyDetail() {
           <p>{conspiracy.summary}</p>
         ) : null}
       </div>
+      {conspiracy.tags && conspiracy.tags.length > 0 && (
+        <div className="conspiracy-tags" aria-label="Tags">
+          {conspiracy.tags.map((t, i) => (
+            <TagWithPopup
+              key={i}
+              tag={t}
+              className="conspiracy-tag"
+              currentSlug={conspiracy.slug}
+              currentParent="conspiracies"
+            />
+          ))}
+        </div>
+      )}
       {conspiracy.sources && conspiracy.sources.length > 0 && (
         <section className="conspiracy-sources" aria-label="Sources">
           <h2>Sources &amp; further reading</h2>

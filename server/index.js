@@ -9,21 +9,10 @@ import mysql from 'mysql2/promise'
 import { readFileSync } from 'fs'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
+import { config as loadEnv } from 'dotenv'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-
-function loadEnv() {
-  try {
-    const envPath = join(__dirname, '..', '.env')
-    const content = readFileSync(envPath, 'utf8')
-    content.split('\n').forEach((line) => {
-      const m = line.match(/^([^#=]+)=(.*)$/)
-      if (m) process.env[m[1].trim()] = m[2].trim().replace(/^["']|["']$/g, '')
-    })
-  } catch (_) {}
-}
-
-loadEnv()
+loadEnv({ path: join(__dirname, '..', '.env') })
 
 const config = {
   host: process.env.DB_HOST || '192.232.249.125',
@@ -179,6 +168,35 @@ app.get('/api/talmud', async (_req, res) => {
   } catch (err) {
     console.error('GET /api/talmud:', err.message)
     res.status(500).json({ error: 'Failed to load Talmud entries.' })
+  }
+})
+
+// GET /api/by-tag?tag=... — items (conspiracies, talmud, etc.) that have this tag
+app.get('/api/by-tag', async (req, res) => {
+  const tag = typeof req.query.tag === 'string' ? req.query.tag.trim() : ''
+  if (!tag) {
+    return res.json({ items: [] })
+  }
+  try {
+    const conn = await getConnection()
+    const tagJson = JSON.stringify(tag)
+    const [conspiracies] = await conn.execute(
+      'SELECT slug, title FROM conspiracies WHERE JSON_CONTAINS(tags, ?, "$")',
+      [tagJson]
+    )
+    const [talmud] = await conn.execute(
+      'SELECT slug, title FROM talmud_entries WHERE JSON_CONTAINS(tags, ?, "$")',
+      [tagJson]
+    )
+    conn.end()
+    const items = [
+      ...conspiracies.map((r) => ({ slug: r.slug, title: r.title, parent: 'conspiracies' })),
+      ...talmud.map((r) => ({ slug: r.slug, title: r.title, parent: 'talmud' })),
+    ]
+    res.json({ items })
+  } catch (err) {
+    console.error('GET /api/by-tag:', err.message)
+    res.status(500).json({ error: 'Failed to load items by tag.', items: [] })
   }
 })
 

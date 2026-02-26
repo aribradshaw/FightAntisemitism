@@ -10,6 +10,7 @@ export const AGITATORS = [
       { date: '2022', text: 'Platformed white nationalist Nick Fuentes and Ye (Kanye West) after antisemitic outbursts.', url: '#' },
       { date: '2023', text: 'Suggested Jewish influence over media and “why do I have to love the Holocaust?” rhetoric.', url: '#' },
       { date: '2024', text: 'Continued rhetoric about “globalist” elites and opposition to Israel aid.', url: '#' },
+      { date: '2025', text: '36 Falsehoods in One Huckabee Interview: Tucker Carlson Fact-Checked — catalog of 36 distinct falsehoods from the Huckabee interview.', url: '/agitators/tucker-carlson/36-falsehoods' },
     ],
   },
   {
