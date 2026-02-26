@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { MISCONCEPTION_SOURCES, HASHEM_FAITH_LABEL } from '../data/hashemFaithSources'
 
-const TOPIC_TITLES = { israel: 'Israel', 'jewish-race': 'The Jewish "Race"' }
+const TOPIC_TITLES = { israel: 'Israel', 'jewish-race': 'The Jewish Race' }
 
 const TOPIC_CONTENT = {
   israel: {
@@ -27,7 +27,7 @@ const TOPIC_CONTENT = {
     ),
   },
   'jewish-race': {
-    title: 'The Jewish “Race”',
+    title: 'The Jewish Race',
     body: (
       <>
         <p><strong>“Are Jews a race?”</strong> Jews are an ethnoreligious group. Identity is passed through family and community; there is genetic diversity but also shared ancestry among many Jews. Nazis racialized Jews to justify genocide; today, many Jews identify as both an ethnicity and a religion.</p>

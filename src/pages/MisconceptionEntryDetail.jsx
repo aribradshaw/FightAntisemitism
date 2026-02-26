@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 
-const TOPIC_TITLES = { israel: 'Israel', 'jewish-race': 'The Jewish "Race"' }
+const TOPIC_TITLES = { israel: 'Israel', 'jewish-race': 'The Jewish Race' }
 
 export default function MisconceptionEntryDetail() {
   const { topic, slug } = useParams()

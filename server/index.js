@@ -6,7 +6,7 @@
 
 import express from 'express'
 import mysql from 'mysql2/promise'
-import { readFileSync } from 'fs'
+import { existsSync } from 'fs'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 import { config as loadEnv } from 'dotenv'
@@ -21,7 +21,8 @@ const config = {
   database: process.env.DB_NAME || 'redsaber_antisemitism',
 }
 
-const PORT = Number(process.env.API_PORT) || 3001
+const PORT = Number(process.env.PORT) || Number(process.env.API_PORT) || 3001
+const isProduction = process.env.NODE_ENV === 'production'
 
 const app = express()
 
@@ -234,6 +235,17 @@ app.get('/api/by-tag', async (req, res) => {
     res.status(500).json({ error: 'Failed to load items by tag.', items: [] })
   }
 })
+
+// Production: serve built frontend and SPA fallback
+if (isProduction) {
+  const distPath = join(__dirname, '..', 'dist')
+  if (existsSync(distPath)) {
+    app.use(express.static(distPath))
+    app.get('*', (_req, res) => {
+      res.sendFile(join(distPath, 'index.html'))
+    })
+  }
+}
 
 app.listen(PORT, () => {
   console.log(`API server running at http://localhost:${PORT}`)

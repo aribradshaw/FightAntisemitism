@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "server": "node server/index.js",
+    "start": "node server/index.js",
     "db:schema": "node database/run-schema.js",
     "db:seed": "node database/seed.js"
   },
