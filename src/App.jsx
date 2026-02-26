@@ -10,6 +10,7 @@ import AgitatorDetail from './pages/AgitatorDetail'
 import Huckabee36Falsehoods from './pages/Huckabee36Falsehoods'
 import Misconceptions from './pages/Misconceptions'
 import MisconceptionTopic from './pages/MisconceptionTopic'
+import MisconceptionEntryDetail from './pages/MisconceptionEntryDetail'
 import Conspiracies from './pages/Conspiracies'
 import ConspiracyDetail from './pages/ConspiracyDetail'
 import Talmud from './pages/Talmud'
@@ -62,6 +63,7 @@ function AppRoutes() {
           <Route path="agitators/:slug" element={<AgitatorDetail />} />
           <Route path="misconceptions" element={<Misconceptions />} />
           <Route path="misconceptions/:topic" element={<MisconceptionTopic />} />
+          <Route path="misconceptions/:topic/:slug" element={<MisconceptionEntryDetail />} />
           <Route path="conspiracies" element={<Conspiracies />} />
           <Route path="conspiracies/:slug" element={<ConspiracyDetail />} />
           <Route path="talmud" element={<Talmud />} />

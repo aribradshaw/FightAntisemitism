@@ -7,6 +7,7 @@ function getParentPath(pathname) {
   // Detail pages → list page
   if (/^\/definitions\/[^/]+$/.test(pathname)) return '/definitions'
   if (/^\/agitators\/[^/]+$/.test(pathname)) return '/agitators'
+  if (/^\/misconceptions\/[^/]+\/[^/]+$/.test(pathname)) return pathname.replace(/\/[^/]+$/, '') // e.g. /misconceptions/israel/uss-liberty → /misconceptions/israel
   if (/^\/misconceptions\/[^/]+$/.test(pathname)) return '/misconceptions'
   if (/^\/conspiracies\/[^/]+$/.test(pathname)) return '/conspiracies'
   // List/top-level sections → hub

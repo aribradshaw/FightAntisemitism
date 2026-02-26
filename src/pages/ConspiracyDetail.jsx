@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { FALLBACK_CONSPIRACIES } from '../data/conspiracies'
 import TagWithPopup from '../components/TagWithPopup'
 
 export default function ConspiracyDetail() {
@@ -12,14 +11,11 @@ export default function ConspiracyDetail() {
     fetch('/api/conspiracies')
       .then((res) => (res.ok ? res.json() : []))
       .then((data) => {
-        const list = Array.isArray(data) && data.length > 0 ? data : FALLBACK_CONSPIRACIES
+        const list = Array.isArray(data) ? data : []
         const item = list.find((c) => c.slug === slug) || null
         setConspiracy(item ? { ...item, body_text: item.body_text || item.summary || '', tags: item.tags || [], sources: item.sources || [] } : null)
       })
-      .catch(() => {
-        const item = FALLBACK_CONSPIRACIES.find((c) => c.slug === slug) || null
-        setConspiracy(item ? { ...item, body_text: '', tags: [], sources: [] } : null)
-      })
+      .catch(() => setConspiracy(null))
       .finally(() => setLoading(false))
   }, [slug])
 

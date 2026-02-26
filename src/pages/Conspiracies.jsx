@@ -1,18 +1,17 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { FALLBACK_CONSPIRACIES } from '../data/conspiracies'
 
 export default function Conspiracies() {
-  const [conspiracies, setConspiracies] = useState(FALLBACK_CONSPIRACIES)
+  const [conspiracies, setConspiracies] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     fetch('/api/conspiracies')
       .then((res) => (res.ok ? res.json() : []))
       .then((data) => {
-        if (Array.isArray(data) && data.length > 0) setConspiracies(data)
+        setConspiracies(Array.isArray(data) ? data : [])
       })
-      .catch(() => {})
+      .catch(() => setConspiracies([]))
       .finally(() => setLoading(false))
   }, [])
 

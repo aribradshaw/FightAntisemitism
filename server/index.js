@@ -171,6 +171,41 @@ app.get('/api/talmud', async (_req, res) => {
   }
 })
 
+// GET /api/misconception-entries/:topic — entries for a misconception topic (israel | jewish-race)
+app.get('/api/misconception-entries/:topic', async (req, res) => {
+  const topic = (req.params.topic || '').toLowerCase()
+  if (topic !== 'israel' && topic !== 'jewish-race') {
+    return res.json([])
+  }
+  try {
+    const conn = await getConnection()
+    const [entries] = await conn.execute(
+      'SELECT id, topic_slug, slug, title, summary, body_text, sort_order FROM misconception_entries WHERE topic_slug = ? ORDER BY sort_order ASC, title ASC',
+      [topic]
+    )
+    const [sources] = await conn.execute(
+      'SELECT misconception_entry_id, label, url, sort_order FROM misconception_entry_sources ORDER BY misconception_entry_id, sort_order ASC'
+    )
+    conn.end()
+    const sourcesByEntry = {}
+    for (const s of sources) {
+      if (!sourcesByEntry[s.misconception_entry_id]) sourcesByEntry[s.misconception_entry_id] = []
+      sourcesByEntry[s.misconception_entry_id].push({ label: s.label, url: s.url })
+    }
+    const result = entries.map((e) => ({
+      slug: e.slug,
+      title: e.title,
+      summary: e.summary,
+      body_text: e.body_text,
+      sources: sourcesByEntry[e.id] || [],
+    }))
+    res.json(result)
+  } catch (err) {
+    console.error('GET /api/misconception-entries/:topic:', err.message)
+    res.status(500).json({ error: 'Failed to load misconception entries.' })
+  }
+})
+
 // GET /api/by-tag?tag=... — items (conspiracies, talmud, etc.) that have this tag
 app.get('/api/by-tag', async (req, res) => {
   const tag = typeof req.query.tag === 'string' ? req.query.tag.trim() : ''

@@ -10,6 +10,7 @@ export const AGITATORS = [
       { date: '2022', text: 'Platformed white nationalist Nick Fuentes and Ye (Kanye West) after antisemitic outbursts.', url: '#' },
       { date: '2023', text: 'Suggested Jewish influence over media and “why do I have to love the Holocaust?” rhetoric.', url: '#' },
       { date: '2024', text: 'Continued rhetoric about “globalist” elites and opposition to Israel aid.', url: '#' },
+      { date: '2025', text: 'At Charlie Kirk’s memorial eulogy, he invoked “guys sitting around eating hummus” plotting to silence truth-tellers—a food associated with Jews that was not around when Jesus lived—to allege that the Jews killed Jesus. That is the Jewish deicide conspiracy theory.', url: 'https://www.msnbc.com/opinion/msnbc-opinion/tucker-carlson-charlie-kirk-eulogy-antisemitism-maga-rcna233067' },
       { date: '2025', text: '36 Falsehoods in One Huckabee Interview: Tucker Carlson Fact-Checked — catalog of 36 distinct falsehoods from the Huckabee interview.', url: '/agitators/tucker-carlson/36-falsehoods' },
     ],
   },

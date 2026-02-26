@@ -4,7 +4,7 @@ export const DEFINITIONS = [
   { slug: 'talmud', title: 'Talmud', summary: 'What is the Talmud? Central text of Rabbinic Judaism.' },
   { slug: 'torah', title: 'Torah', summary: 'The first five books of the Hebrew Bible and Jewish teaching.' },
   { slug: 'tanakh', title: 'Tanakh', summary: 'The Hebrew Bible: Torah, Prophets, and Writings.' },
-  { slug: 'israel', title: 'Israel', summary: 'The state, the people, and the name.' },
+  { slug: 'israel', title: 'Israel', summary: 'Israel can mean: (1) the modern State of Israel, established in 1948; (2) the ancient kingdoms of Israel and Judah; (3) the biblical name for the Jewish people (literally "one who wrestles with God," from the story of Jacob).' },
   { slug: 'genocide', title: 'Genocide', summary: 'Legal and historical definition—and when it applies.' },
   { slug: 'holocaust', title: 'Holocaust', summary: 'The Nazi genocide of European Jewry (1933–1945).' },
   { slug: 'antisemitism', title: 'Antisemitism', summary: 'Hatred or prejudice against Jews.' },

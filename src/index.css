@@ -212,6 +212,16 @@ h3 { font-size: 1.2rem; }
   padding: 0.5rem 1rem;
   font-size: 0.75rem;
   color: var(--text-muted);
+  /* Outside stroke via text-shadow (no blur = crisp outline) */
+  text-shadow:
+    -2px -2px 0 var(--bg-main),
+    -2px 0 0 var(--bg-main),
+    -2px 2px 0 var(--bg-main),
+    0 -2px 0 var(--bg-main),
+    0 2px 0 var(--bg-main),
+    2px -2px 0 var(--bg-main),
+    2px 0 0 var(--bg-main),
+    2px 2px 0 var(--bg-main);
   text-align: left;
 }
 
@@ -764,12 +774,18 @@ h3 { font-size: 1.2rem; }
   list-style: none;
   padding: 0;
   margin: 0;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.75rem;
+  column-count: 1;
+  column-gap: 0.75rem;
+}
+.definitions-list li {
+  break-inside: avoid;
+  margin-bottom: 0.75rem;
+}
+@media (min-width: 600px) {
+  .definitions-list { column-count: 2; }
 }
 @media (min-width: 900px) {
-  .definitions-list { grid-template-columns: repeat(3, 1fr); }
+  .definitions-list { column-count: 3; }
 }
 .definitions-card {
   display: block;
@@ -803,8 +819,18 @@ h3 { font-size: 1.2rem; }
   text-decoration: underline;
   font-family: inherit;
 }
+.definition-toggle.ghost {
+  padding: 0.6em 1.2em;
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+.definition-toggle.ghost:hover { color: var(--accent-blue-light); }
 .definition-toggle:hover { color: var(--accent-blue-light); }
 .definition-long { margin-top: 0.5rem; }
+.definition-long .definition-body,
+.definition-long .genocide-interactive { font-style: italic; }
 .definition-body p { margin-bottom: 1rem; }
 .definition-body p:last-child { margin-bottom: 0; }
 .definition-sources { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
@@ -1078,6 +1104,53 @@ h3 { font-size: 1.2rem; }
 .misconception-sources li { margin-bottom: 0.35rem; }
 .misconception-sources a { color: var(--accent-gold); text-decoration: underline; }
 .misconception-sources a:hover { text-decoration: none; }
+
+/* Misconception topic list (Israel, Jewish Race) — masonry like conspiracies */
+.misconception-topic-list { display: flex; flex-direction: column; justify-content: center; min-height: calc(100vh - 120px); }
+.misconception-topic-list .hub-title { margin-bottom: 1.5rem; text-align: center; }
+.misconception-loading { text-align: center; color: var(--text-secondary); margin: 0; }
+.misconception-masonry {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  column-count: 3;
+  column-gap: 1.25rem;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.misconception-masonry li { break-inside: avoid; margin-bottom: 0.75rem; }
+.misconception-card {
+  display: block;
+  padding: 0.75rem 1rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-decoration: none;
+  color: inherit;
+  font-size: 0.95rem;
+  line-height: 1.35;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.misconception-card:hover { border-color: var(--accent-gold); box-shadow: var(--shadow-hover); text-decoration: none; color: inherit; }
+@media (max-width: 720px) { .misconception-masonry { column-count: 2; } }
+@media (max-width: 480px) { .misconception-masonry { column-count: 1; } }
+
+/* Misconception entry detail (single myth page) */
+.misconception-entry-detail { max-width: 720px; margin: 0 auto; }
+.misconception-entry-title { margin: 0 0 0.5rem; font-size: 1.35rem; }
+.misconception-entry-body { margin-bottom: 1.5rem; }
+.misconception-entry-body h3 { font-size: 1rem; margin: 1.25rem 0 0.4rem; color: var(--text-primary); }
+.misconception-entry-body h3:first-child { margin-top: 0; }
+.misconception-entry-body p { margin-bottom: 0.75rem; }
+.misconception-entry-body p:last-child { margin-bottom: 0; }
+.misconception-entry-sources { padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.misconception-entry-sources h2 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+.misconception-entry-sources ul { margin: 0; padding-left: 1.25rem; }
+.misconception-entry-sources li { margin-bottom: 0.35rem; }
+.misconception-entry-sources a { color: var(--accent-blue); }
+.misconception-entry-back { margin-top: 1.5rem; }
+.misconception-entry-back a { color: var(--accent-blue); }
 
 /* Conspiracy Theories — masonry list */
 .conspiracies-page {

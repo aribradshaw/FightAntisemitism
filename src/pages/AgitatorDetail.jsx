@@ -69,7 +69,17 @@ export default function AgitatorDetail() {
                   </span>
                 )}
               </div>
-              <p className="agitator-source-text">{s.text}</p>
+              <p className="agitator-source-text">
+                {s.text && s.text.includes('Jewish deicide conspiracy theory') ? (
+                  <>
+                    {s.text.split('Jewish deicide conspiracy theory')[0]}
+                    <Link to="/conspiracies/jews-killed-jesus">Jewish deicide conspiracy theory</Link>
+                    {s.text.split('Jewish deicide conspiracy theory')[1]}
+                  </>
+                ) : (
+                  s.text
+                )}
+              </p>
             </li>
           ))}
         </ul>
