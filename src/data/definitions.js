@@ -1,8 +1,16 @@
 export const DEFINITIONS = [
   { slug: 'jew', title: 'Jew', summary: 'Who is a Jew? Religion, people, and identity.' },
+  { slug: 'goy', title: 'Goy', summary: 'Hebrew/Yiddish term for a non-Jew; meaning and misuse.' },
   { slug: 'talmud', title: 'Talmud', summary: 'What is the Talmud? Central text of Rabbinic Judaism.' },
+  { slug: 'torah', title: 'Torah', summary: 'The first five books of the Hebrew Bible and Jewish teaching.' },
+  { slug: 'tanakh', title: 'Tanakh', summary: 'The Hebrew Bible: Torah, Prophets, and Writings.' },
+  { slug: 'israel', title: 'Israel', summary: 'The state, the people, and the name.' },
   { slug: 'genocide', title: 'Genocide', summary: 'Legal and historical definition—and when it applies.' },
+  { slug: 'holocaust', title: 'Holocaust', summary: 'The Nazi genocide of European Jewry (1933–1945).' },
   { slug: 'antisemitism', title: 'Antisemitism', summary: 'Hatred or prejudice against Jews.' },
   { slug: 'zionism', title: 'Zionism', summary: 'Jewish self-determination and the state of Israel.' },
+  { slug: 'zog', title: 'ZOG', summary: '"Zionist Occupied Government"—antisemitic conspiracy term.' },
+  { slug: 'axis-of-evil', title: 'Axis of Evil', summary: 'U.S. phrase for state sponsors of terrorism; sometimes misused.' },
+  { slug: 'fara', title: 'FARA', summary: 'Foreign Agents Registration Act and how it is weaponized against Jews.' },
   { slug: 'agitprop', title: 'Agitprop', summary: 'Agitation and propaganda—how political messaging is used to sway opinion.' },
 ]

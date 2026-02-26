@@ -13,6 +13,7 @@ import Layout from './components/Layout'
 import './App.css'
 
 function App() {
+  const currentYear = new Date().getFullYear()
   return (
     <BrowserRouter>
       <Routes>
@@ -29,6 +30,9 @@ function App() {
           <Route path="stylesheet" element={<Stylesheet />} />
         </Route>
       </Routes>
+      <div className="app-copyright" aria-label="Copyright and disclaimer">
+        © {currentYear} Ari Daniel Bradshaw. All rights reserved. This site is for educational purposes.
+      </div>
     </BrowserRouter>
   )
 }

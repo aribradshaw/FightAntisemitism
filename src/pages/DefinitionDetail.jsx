@@ -57,6 +57,78 @@ const CONTENT = {
       </>
     ),
   },
+  goy: {
+    title: 'Goy',
+    body: (
+      <>
+        <p><em>Goy</em> (Hebrew גוי, plural <em>goyim</em>) is the Hebrew and Yiddish word for a non-Jew—equivalent to "gentile" in English. It literally means "nation" or "people" and in Jewish usage is neutral, not derogatory.</p>
+        <p>Antisemites sometimes claim that Jews use the word to demean non-Jews. In Jewish texts and everyday speech, <em>goy</em> is simply the term for someone who is not Jewish. Hashem.Faith has articles on how gentiles are viewed in Jewish tradition.</p>
+      </>
+    ),
+  },
+  israel: {
+    title: 'Israel',
+    body: (
+      <>
+        <p>Israel can mean: (1) the modern State of Israel, established in 1948; (2) the ancient kingdoms of Israel and Judah; (3) the biblical name for the Jewish people (literally "one who wrestles with God," from the story of Jacob).</p>
+        <p>Jewish ties to the land are ancient and continuous. Hashem.Faith explores what "Israel" means biblically and historically.</p>
+      </>
+    ),
+  },
+  zog: {
+    title: 'ZOG',
+    body: (
+      <>
+        <p>ZOG stands for "Zionist Occupied Government." It is a conspiracy term used by white supremacists and antisemites to claim that Jews secretly control the U.S. government—and by extension, media, finance, and culture.</p>
+        <p>There is no evidence for this. The idea recycles centuries-old antisemitic conspiracy myths.</p>
+      </>
+    ),
+  },
+  holocaust: {
+    title: 'Holocaust',
+    body: (
+      <>
+        <p>The Holocaust (Hebrew <em>Shoah</em>) was the systematic genocide of European Jewry by Nazi Germany and its collaborators, roughly 1933–1945. Approximately six million Jews were murdered—two-thirds of European Jewry.</p>
+        <p>Holocaust denial or minimization is antisemitic. The evidence—documentation, testimony, sites, and scholarship—is overwhelming.</p>
+      </>
+    ),
+  },
+  'axis-of-evil': {
+    title: 'Axis of Evil',
+    body: (
+      <>
+        <p>"Axis of Evil" was a phrase used by U.S. President George W. Bush in 2002 to describe governments that sponsor terrorism: Iraq, Iran, and North Korea.</p>
+        <p>The term is sometimes misused in antisemitic or anti-Israel rhetoric to suggest that Israel or "Zionists" are part of a global evil conspiracy.</p>
+      </>
+    ),
+  },
+  fara: {
+    title: 'FARA',
+    body: (
+      <>
+        <p>FARA is the U.S. Foreign Agents Registration Act. It requires people and groups acting as agents of foreign principals to register and disclose their activities.</p>
+        <p>Antisemitic rhetoric often demands that pro-Israel advocacy groups (e.g. AIPAC) register under FARA, implying they are "foreign agents." Hashem.Faith examines whether such groups fall under the law.</p>
+      </>
+    ),
+  },
+  torah: {
+    title: 'Torah',
+    body: (
+      <>
+        <p>The Torah is the first five books of the Hebrew Bible: Genesis, Exodus, Leviticus, Numbers, and Deuteronomy. It is the foundational scripture of Judaism.</p>
+        <p>In broader Jewish usage, "Torah" can mean the entire body of Jewish teaching and law, including the Talmud. The Torah is read in synagogue and studied as the core of Jewish life.</p>
+      </>
+    ),
+  },
+  tanakh: {
+    title: 'Tanakh',
+    body: (
+      <>
+        <p>The Tanakh is the Hebrew Bible—the canonical scripture of Judaism. The name is an acronym: <strong>T</strong>orah (Teaching), <strong>N</strong>evi'im (Prophets), and <strong>K</strong>etuvim (Writings).</p>
+        <p>It corresponds to what Christianity calls the Old Testament. The Tanakh is the written foundation of Jewish belief and practice.</p>
+      </>
+    ),
+  },
 }
 
 export default function DefinitionDetail() {

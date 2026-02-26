@@ -52,6 +52,25 @@ export const DEFINITION_SOURCES = {
     POSTS['what-does-israel-mean'],
   ].map((p) => ({ label: p.label, url: url(p.path) })),
   agitprop: [],
+  goy: [
+    POSTS['where-do-gentiles-fit-into-the-jewish-world-view'],
+    POSTS['gentiles-are-human'],
+    POSTS['gentiles-are-not-animals'],
+  ].map((p) => ({ label: p.label, url: url(p.path) })),
+  israel: [
+    POSTS['what-does-israel-mean'],
+  ].map((p) => ({ label: p.label, url: url(p.path) })),
+  zog: [],
+  holocaust: [],
+  'axis-of-evil': [],
+  fara: [
+    POSTS['should-aipac-be-registered-under-fara'],
+    POSTS['does-aipac-fall-under-22-usc-611'],
+  ].map((p) => ({ label: p.label, url: url(p.path) })),
+  torah: [
+    POSTS['what-is-the-talmud'],
+  ].map((p) => ({ label: p.label, url: url(p.path) })),
+  tanakh: [],
 }
 
 /** Further reading for misconception topic slugs */
