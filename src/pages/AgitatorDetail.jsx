@@ -1,9 +1,31 @@
+import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { AGITATORS } from '../data/agitators'
+import { AGITATORS as FALLBACK_AGITATORS } from '../data/agitators'
 
 export default function AgitatorDetail() {
   const { slug } = useParams()
-  const person = AGITATORS.find((a) => a.slug === slug)
+  const [person, setPerson] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch('/api/agitators')
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => {
+        const list = Array.isArray(data) && data.length > 0 ? data : FALLBACK_AGITATORS
+        setPerson(list.find((a) => a.slug === slug) || null)
+      })
+      .catch(() => setPerson(FALLBACK_AGITATORS.find((a) => a.slug === slug) || null))
+      .finally(() => setLoading(false))
+  }, [slug])
+
+  if (loading) {
+    return (
+      <div className="agitator-detail">
+        <p>Loading…</p>
+        <Link to="/agitators">Back to Agitators</Link>
+      </div>
+    )
+  }
 
   if (!person) {
     return (

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!-- Star of David: two equilateral triangles, sharp top and bottom (#2563eb) -->
+  <!-- Upper triangle: point at top, base horizontal through center -->
+  <path fill="#2563eb" d="M16 5 L9.65 16 L22.35 16 Z"/>
+  <!-- Lower triangle: point at bottom, base horizontal through center -->
+  <path fill="#2563eb" d="M16 27 L22.35 16 L9.65 16 Z"/>
+</svg>

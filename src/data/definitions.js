@@ -4,4 +4,5 @@ export const DEFINITIONS = [
   { slug: 'genocide', title: 'Genocide', summary: 'Legal and historical definition—and when it applies.' },
   { slug: 'antisemitism', title: 'Antisemitism', summary: 'Hatred or prejudice against Jews.' },
   { slug: 'zionism', title: 'Zionism', summary: 'Jewish self-determination and the state of Israel.' },
+  { slug: 'agitprop', title: 'Agitprop', summary: 'Agitation and propaganda—how political messaging is used to sway opinion.' },
 ]
