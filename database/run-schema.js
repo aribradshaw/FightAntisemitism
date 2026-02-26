@@ -8,21 +8,10 @@ import mysql from 'mysql2/promise'
 import { readFileSync } from 'fs'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
+import { config as loadEnv } from 'dotenv'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-
-function loadEnv() {
-  try {
-    const envPath = join(__dirname, '..', '.env')
-    const content = readFileSync(envPath, 'utf8')
-    content.split('\n').forEach((line) => {
-      const m = line.match(/^([^#=]+)=(.*)$/)
-      if (m) process.env[m[1].trim()] = m[2].trim().replace(/^["']|["']$/g, '')
-    })
-  } catch (_) {}
-}
-
-loadEnv()
+loadEnv({ path: join(__dirname, '..', '.env') })
 
 const config = {
   host: process.env.DB_HOST || '192.232.249.125',

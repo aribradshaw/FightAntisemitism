@@ -8,6 +8,10 @@ import Agitators from './pages/Agitators'
 import AgitatorDetail from './pages/AgitatorDetail'
 import Misconceptions from './pages/Misconceptions'
 import MisconceptionTopic from './pages/MisconceptionTopic'
+import Conspiracies from './pages/Conspiracies'
+import ConspiracyDetail from './pages/ConspiracyDetail'
+import Talmud from './pages/Talmud'
+import TalmudDetail from './pages/TalmudDetail'
 import Stylesheet from './pages/Stylesheet'
 import Layout from './components/Layout'
 import './App.css'
@@ -27,6 +31,10 @@ function App() {
           <Route path="agitators/:slug" element={<AgitatorDetail />} />
           <Route path="misconceptions" element={<Misconceptions />} />
           <Route path="misconceptions/:topic" element={<MisconceptionTopic />} />
+          <Route path="conspiracies" element={<Conspiracies />} />
+          <Route path="conspiracies/:slug" element={<ConspiracyDetail />} />
+          <Route path="talmud" element={<Talmud />} />
+          <Route path="talmud/:slug" element={<TalmudDetail />} />
           <Route path="stylesheet" element={<Stylesheet />} />
         </Route>
       </Routes>

@@ -167,6 +167,10 @@ h3 { font-size: 1.2rem; }
   margin: 0 auto;
   width: 100%;
 }
+/* Detail (and other non-hub) pages: extra left padding so back button never overlaps header when zoomed */
+.layout:not(.layout--explore) .layout-main {
+  padding-left: 6rem;
+}
 .app-copyright {
   position: fixed;
   bottom: 0;
@@ -791,6 +795,112 @@ h3 { font-size: 1.2rem; }
 .misconception-sources li { margin-bottom: 0.35rem; }
 .misconception-sources a { color: var(--accent-gold); text-decoration: underline; }
 .misconception-sources a:hover { text-decoration: none; }
+
+/* Conspiracy Theories — masonry list */
+.conspiracies-page h1 { margin-bottom: 0.5rem; text-align: center; }
+.conspiracies-intro { color: var(--text-secondary); margin-bottom: 2rem; text-align: center; max-width: 560px; margin-left: auto; margin-right: auto; }
+.conspiracies-masonry {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  column-count: 3;
+  column-gap: 1.25rem;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.conspiracies-masonry li {
+  break-inside: avoid;
+  margin-bottom: 0.75rem;
+}
+.conspiracies-card {
+  display: block;
+  padding: 0.75rem 1rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-decoration: none;
+  color: inherit;
+  font-size: 0.95rem;
+  line-height: 1.35;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.conspiracies-card:hover { border-color: var(--accent-gold); box-shadow: var(--shadow-hover); text-decoration: none; color: inherit; }
+@media (max-width: 720px) {
+  .conspiracies-masonry { column-count: 2; }
+}
+@media (max-width: 480px) {
+  .conspiracies-masonry { column-count: 1; }
+}
+
+.conspiracy-detail { max-width: 720px; margin: 0 auto; }
+
+/* Talmud — masonry list (same pattern as Conspiracies) */
+.talmud-page h1 { margin-bottom: 0.5rem; text-align: center; }
+.talmud-intro { color: var(--text-secondary); margin-bottom: 2rem; text-align: center; max-width: 560px; margin-left: auto; margin-right: auto; }
+.talmud-masonry {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  column-count: 3;
+  column-gap: 1.25rem;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.talmud-masonry li { break-inside: avoid; margin-bottom: 0.75rem; }
+.talmud-card {
+  display: block;
+  padding: 0.75rem 1rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-decoration: none;
+  color: inherit;
+  font-size: 0.95rem;
+  line-height: 1.35;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.talmud-card:hover { border-color: var(--accent-gold); box-shadow: var(--shadow-hover); text-decoration: none; color: inherit; }
+@media (max-width: 720px) {
+  .talmud-masonry { column-count: 2; }
+}
+@media (max-width: 480px) {
+  .talmud-masonry { column-count: 1; }
+}
+
+.talmud-detail { max-width: 720px; margin: 0 auto; }
+.talmud-back { display: inline-block; margin-bottom: 1.5rem; }
+.talmud-title { margin: 0 0 0.5rem; font-size: 1.35rem; }
+.talmud-category { margin: 0 0 0.5rem; font-size: 0.95rem; color: var(--text-secondary); }
+.talmud-tags { margin-bottom: 1rem; font-size: 0.9rem; }
+.talmud-tag { display: inline-block; margin-right: 0.35rem; margin-bottom: 0.35rem; padding: 0.2rem 0.5rem; background: var(--bg-elevated); border-radius: var(--radius-sm); color: var(--text-secondary); }
+.talmud-body { margin-bottom: 1.5rem; }
+.talmud-body h3 { font-size: 1rem; margin: 1.25rem 0 0.4rem; color: var(--text-primary); }
+.talmud-body h3:first-child { margin-top: 0; }
+.talmud-body p { margin-bottom: 0.75rem; }
+.talmud-body p:last-child { margin-bottom: 0; }
+.talmud-sources { padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.talmud-sources h2 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+.talmud-sources ul { margin: 0; padding-left: 1.25rem; }
+.talmud-sources li { margin-bottom: 0.35rem; }
+.talmud-sources a { color: var(--accent-gold); text-decoration: underline; }
+.talmud-sources a:hover { text-decoration: none; }
+.conspiracy-back { display: inline-block; margin-bottom: 1.5rem; }
+.conspiracy-title { margin: 0 0 0.5rem; font-size: 1.35rem; }
+.conspiracy-category { margin: 0 0 0.5rem; font-size: 0.95rem; color: var(--text-secondary); }
+.conspiracy-tags { margin-bottom: 1rem; font-size: 0.9rem; }
+.conspiracy-tag { display: inline-block; margin-right: 0.35rem; margin-bottom: 0.35rem; padding: 0.2rem 0.5rem; background: var(--bg-elevated); border-radius: var(--radius-sm); color: var(--text-secondary); }
+.conspiracy-body { margin-bottom: 1.5rem; }
+.conspiracy-body h3 { font-size: 1rem; margin: 1.25rem 0 0.4rem; color: var(--text-primary); }
+.conspiracy-body h3:first-child { margin-top: 0; }
+.conspiracy-body p { margin-bottom: 0.75rem; }
+.conspiracy-body p:last-child { margin-bottom: 0; }
+.conspiracy-sources { padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.conspiracy-sources h2 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+.conspiracy-sources ul { margin: 0; padding-left: 1.25rem; }
+.conspiracy-sources li { margin-bottom: 0.35rem; }
+.conspiracy-sources a { color: var(--accent-blue); }
 
 /* Stylesheet / style guide */
 .stylesheet-page h1 { margin-bottom: 0.5rem; }

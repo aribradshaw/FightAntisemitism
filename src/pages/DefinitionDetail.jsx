@@ -1,4 +1,5 @@
-import { useParams, Link } from 'react-router-dom'
+import React from 'react'
+import { useParams } from 'react-router-dom'
 import { DEFINITIONS } from '../data/definitions'
 import { DEFINITION_SOURCES, HASHEM_FAITH_LABEL } from '../data/hashemFaithSources'
 import GenocideInteractive from '../components/GenocideInteractive'
@@ -131,7 +132,7 @@ const CONTENT = {
   },
 }
 
-export default function DefinitionDetail() {
+function DefinitionDetail() {
   const { slug } = useParams()
   const def = DEFINITIONS.find((d) => d.slug === slug)
   const content = slug ? CONTENT[slug] : null
@@ -140,7 +141,6 @@ export default function DefinitionDetail() {
     return (
       <div className="definition-detail">
         <p>Definition not found.</p>
-        <Link to="/definitions">Back to Definitions</Link>
       </div>
     )
   }
@@ -149,7 +149,6 @@ export default function DefinitionDetail() {
 
   return (
     <div className="definition-detail">
-      <Link to="/definitions" className="definition-back">← Back to Definitions</Link>
       <h1>{content.title}</h1>
       {slug === 'genocide' ? (
         <GenocideInteractive />
@@ -172,3 +171,5 @@ export default function DefinitionDetail() {
     </div>
   )
 }
+
+export default DefinitionDetail

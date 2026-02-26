@@ -77,4 +77,54 @@ CREATE TABLE IF NOT EXISTS misconception_topics (
   CONSTRAINT fk_misconception_topics_misconception FOREIGN KEY (misconception_id) REFERENCES misconceptions (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Conspiracy theories (individual myths with refutations, tags, categories, sources)
+CREATE TABLE IF NOT EXISTS conspiracies (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  slug VARCHAR(128) NOT NULL UNIQUE,
+  title VARCHAR(512) NOT NULL,
+  summary VARCHAR(512) DEFAULT NULL,
+  body_text TEXT COMMENT 'Refutation / explanation (plain or HTML)',
+  category VARCHAR(128) DEFAULT NULL COMMENT 'e.g. Jewish identity, Israel, Holocaust, Power & control',
+  tags JSON DEFAULT NULL COMMENT 'Array of tag strings',
+  sort_order INT UNSIGNED DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Sources for each conspiracy (articles, Hashem.Faith, etc.)
+CREATE TABLE IF NOT EXISTS conspiracy_sources (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  conspiracy_id INT UNSIGNED NOT NULL,
+  label VARCHAR(255) NOT NULL,
+  url VARCHAR(512) DEFAULT NULL,
+  sort_order INT UNSIGNED DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  KEY fk_conspiracy (conspiracy_id),
+  CONSTRAINT fk_conspiracy_sources_conspiracy FOREIGN KEY (conspiracy_id) REFERENCES conspiracies (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Talmud topics (myths about the Talmud refuted with context; Gil Student / talmud.faithweb.com)
+CREATE TABLE IF NOT EXISTS talmud_entries (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  slug VARCHAR(128) NOT NULL UNIQUE,
+  title VARCHAR(512) NOT NULL,
+  summary VARCHAR(512) DEFAULT NULL,
+  body_text TEXT COMMENT 'Refutation (plain or HTML: History, Why, Facts)',
+  category VARCHAR(128) DEFAULT NULL COMMENT 'e.g. About The Talmud, Alleged Racism, Christianity, Jewish Holidays',
+  tags JSON DEFAULT NULL,
+  sort_order INT UNSIGNED DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Sources for each Talmud entry (talmud.faithweb.com, Wikipedia, etc.)
+CREATE TABLE IF NOT EXISTS talmud_sources (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  talmud_entry_id INT UNSIGNED NOT NULL,
+  label VARCHAR(255) NOT NULL,
+  url VARCHAR(512) DEFAULT NULL,
+  sort_order INT UNSIGNED DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  KEY fk_talmud_entry (talmud_entry_id),
+  CONSTRAINT fk_talmud_sources_entry FOREIGN KEY (talmud_entry_id) REFERENCES talmud_entries (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 SET FOREIGN_KEY_CHECKS = 1;

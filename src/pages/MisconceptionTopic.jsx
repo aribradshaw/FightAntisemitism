@@ -1,4 +1,4 @@
-import { useParams, Link } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { MISCONCEPTION_SOURCES, HASHEM_FAITH_LABEL } from '../data/hashemFaithSources'
 
 const TOPIC_CONTENT = {
@@ -54,7 +54,6 @@ export default function MisconceptionTopic() {
     return (
       <div className="misconception-topic">
         <p>Topic not found.</p>
-        <Link to="/misconceptions">Back to Misconceptions</Link>
       </div>
     )
   }
@@ -63,7 +62,6 @@ export default function MisconceptionTopic() {
 
   return (
     <div className="misconception-topic">
-      <Link to="/misconceptions" className="misconception-back">← Back to Misconceptions</Link>
       <h1>{content.title}</h1>
       <div className="misconception-body">{content.body}</div>
       {furtherReading && furtherReading.length > 0 && (

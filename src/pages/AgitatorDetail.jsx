@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { AGITATORS as FALLBACK_AGITATORS } from '../data/agitators'
 
 export default function AgitatorDetail() {
@@ -22,7 +22,6 @@ export default function AgitatorDetail() {
     return (
       <div className="agitator-detail">
         <p>Loading…</p>
-        <Link to="/agitators">Back to Agitators</Link>
       </div>
     )
   }
@@ -31,14 +30,12 @@ export default function AgitatorDetail() {
     return (
       <div className="agitator-detail">
         <p>Not found.</p>
-        <Link to="/agitators">Back to Agitators</Link>
       </div>
     )
   }
 
   return (
     <div className="agitator-detail">
-      <Link to="/agitators" className="agitator-back">← Back to Agitators</Link>
       <div className="agitator-header">
         <div className="agitator-avatar">
           {person.image ? (

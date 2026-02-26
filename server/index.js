@@ -118,6 +118,70 @@ app.get('/api/agitators', async (_req, res) => {
   }
 })
 
+// GET /api/conspiracies — all conspiracy theories with sources
+app.get('/api/conspiracies', async (_req, res) => {
+  try {
+    const conn = await getConnection()
+    const [conspiracies] = await conn.execute(
+      'SELECT id, slug, title, summary, body_text, category, tags, sort_order FROM conspiracies ORDER BY sort_order ASC, title ASC'
+    )
+    const [sources] = await conn.execute(
+      'SELECT conspiracy_id, label, url, sort_order FROM conspiracy_sources ORDER BY conspiracy_id, sort_order ASC'
+    )
+    conn.end()
+    const sourcesByConspiracy = {}
+    for (const s of sources) {
+      if (!sourcesByConspiracy[s.conspiracy_id]) sourcesByConspiracy[s.conspiracy_id] = []
+      sourcesByConspiracy[s.conspiracy_id].push({ label: s.label, url: s.url })
+    }
+    const result = conspiracies.map((c) => ({
+      slug: c.slug,
+      title: c.title,
+      summary: c.summary,
+      body_text: c.body_text,
+      category: c.category,
+      tags: typeof c.tags === 'string' ? (c.tags ? JSON.parse(c.tags) : []) : (c.tags || []),
+      sources: sourcesByConspiracy[c.id] || [],
+    }))
+    res.json(result)
+  } catch (err) {
+    console.error('GET /api/conspiracies:', err.message)
+    res.status(500).json({ error: 'Failed to load conspiracies.' })
+  }
+})
+
+// GET /api/talmud — all Talmud entries with sources
+app.get('/api/talmud', async (_req, res) => {
+  try {
+    const conn = await getConnection()
+    const [entries] = await conn.execute(
+      'SELECT id, slug, title, summary, body_text, category, tags, sort_order FROM talmud_entries ORDER BY sort_order ASC, title ASC'
+    )
+    const [sources] = await conn.execute(
+      'SELECT talmud_entry_id, label, url, sort_order FROM talmud_sources ORDER BY talmud_entry_id, sort_order ASC'
+    )
+    conn.end()
+    const sourcesByEntry = {}
+    for (const s of sources) {
+      if (!sourcesByEntry[s.talmud_entry_id]) sourcesByEntry[s.talmud_entry_id] = []
+      sourcesByEntry[s.talmud_entry_id].push({ label: s.label, url: s.url })
+    }
+    const result = entries.map((e) => ({
+      slug: e.slug,
+      title: e.title,
+      summary: e.summary,
+      body_text: e.body_text,
+      category: e.category,
+      tags: typeof e.tags === 'string' ? (e.tags ? JSON.parse(e.tags) : []) : (e.tags || []),
+      sources: sourcesByEntry[e.id] || [],
+    }))
+    res.json(result)
+  } catch (err) {
+    console.error('GET /api/talmud:', err.message)
+    res.status(500).json({ error: 'Failed to load Talmud entries.' })
+  }
+})
+
 app.listen(PORT, () => {
   console.log(`API server running at http://localhost:${PORT}`)
 })
