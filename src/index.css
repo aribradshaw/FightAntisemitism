@@ -819,18 +819,44 @@ h3 { font-size: 1.2rem; }
   text-decoration: underline;
   font-family: inherit;
 }
-.definition-toggle.ghost {
+.definition-toggle.primary {
+  background-color: var(--accent-blue);
+  color: white;
+  border: 1px solid var(--accent-blue);
   padding: 0.6em 1.2em;
-  border-radius: var(--radius-sm);
   font-weight: 500;
   text-decoration: none;
-  transition: background 0.2s;
+  transition: background 0.2s, border-color 0.2s;
 }
-.definition-toggle.ghost:hover { color: var(--accent-blue-light); }
+.definition-toggle.primary:hover { background-color: var(--accent-blue-light); border-color: var(--accent-blue-light); color: white; }
 .definition-toggle:hover { color: var(--accent-blue-light); }
+
+/* Vertical centering when full definition is open; when content > 100vh, page scrolls and centering no longer applies */
+.definition-detail--expanded {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 120px);
+}
+.definition-detail--expanded .definition-detail-inner {
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+/* Animated expand/collapse for "Read full definition" */
+.definition-long-collapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s ease-out;
+}
+.definition-long-collapse--open {
+  grid-template-rows: 1fr;
+}
+.definition-long-collapse-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+
 .definition-long { margin-top: 0.5rem; }
-.definition-long .definition-body,
-.definition-long .genocide-interactive { font-style: italic; }
 .definition-body p { margin-bottom: 1rem; }
 .definition-body p:last-child { margin-bottom: 0; }
 .definition-sources { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }

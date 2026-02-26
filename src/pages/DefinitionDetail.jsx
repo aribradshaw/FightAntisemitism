@@ -154,45 +154,49 @@ function DefinitionDetail() {
   const hasLong = content.body != null || slug === 'genocide'
 
   return (
-    <div className="definition-detail">
-      <h1>{content.title}</h1>
-      <p className="definition-short">{def.summary}</p>
-      {hasLong && (
-        <>
-          <button
-            type="button"
-            className="definition-toggle ghost"
-            onClick={() => setShowLong((v) => !v)}
-            aria-expanded={showLong}
-          >
-            {showLong ? 'Show less' : 'Read full definition'}
-          </button>
-          {showLong && (
-            <div className="definition-long">
-              {slug === 'genocide' ? (
-                <GenocideInteractive />
-              ) : (
-                <div className="definition-body">{content.body}</div>
-              )}
-              {furtherReading && furtherReading.length > 0 && (
-                <section className="definition-sources" aria-label="Further reading">
-                  <h2>Further reading</h2>
-                  {slug !== 'agitprop' && (
-                    <p className="definition-sources-attribution">From <a href="https://hashem.faith/" target="_blank" rel="noopener noreferrer">{HASHEM_FAITH_LABEL}</a>:</p>
+    <div className={`definition-detail ${hasLong ? 'definition-detail--expanded' : ''}`}>
+      <div className="definition-detail-inner">
+        <h1>{content.title}</h1>
+        <p className="definition-short">{def.summary}</p>
+        {hasLong && (
+          <>
+            <button
+              type="button"
+              className="definition-toggle primary"
+              onClick={() => setShowLong((v) => !v)}
+              aria-expanded={showLong}
+            >
+              {showLong ? 'Show less' : 'Read full definition'}
+            </button>
+            <div className={`definition-long-collapse ${showLong ? 'definition-long-collapse--open' : ''}`} aria-hidden={!showLong}>
+              <div className="definition-long-collapse-inner">
+                <div className="definition-long">
+                  {slug === 'genocide' ? (
+                    <GenocideInteractive />
+                  ) : (
+                    <div className="definition-body">{content.body}</div>
                   )}
-                  <ul>
-                    {furtherReading.map((s) => (
-                      <li key={s.url}>
-                        <a href={s.url} target="_blank" rel="noopener noreferrer">{s.label}</a>
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-              )}
+                  {furtherReading && furtherReading.length > 0 && (
+                    <section className="definition-sources" aria-label="Further reading">
+                      <h2>Further reading</h2>
+                      {slug !== 'agitprop' && (
+                        <p className="definition-sources-attribution">From <a href="https://hashem.faith/" target="_blank" rel="noopener noreferrer">{HASHEM_FAITH_LABEL}</a>:</p>
+                      )}
+                      <ul>
+                        {furtherReading.map((s) => (
+                          <li key={s.url}>
+                            <a href={s.url} target="_blank" rel="noopener noreferrer">{s.label}</a>
+                          </li>
+                        ))}
+                      </ul>
+                    </section>
+                  )}
+                </div>
+              </div>
             </div>
-          )}
-        </>
-      )}
+          </>
+        )}
+      </div>
     </div>
   )
 }
