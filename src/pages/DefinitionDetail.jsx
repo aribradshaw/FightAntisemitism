@@ -131,6 +131,52 @@ const CONTENT = {
       <>
         <p>The Tanakh is the Hebrew Bible—the canonical scripture of Judaism. The name is an acronym: <strong>T</strong>orah (Teaching), <strong>N</strong>evi'im (Prophets), and <strong>K</strong>etuvim (Writings).</p>
         <p>It corresponds to what Christianity calls the Old Testament. The Tanakh is the written foundation of Jewish belief and practice.</p>
+        <div className="tanakh-books">
+          <div className="tanakh-books-col">
+            <h4>Torah (Teaching)</h4>
+            <ul>
+              <li>Genesis</li>
+              <li>Exodus</li>
+              <li>Leviticus</li>
+              <li>Numbers</li>
+              <li>Deuteronomy</li>
+            </ul>
+          </div>
+          <div className="tanakh-books-col">
+            <h4>Nevi'im (Prophets)</h4>
+            <ul>
+              <li>Joshua</li>
+              <li>Judges</li>
+              <li>Samuel (1–2)</li>
+              <li>Kings (1–2)</li>
+              <li>Isaiah</li>
+              <li>Jeremiah</li>
+              <li>Ezekiel</li>
+            </ul>
+            <p className="tanakh-twelve-label">The Twelve (Minor Prophets)</p>
+            <div className="tanakh-twelve-grid">
+              <span>Hosea</span><span>Joel</span><span>Amos</span><span>Obadiah</span>
+              <span>Jonah</span><span>Micah</span><span>Nahum</span><span>Habakkuk</span>
+              <span>Zephaniah</span><span>Haggai</span><span>Zechariah</span><span>Malachi</span>
+            </div>
+          </div>
+          <div className="tanakh-books-col">
+            <h4>Ketuvim (Writings)</h4>
+            <ul>
+              <li>Psalms</li>
+              <li>Proverbs</li>
+              <li>Job</li>
+              <li>Song of Songs</li>
+              <li>Ruth</li>
+              <li>Lamentations</li>
+              <li>Ecclesiastes</li>
+              <li>Esther</li>
+              <li>Daniel</li>
+              <li>Ezra–Nehemiah</li>
+              <li>Chronicles (1–2)</li>
+            </ul>
+          </div>
+        </div>
       </>
     ),
   },

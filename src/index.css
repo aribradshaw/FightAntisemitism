@@ -858,6 +858,78 @@ h3 { font-size: 1.2rem; }
 
 .definition-long { margin-top: 0.5rem; }
 .definition-body p { margin-bottom: 1rem; }
+.definition-body .definition-table {
+  width: 100%;
+  margin: 1.25rem 0;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+.definition-body .definition-table th,
+.definition-body .definition-table td {
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  border: 1px solid var(--border);
+  vertical-align: top;
+}
+.definition-body .definition-table th {
+  background: var(--surface);
+  font-weight: 600;
+}
+
+/* Tanakh three-column books layout */
+.definition-body .tanakh-books {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0;
+  margin: 1.5rem 0;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border);
+}
+.definition-body .tanakh-books-col {
+  background: var(--surface);
+  padding: 1rem 1.25rem 1.25rem;
+  border-right: 1px solid var(--border);
+}
+.definition-body .tanakh-books-col:last-child { border-right: none; }
+.definition-body .tanakh-books-col h4 {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--accent-gold);
+}
+.definition-body .tanakh-books-col ul {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+.definition-body .tanakh-books-col li { margin-bottom: 0.35rem; }
+.definition-body .tanakh-books-col li:last-child { margin-bottom: 0; }
+
+.definition-body .tanakh-twelve-label {
+  margin: 0.75rem 0 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: 0.02em;
+}
+.definition-body .tanakh-twelve-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.25rem 0.75rem;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+.definition-body .tanakh-twelve-grid span {
+  padding: 0.15rem 0;
+}
 .definition-body p:last-child { margin-bottom: 0; }
 .definition-sources { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
 .definition-sources h2 { font-size: 1.1rem; margin-bottom: 0.5rem; }
