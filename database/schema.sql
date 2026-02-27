@@ -107,6 +107,7 @@ CREATE TABLE IF NOT EXISTS talmud_entries (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   slug VARCHAR(128) NOT NULL UNIQUE,
   title VARCHAR(512) NOT NULL,
+  reference VARCHAR(256) DEFAULT NULL COMMENT 'Talmud/source ref addressed (e.g. Bava Metzia 114b)',
   summary VARCHAR(512) DEFAULT NULL,
   body_text TEXT COMMENT 'Refutation (plain or HTML: History, Why, Facts)',
   category VARCHAR(128) DEFAULT NULL COMMENT 'e.g. About The Talmud, Alleged Racism, Christianity, Jewish Holidays',

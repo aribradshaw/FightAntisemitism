@@ -1619,7 +1619,7 @@ h3 { font-size: 1.2rem; }
 .misconception-entry-detail { max-width: 720px; margin: 0 auto; }
 .misconception-entry-title { margin: 0 0 0.5rem; font-size: 1.35rem; }
 .misconception-entry-body { margin-bottom: 1.5rem; }
-.misconception-entry-body h3 { font-size: 1rem; margin: 1.25rem 0 0.4rem; color: var(--text-primary); }
+.misconception-entry-body h3 { font-size: 1rem; margin: 1.25rem 0 0.4rem; color: var(--text-primary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; }
 .misconception-entry-body h3:first-child { margin-top: 0; }
 .misconception-entry-body p { margin-bottom: 0.75rem; }
 .misconception-entry-body p:last-child { margin-bottom: 0; }
@@ -1730,6 +1730,8 @@ h3 { font-size: 1.2rem; }
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 .talmud-card:hover { border-color: var(--accent-gold); box-shadow: var(--shadow-hover); text-decoration: none; color: inherit; }
+.talmud-card-title { display: block; }
+.talmud-card-reference { display: block; margin-top: 0.25rem; font-size: 0.85rem; color: var(--text-secondary); }
 @media (max-width: 720px) {
   .talmud-masonry { column-count: 2; }
 }
@@ -1739,15 +1741,18 @@ h3 { font-size: 1.2rem; }
 
 .talmud-detail { max-width: 720px; margin: 0 auto; }
 .talmud-back { display: inline-block; margin-bottom: 1.5rem; }
-.talmud-title { margin: 0 0 0.5rem; font-size: 1.35rem; }
+.talmud-title { margin: 0 0 0.25rem; font-size: 1.35rem; }
+.talmud-reference { margin: 0 0 0.75rem; font-size: 0.95rem; color: var(--text-secondary); font-style: normal; }
 .talmud-category-pill { display: inline-block; margin-bottom: 1rem; padding: 0.25rem 0.6rem; font-size: 0.85rem; font-weight: 600; background: var(--accent-gold); color: #fff; border-radius: var(--radius-sm); }
 .talmud-tags { margin-top: 1rem; margin-bottom: 1rem; font-size: 0.9rem; }
 .talmud-tag { display: inline-block; margin-right: 0.35rem; margin-bottom: 0.35rem; padding: 0.2rem 0.5rem; background: var(--bg-elevated); border-radius: var(--radius-sm); color: var(--text-secondary); }
 .talmud-body { margin-bottom: 1.5rem; }
-.talmud-body h3 { font-size: 1rem; margin: 1.25rem 0 0.4rem; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.1em; }
+.talmud-body h3 { font-size: 1rem; margin: 1.25rem 0 0.4rem; color: var(--text-primary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; }
 .talmud-body h3:first-child { margin-top: 0; }
 .talmud-body p { margin-bottom: 0.75rem; }
 .talmud-body p:last-child { margin-bottom: 0; }
+.talmud-body a { color: var(--accent-gold, #b8860b); text-decoration: underline; }
+.talmud-body a:hover { text-decoration: none; }
 .talmud-sources { padding-top: 1.5rem; border-top: 1px solid var(--border); }
 .talmud-sources h2 { font-size: 1.1rem; margin-bottom: 0.5rem; }
 .talmud-sources ul { margin: 0; padding-left: 1.25rem; }
@@ -1787,7 +1792,7 @@ h3 { font-size: 1.2rem; }
 .tag-popover-list a:hover { background: var(--bg-elevated); color: var(--accent-blue); }
 .tag-popover-parent { font-size: 0.85rem; color: var(--text-muted); }
 .conspiracy-body { margin-bottom: 1.5rem; }
-.conspiracy-body h3 { font-size: 1rem; margin: 1.25rem 0 0.4rem; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.1em; }
+.conspiracy-body h3 { font-size: 1rem; margin: 1.25rem 0 0.4rem; color: var(--text-primary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; }
 .conspiracy-body h3:first-child { margin-top: 0; }
 .conspiracy-body p { margin-bottom: 0.75rem; }
 .conspiracy-body p:last-child { margin-bottom: 0; }

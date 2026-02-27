@@ -29,7 +29,8 @@ export default function Talmud() {
           {entries.map((e) => (
             <li key={e.slug}>
               <Link to={`/talmud/${e.slug}`} className="talmud-card">
-                &ldquo;{e.title}&rdquo;
+                <span className="talmud-card-title">&ldquo;{e.title}&rdquo;</span>
+                {e.reference && <span className="talmud-card-reference">{e.reference}</span>}
               </Link>
             </li>
           ))}

@@ -43,6 +43,9 @@ export default function TalmudDetail() {
     <div className="talmud-detail detail-page-with-parent">
       <div className="corner-parent-ribbon" aria-hidden="true"><span>TALMUD</span></div>
       <h1 className="talmud-title">&ldquo;{entry.title}&rdquo;</h1>
+      {entry.reference && (
+        <p className="talmud-reference" aria-label="Talmud reference addressed">{entry.reference}</p>
+      )}
       {entry.category && (
         <span className="talmud-category-pill">{entry.category}</span>
       )}

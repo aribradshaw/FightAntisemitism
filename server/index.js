@@ -200,7 +200,7 @@ app.get('/api/talmud', async (_req, res) => {
   try {
     const conn = await getConnection()
     const [entries] = await conn.execute(
-      'SELECT id, slug, title, summary, body_text, category, tags, sort_order FROM talmud_entries ORDER BY sort_order ASC, title ASC'
+      'SELECT id, slug, title, reference, summary, body_text, category, tags, sort_order FROM talmud_entries ORDER BY sort_order ASC, title ASC'
     )
     const [sources] = await conn.execute(
       'SELECT talmud_entry_id, label, url, sort_order FROM talmud_sources ORDER BY talmud_entry_id, sort_order ASC'
@@ -214,6 +214,7 @@ app.get('/api/talmud', async (_req, res) => {
     const result = entries.map((e) => ({
       slug: e.slug,
       title: e.title,
+      reference: e.reference || null,
       summary: e.summary,
       body_text: e.body_text,
       category: e.category,
