@@ -259,6 +259,7 @@ app.get('/api/misconception-entries/:topic', async (req, res) => {
     res.json(result)
   } catch (err) {
     console.error('GET /api/misconception-entries/:topic:', err.message)
+    if (err.code) console.error('DB error code:', err.code)
     res.status(500).json({ error: 'Failed to load misconception entries.' })
   }
 })

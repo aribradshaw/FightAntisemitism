@@ -19,6 +19,35 @@ The app is a Node.js server (Express + MySQL) that serves the API and, in produc
 
 You can keep using your existing MySQL (e.g. on HostGator) by setting `DB_HOST` to that server and opening remote MySQL access if needed.
 
+### Database not loading (500 on /api/*, blank pages)
+
+If the app deploys but API calls return **500** and pages are blank, the server cannot reach MySQL.
+
+1. **Railway Variables**  
+   In the service → **Variables**, set exactly:  
+   `NODE_ENV`, `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`.  
+   No typos; values must match your MySQL server.
+
+2. **Allow remote MySQL**  
+   Your MySQL host (e.g. HostGator cPanel) must allow connections **from Railway**:
+   - In cPanel open **Remote MySQL®** (or “Remote MySQL Access”).
+   - Add a **Host** so the app can connect. Railway’s IP is not fixed; use `%` to allow any host (or check Railway docs for a static egress IP).
+   - Ensure the **DB_USER** you use is allowed to connect from that host (same user you use in phpMyAdmin locally is often restricted to `localhost`; you may need a separate user for “remote” or `%`).
+
+3. **Check deploy logs**  
+   In Railway → your service → **Deployments** → open the latest deploy → **View logs**.  
+   When a 500 occurs you should see the DB error (e.g. `ECONNREFUSED`, `ER_ACCESS_DENIED_ERROR`). That tells you whether it’s “host not allowed” or “wrong password”.
+
+4. **Firewall**  
+   If your DB host has a firewall, allow outbound MySQL (port 3306) or allow traffic from Railway’s region.
+
+### WebSocket to localhost:8081 (console warning)
+
+If the browser console shows `WebSocket connection to 'ws://localhost:8081/' failed`, that is usually **Vite’s dev hot-reload client** trying to connect. It does not affect production data.
+
+- Confirm Railway **Build** is `npm install && npm run build` and **Start** is `npm start` (not `npm run dev`).
+- Do a **hard refresh** (Ctrl+Shift+R / Cmd+Shift+R) or open the site in a private window so the browser isn’t using a cached dev bundle.
+
 ---
 
 ## HostGator
