@@ -12,7 +12,8 @@ import { dirname, join } from 'path'
 import { config as loadEnv } from 'dotenv'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-loadEnv({ path: join(__dirname, '..', '.env') })
+// override: false so Railway/platform env vars are not overwritten by .env
+loadEnv({ path: join(__dirname, '..', '.env'), override: false })
 
 const config = {
   host: process.env.DB_HOST || '192.232.249.125',
@@ -28,7 +29,10 @@ const app = express()
 
 async function getConnection() {
   if (!config.password) {
-    throw new Error('Set DB_PASSWORD in .env (copy .env.example to .env)')
+    const hint = process.env.RAILWAY_ENVIRONMENT
+      ? 'Set DB_PASSWORD in Railway → Variables for this service and redeploy.'
+      : 'Set DB_PASSWORD in .env (copy .env.example to .env)'
+    throw new Error(hint)
   }
   return mysql.createConnection(config)
 }
