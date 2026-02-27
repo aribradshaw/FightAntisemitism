@@ -20,7 +20,7 @@ export default function Talmud() {
     <div className="talmud-page">
       <h1 className="hub-title">The Talmud</h1>
       <p className="talmud-intro">
-        Misquotes and false claims about what the Talmud says—and the real truth. Click a card for context, categories, and sources (including talmud.faithweb.com).
+        Misquotes and false claims about what the Talmud says—and the real truth.
       </p>
       {loading ? (
         <p className="talmud-intro">Loading…</p>

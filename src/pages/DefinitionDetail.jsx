@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { HASHEM_FAITH_LABEL } from '../data/hashemFaithSources'
 import GazaGenocideModal from '../components/GazaGenocideModal'
+import ZionismQuizModal from '../components/ZionismQuizModal'
 
 function DefinitionDetail() {
   const { slug } = useParams()
@@ -9,6 +10,7 @@ function DefinitionDetail() {
   const [loading, setLoading] = useState(true)
   const [showLong, setShowLong] = useState(false)
   const [showGazaModal, setShowGazaModal] = useState(false)
+  const [showZionismModal, setShowZionismModal] = useState(false)
 
   useEffect(() => {
     if (!slug) {
@@ -58,6 +60,20 @@ function DefinitionDetail() {
               onClick={() => setShowGazaModal(true)}
             >
               Is The Gaza War a Genocide?
+            </button>
+          )}
+          {slug === 'talmud' && (
+            <Link to="/talmud" className="definition-talmud-cta primary">
+              Talmud misconceptions &amp; misquotes
+            </Link>
+          )}
+          {slug === 'zionism' && (
+            <button
+              type="button"
+              className="definition-gaza-cta primary"
+              onClick={() => setShowZionismModal(true)}
+            >
+              What Is Zionism?
             </button>
           )}
         </div>
@@ -117,6 +133,9 @@ function DefinitionDetail() {
       </div>
       {slug === 'genocide' && (
         <GazaGenocideModal open={showGazaModal} onClose={() => setShowGazaModal(false)} />
+      )}
+      {slug === 'zionism' && (
+        <ZionismQuizModal open={showZionismModal} onClose={() => setShowZionismModal(false)} />
       )}
     </div>
   )

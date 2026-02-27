@@ -73,12 +73,31 @@ button:hover {
   border-color: var(--accent-blue);
 }
 button.primary {
-  background-color: var(--accent-blue);
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(145deg, var(--accent-blue-light) 0%, var(--accent-blue) 100%);
   color: white;
-  border-color: var(--accent-blue);
+  border: none;
+  box-shadow: 0 2px 10px rgba(37, 99, 235, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 button.primary:hover {
-  background-color: var(--accent-blue-light);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+}
+button.primary:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(37, 99, 235, 0.35);
+}
+.definition-gaza-cta::after {
+  content: "→";
+  margin-left: 0.4em;
+  opacity: 0.9;
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+.definition-gaza-cta:hover::after {
+  transform: translateX(3px);
 }
 button.ghost,
 a.ghost {
@@ -820,15 +839,23 @@ h3 { font-size: 1.2rem; }
   font-family: inherit;
 }
 .definition-toggle.primary {
-  background-color: var(--accent-blue);
+  background: linear-gradient(145deg, var(--accent-blue-light) 0%, var(--accent-blue) 100%);
   color: white;
-  border: 1px solid var(--accent-blue);
+  border: none;
   padding: 0.6em 1.2em;
   font-weight: 500;
   text-decoration: none;
-  transition: background 0.2s, border-color 0.2s;
+  box-shadow: 0 2px 10px rgba(37, 99, 235, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-.definition-toggle.primary:hover { background-color: var(--accent-blue-light); border-color: var(--accent-blue-light); color: white; }
+.definition-toggle.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+  color: white;
+}
+.definition-toggle.primary:active {
+  transform: translateY(0);
+}
 .definition-toggle:hover { color: var(--accent-blue-light); }
 
 .definition-detail-header {
@@ -844,14 +871,52 @@ h3 { font-size: 1.2rem; }
   flex-shrink: 0;
   font-size: 0.95rem;
   white-space: nowrap;
-  background-color: var(--accent-gold-light) !important;
-  border-color: var(--accent-gold-light) !important;
+  background: linear-gradient(145deg, var(--accent-gold-light) 0%, var(--accent-gold) 100%) !important;
+  border: none !important;
   color: #fff !important;
+  box-shadow: 0 2px 10px rgba(184, 134, 11, 0.35) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
 }
 .definition-gaza-cta:hover {
-  background-color: var(--accent-gold) !important;
-  border-color: var(--accent-gold) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(184, 134, 11, 0.45) !important;
   color: #fff !important;
+}
+.definition-gaza-cta:active {
+  transform: translateY(0);
+}
+.definition-talmud-cta {
+  display: inline-block;
+  text-decoration: none;
+  flex-shrink: 0;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  padding: 0.6em 1.2em;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(145deg, var(--accent-gold-light) 0%, var(--accent-gold) 100%) !important;
+  border: none !important;
+  color: #fff !important;
+  box-shadow: 0 2px 10px rgba(184, 134, 11, 0.35) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+.definition-talmud-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(184, 134, 11, 0.45) !important;
+  color: #fff !important;
+}
+.definition-talmud-cta:active {
+  transform: translateY(0);
+}
+.definition-talmud-cta::after {
+  content: "→";
+  margin-left: 0.4em;
+  opacity: 0.9;
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+.definition-talmud-cta:hover::after {
+  transform: translateX(3px);
 }
 
 /* Gaza genocide modal */
@@ -1027,11 +1092,19 @@ h3 { font-size: 1.2rem; }
   background: var(--bg-main);
 }
 .gaza-modal-btn.primary {
-  background: var(--accent-blue);
+  background: linear-gradient(145deg, var(--accent-blue-light) 0%, var(--accent-blue) 100%);
   color: white;
-  border-color: var(--accent-blue);
+  border: none;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-.gaza-modal-btn.primary:hover { background: var(--accent-blue-light); border-color: var(--accent-blue-light); }
+.gaza-modal-btn.primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+}
+.gaza-modal-btn.primary:active {
+  transform: translateY(0);
+}
 .gaza-modal-btn-secondary:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
 
 /* Vertical centering when full definition is open; when content > 100vh, page scrolls and centering no longer applies */
