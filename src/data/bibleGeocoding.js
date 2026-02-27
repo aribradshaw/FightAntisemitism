@@ -5,7 +5,7 @@
 const GEO = '/geo'
 const MAPS = '/maps'
 
-// Israel borders (incl. Gaza & West Bank) – show for modern period (1948+)
+// Israel borders (incl. Gaza & Judea and Samaria) – show for modern period (1948+)
 export const ISRAEL_LAYER = {
   id: 'israel',
   name: 'Israel',

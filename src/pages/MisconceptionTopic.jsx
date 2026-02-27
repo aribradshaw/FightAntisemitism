@@ -1,8 +1,19 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
+import { FaBook, FaExclamationTriangle } from 'react-icons/fa'
+import { PiStarOfDavid } from 'react-icons/pi'
 import { MISCONCEPTION_SOURCES, HASHEM_FAITH_LABEL } from '../data/hashemFaithSources'
 
+const ISRAEL_ICON_URL = 'https://upload.wikimedia.org/wikipedia/commons/c/c9/Mandatory_Palestine_Silhouette_Template.svg'
+
 const TOPIC_TITLES = { israel: 'Israel', 'jewish-race': 'The Jewish Race' }
+
+const TOPIC_ICONS = {
+  israel: { imageUrl: ISRAEL_ICON_URL },
+  talmud: { Icon: FaBook },
+  'jewish-race': { Icon: PiStarOfDavid },
+  conspiracy: { Icon: FaExclamationTriangle },
+}
 
 const TOPIC_CONTENT = {
   israel: {
@@ -69,8 +80,19 @@ export default function MisconceptionTopic() {
   // Israel and Jewish Race: list of entries (myths) with cards
   if (topic === 'israel' || topic === 'jewish-race') {
     const title = TOPIC_TITLES[topic] || topic
+    const iconDef = TOPIC_ICONS[topic]
+    const TopicIcon = iconDef?.Icon
     return (
       <div className="misconception-topic misconception-topic-list">
+        {iconDef && (
+          <span className="misconception-topic-icon">
+            {iconDef.imageUrl ? (
+              <img src={iconDef.imageUrl} alt="" className="misconception-topic-icon-img" />
+            ) : TopicIcon ? (
+              <TopicIcon aria-hidden />
+            ) : null}
+          </span>
+        )}
         <h1 className="hub-title">{title}</h1>
         {loading ? (
           <p className="misconception-loading">Loading…</p>
@@ -100,9 +122,20 @@ export default function MisconceptionTopic() {
   }
 
   const furtherReading = topic ? MISCONCEPTION_SOURCES[topic] : null
+  const iconDef = topic ? TOPIC_ICONS[topic] : null
+  const TopicIcon = iconDef?.Icon
 
   return (
     <div className="misconception-topic">
+      {iconDef && (
+        <span className="misconception-topic-icon">
+          {iconDef.imageUrl ? (
+            <img src={iconDef.imageUrl} alt="" className="misconception-topic-icon-img" />
+          ) : TopicIcon ? (
+            <TopicIcon aria-hidden />
+          ) : null}
+        </span>
+      )}
       <h1>{content.title}</h1>
       <div className="misconception-body">{content.body}</div>
       {furtherReading && furtherReading.length > 0 && (

@@ -21,9 +21,9 @@ export const AGITATORS = [
   {
     slug: 'thomas-massie',
     name: 'Thomas Massie',
-    subtitle: 'Voting against Holocaust remembrance and Israel support',
+    subtitle: 'Sole "No" on antisemitism resolutions; AIPAC and Holocaust trivialization',
     image: 'https://commons.wikimedia.org/wiki/Special:FilePath/Thomas_Massie_1.jpg',
-    description: 'U.S. Representative who has voted against Holocaust education funding and aid to Israel, and made statements that critics say downplay antisemitism or align with isolationist, anti-Israel narratives.',
+    description: 'U.S. Representative (R-KY) who has cast the sole "No" vote on House resolutions condemning antisemitism (2022, 2023–2025), voted against Holocaust education funding and Israel aid, and compared vaccine passports to the Holocaust. He has made "AIPAC babysitter" comments and shared a darkened photo of a local rabbi labeled "Kentucky\'s AIPAC guy." ADL, RJC, and bipartisan critics cite tropes of Jewish control and dual loyalty.',
     sources: [
       { date: '2024', text: 'Voted against Holocaust Education Act and Israel aid package.', url: '#' },
       { date: 'Various', text: 'Consistent “America First” votes against foreign aid including to Israel.', url: '#' },
@@ -56,7 +56,7 @@ export const AGITATORS = [
   {
     slug: 'ilhan-omar',
     name: 'Ilhan Omar',
-    subtitle: 'Tropes about Jewish money and dual loyalty',
+    subtitle: '"Benjamins," dual loyalty, and "Israel has hypnotized the world"',
     image: 'https://commons.wikimedia.org/wiki/Special:FilePath/Ilhan_Omar%2C_official_portrait%2C_116th_Congress_%28cropped%29_A.jpg',
     description: 'U.S. Representative who has been criticized for statements invoking antisemitic tropes—e.g., that U.S. support for Israel is “all about the Benjamins,” and suggestions of dual loyalty—which draw on classic antisemitic canards.',
     sources: [
@@ -67,13 +67,15 @@ export const AGITATORS = [
   {
     slug: 'candace-owens',
     name: 'Candace Owens',
-    subtitle: '"Political Jews," Hitler defense, Antisemite of the Year 2024',
+    subtitle: '"Political Jews," blood libel, JFK conspiracy, Antisemite of the Year 2024',
     image: 'https://commons.wikimedia.org/wiki/Special:FilePath/Candace_Owens_by_Gage_Skidmore_%28cropped%29.jpg',
-    description: 'Commentator who faced repeated accusations of antisemitism, peaking in 2024–2025. In March 2024 (leading to her Daily Wire firing) she repeatedly referenced a "small ring" of "political Jews" in Hollywood and D.C. doing "sinister" things, defended Kanye West\'s "death con 3 on Jewish people" comments, and liked a tweet invoking blood libel against a rabbi. She has claimed Israel was behind JFK\'s assassination and defended Hitler\'s early actions ("wanted to make Germany great"). StopAntisemitism named her "Antisemite of the Year" for 2024, citing Jewish media-control tropes and false claims about Israel. She has denied antisemitism, framing it as anti-Zionism or criticism of specific figures.',
+    description: 'Right-wing commentator who rose to prominence as a MAGA supporter and critic of Black Lives Matter (Turning Point USA, then Daily Wire). She has come to embrace explicitly antisemitic, anti-Zionist and anti-Israel views, especially after Oct. 7, 2023. In March 2024 she left the Daily Wire after escalating antisemitic rhetoric and public disagreement with Ben Shapiro—including coded "political Jews" language, blood libel (liking a post asking a rabbi if he was "drunk on Christian blood"), and defending Hitler\'s early actions. In August 2024 she hosted Tristan Tate and claimed Judaism was a "pedophile-centric religion" that believes in "demons" and "child sacrifice," agreed that Stalin and Lenin were "part of the Jewish cabal," invoked Kabbalah and Freud in antisemitic ways, and promoted blood libel regarding Leo Frank. She posted a video claiming Israel was behind JFK\'s assassination and that Israel has "taken over" the U.S., and hosted a "Truth About Zionism" broadcast promoting conspiracy theories about USS Liberty and Israeli advance knowledge of 9/11. She has engaged in Holocaust distortion (July 2024), criticized the Antisemitism Awareness Act (June 2024), promoted Soros tropes on Tucker Carlson (2021), and appeared with Ye in "White Lives Matter" shirts (2022). The ADL documents her full trajectory; StopAntisemitism named her 2024 "Antisemite of the Year."',
     sources: [
       { date: 'Mar 2024', text: 'Owens was fired from the Daily Wire after using coded language about "political Jews" and a "small ring" of people "using the fact that they are Jewish to shield themselves"; insinuating Hollywood "sinister" Jewish influence; and liking a post asking a rabbi if he was "drunk on Christian blood" (blood libel). The Guardian and StopAntisemitism documented the infractions.', url: 'https://stopantisemitism.org/03/22/candace-owens-fired-after-multiple-antisemitic-infractions/' },
+      { date: 'Aug 2024', text: 'In a Tristan Tate interview Owens claimed Judaism was a "pedophile-centric religion" that believes in "demons" and "child sacrifice," agreed that Stalin and Lenin were "part of the Jewish cabal," and invoked Kabbalah/Freud in antisemitic ways. On Aug 17 she posted a video claiming Israel was behind JFK\'s assassination and that Israel has "taken over" the U.S. On Aug 18 she hosted "The Truth About Zionism" with the Tate brothers, promoting conspiracy theories about USS Liberty and Israeli advance knowledge of 9/11, and promoted blood libel regarding Leo Frank (the Jewish man lynched in 1913). ADL backgrounder documents these and other incidents.', url: 'https://www.adl.org/resources/backgrounder/candace-owens' },
+      { date: 'July–June 2024', text: 'In a July 2024 podcast Owens engaged in Holocaust distortion and denial, responding to backlash that "Zionism" had "polluted American minds" to defend Israel "out of morality and the evils of the Holocaust." In June she criticized the Antisemitism Awareness Act and warned that accusing Jews of dual loyalty or discussing the Jewish role in Jesus\' persecution could get people "in trouble." ADL backgrounder.', url: 'https://www.adl.org/resources/backgrounder/candace-owens' },
       { date: 'Dec 2024', text: 'StopAntisemitism named Owens 2024 "Antisemite of the Year" (poll of 30,000+ votes), citing her defense of Hitler, conspiracy theories about Jews controlling Hollywood and institutions, and other remarks. Jerusalem Post and Israel National News reported; Owens said she would "prepare an acceptance speech."', url: 'https://www.jpost.com/diaspora/article-833584' },
-      { date: 'Aug 2024', text: 'Hosted Tristan Tate; claimed Israel was behind JFK\'s assassination; discussions blending antisemitic tropes about Jews, Weimar Republic, and global influence.', url: null },
+      { date: '2019–2022', text: '2019: appeared to defend Hitler while communications director for TPUSA. 2021: on Tucker Carlson Tonight promoted Soros trope (funding BLM to destabilize America). 2022: defended Ye after antisemitic outbursts; appeared with Ye in Paris wearing "White Lives Matter" shirts. ADL backgrounder.', url: 'https://www.adl.org/resources/backgrounder/candace-owens' },
     ],
   },
   {
