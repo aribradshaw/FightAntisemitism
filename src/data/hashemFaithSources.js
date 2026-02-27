@@ -67,7 +67,7 @@ export const DEFINITION_SOURCES = {
   ].map((p) => ({ label: p.label, url: url(p.path) })),
   zog: [],
   holocaust: [],
-  'axis-of-evil': [],
+  'axis-of-resistance': [],
   fara: [
     POSTS['should-aipac-be-registered-under-fara'],
     POSTS['does-aipac-fall-under-22-usc-611'],

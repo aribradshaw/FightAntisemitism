@@ -25,7 +25,20 @@ With `.env` already set:
 npm run db:seed
 ```
 
-The seed script truncates existing rows then inserts timeline events (from the Jews/Israel wikis), definitions, agitators with sources, and misconceptions with topic content. You can re-run `npm run db:seed` to reset and re-seed.
+This seeds all tables. To seed only specific tables (faster when you only change one area):
+
+```bash
+npm run db:seed:definitions   # definitions only
+npm run db:seed:timeline      # timeline_events only
+npm run db:seed:agitators     # agitators + agitator_sources
+npm run db:seed:conspiracies  # conspiracies + conspiracy_sources
+npm run db:seed:talmud        # talmud_entries + talmud_sources
+npm run db:seed:misconceptions # misconceptions + topics + entries + entry_sources
+```
+
+Or: `node database/seed.js <table>` (e.g. `node database/seed.js definitions`).
+
+Seed data lives in `database/data/*.js` (timeline, definitions, agitators, conspiracies, talmud, misconceptions). Edit those files to change content; each table’s seed is in `database/seeds/seed-<table>.js`.
 
 ## Tables
 

@@ -77,6 +77,61 @@ app.get('/api/timeline-events', async (_req, res) => {
   }
 })
 
+// GET /api/definitions — all definitions (slug, title, summary) for list
+app.get('/api/definitions', async (_req, res) => {
+  try {
+    const conn = await getConnection()
+    const [rows] = await conn.execute(
+      'SELECT slug, title, summary FROM definitions ORDER BY title ASC'
+    )
+    conn.end()
+    res.json(rows.map((r) => ({
+      slug: r.slug,
+      title: r.title,
+      summary: r.summary,
+    })))
+  } catch (err) {
+    console.error('GET /api/definitions:', err.message)
+    res.status(500).json({ error: 'Failed to load definitions.' })
+  }
+})
+
+// GET /api/definitions/:slug — one definition with body_text and further_reading
+app.get('/api/definitions/:slug', async (req, res) => {
+  try {
+    const { slug } = req.params
+    const conn = await getConnection()
+    const [rows] = await conn.execute(
+      'SELECT slug, title, summary, body_text, further_reading FROM definitions WHERE slug = ? LIMIT 1',
+      [slug]
+    )
+    conn.end()
+    if (!rows || rows.length === 0) {
+      return res.status(404).json({ error: 'Definition not found.' })
+    }
+    const r = rows[0]
+    let further_reading = r.further_reading
+    if (typeof further_reading === 'string') {
+      try {
+        further_reading = further_reading ? JSON.parse(further_reading) : []
+      } catch {
+        further_reading = []
+      }
+    }
+    if (!Array.isArray(further_reading)) further_reading = []
+    res.json({
+      slug: r.slug,
+      title: r.title,
+      summary: r.summary,
+      body_text: r.body_text ?? '',
+      further_reading,
+    })
+  } catch (err) {
+    console.error('GET /api/definitions/:slug:', err.message)
+    res.status(500).json({ error: 'Failed to load definition.' })
+  }
+})
+
 // GET /api/agitators — all agitators with sources and image_url (Commons URLs)
 app.get('/api/agitators', async (_req, res) => {
   try {

@@ -11,7 +11,13 @@
     "server": "node server/index.js",
     "start": "node server/index.js",
     "db:schema": "node database/run-schema.js",
-    "db:seed": "node database/seed.js"
+    "db:seed": "node database/seed.js",
+    "db:seed:timeline": "node database/seed.js timeline",
+    "db:seed:definitions": "node database/seed.js definitions",
+    "db:seed:agitators": "node database/seed.js agitators",
+    "db:seed:conspiracies": "node database/seed.js conspiracies",
+    "db:seed:talmud": "node database/seed.js talmud",
+    "db:seed:misconceptions": "node database/seed.js misconceptions"
   },
   "dependencies": {
     "@tmcw/togeojson": "^7.1.2",
