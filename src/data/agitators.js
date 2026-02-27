@@ -5,12 +5,16 @@ export const AGITATORS = [
     name: 'Tucker Carlson',
     subtitle: 'Mainstreaming antisemitic tropes and white-nationalist talking points',
     image: 'https://commons.wikimedia.org/wiki/Special:FilePath/Tucker_Carlson_2020_%28cropped%29.jpg',
-    description: 'Former Fox News host who has repeatedly platformed antisemitic guests, promoted replacement theory, and used dog whistles about “globalists” and “cosmopolitan elites” that antisemites interpret as Jews.',
+    description: 'Former Fox News host who has repeatedly platformed antisemitic guests, promoted replacement theory, and used dog whistles about “globalists” and “cosmopolitan elites” that antisemites interpret as Jews. Post-Fox, his show Tucker on X has hosted Holocaust revisionists and Hitler apologists; critics say his "just asking questions" framing legitimizes neo-Nazi ideology. He has drawn close ties with Gulf monarchies (Qatar and Saudi Arabia), leading to the nickname "Qatarlson" and accusations that he soft-pedals their record while deflecting from Saudi links to 9/11.',
     sources: [
-      { date: '2022', text: 'Platformed white nationalist Nick Fuentes and Ye (Kanye West) after antisemitic outbursts.', url: '#' },
-      { date: '2023', text: 'Suggested Jewish influence over media and “why do I have to love the Holocaust?” rhetoric.', url: '#' },
-      { date: '2024', text: 'Continued rhetoric about “globalist” elites and opposition to Israel aid.', url: '#' },
-      { date: '2025', text: 'At Charlie Kirk’s memorial eulogy, he invoked “guys sitting around eating hummus” plotting to silence truth-tellers—a food associated with Jews that was not around when Jesus lived—to allege that the Jews killed Jesus. That is the Jewish deicide conspiracy theory.', url: 'https://www.msnbc.com/opinion/msnbc-opinion/tucker-carlson-charlie-kirk-eulogy-antisemitism-maga-rcna233067' },
+      { date: '2022', text: 'On Fox News, Carlson aired a two-night prime-time special interviewing Ye (Kanye West) after weeks of antisemitic rants. Fox and Carlson\'s team deceptively edited the broadcast: unaired footage showed Ye making explicitly antisemitic remarks and invoking stereotypes about Jewish businessmen; Carlson assured him "we\'re not in the censorship business" and praised him for speaking "so honestly." Media Matters and The Forward documented the edited-out antisemitism.', url: 'https://www.mediamatters.org/tucker-carlson/fox-news-and-tucker-carlson-deceptively-edited-out-key-moments-its-much-touted-kanye' },
+      { date: '2023', text: 'On his X show, Carlson interviewed Candace Owens and accused pro-Israel Ivy League donors of funding "white genocide"—claiming they had paid for universities to teach that "whiteness" was "associated with wrongness" and to "call for white genocide" while now demanding accountability for campus antisemitism. He said: "You were paying for it... You were calling my children immoral for their skin color, you paid for that." Rolling Stone and ADL have documented his long history of pushing replacement theory and white-genocide conspiracy rhetoric that overlaps with antisemitic tropes.', url: 'https://www.rollingstone.com/politics/politics-news/tucker-carlson-israel-college-donors-funded-white-genocide-1234880901/' },
+      { date: '2024', text: 'At the World Governments Summit in Dubai, when asked why the U.S. continues to back Israel (in context of the U.S. veto of a Gaza cease-fire resolution), Carlson said the U.S. had lost "moral authority" and was "abetting war for its own sake" and "spreading destruction for its own sake." He framed U.S. support for Israel as the father encouraging two kids to "beat the crap out of" each other instead of restoring peace—without naming Hamas or the Oct. 7 attacks. Jewish Insider reported the remarks; his rhetoric has been cited as part of a broader turn against Israel aid among some conservatives.', url: 'https://jewishinsider.com/2024/02/asked-why-u-s-continues-to-back-israel-tucker-carlson-says-u-s-spreading-destruction-for-its-own-sake/' },
+      { date: 'Sept 2024', text: 'Carlson hosted Darryl Cooper on Tucker on X, who falsely portrayed Winston Churchill as the villain of WWII and framed Adolf Hitler as a misunderstood peace-seeker. The White House condemned the episode as "Nazi propaganda." Rep. Ritchie Torres (D-NY) introduced H.Res. 1543 condemning Carlson for "perpetuating harmful falsehoods, fostering antisemitism, and undermining the fight against hate and bigotry." A group of Jewish House Democrats stated: "The normalization of Nazism is unacceptable and dangerous." The New York Times, CNN, Axios, and Torres\'s office documented the backlash.', url: 'https://www.nytimes.com/2024/09/06/business/media/tucker-carlson-holocaust-interview-biden-administration.html' },
+      { date: 'Dec 2024', text: 'Carlson hosted Munther Isaac, an anti-Zionist Palestinian pastor whose rhetoric conflates Jewish self-determination with harsh accusations. Watchdog groups criticized Carlson for amplifying Isaac\'s inflammatory anti-Israel messaging without journalistic pushback, amid rising antisemitic attacks globally.', url: null },
+      { date: 'Aug 2025', text: 'Carlson hosted Dave Collum, a Cornell chemistry professor and conspiracy theorist, who questioned the Allied stance in WWII and implied that aligning with Nazi Germany against Stalin might have prevented the Holocaust. Carlson nodded in agreement and said "I think that\'s right" when Collum claimed "the story we got about World War II was all wrong" and that "one can make the argument we should have sided with Hitler." National Review\'s Rich Lowry wrote that Carlson had "out-Tuckered himself," platforming "ignorance and perversity masquerading as brave truth-telling." National Review and Mediaite reported.', url: 'https://www.nationalreview.com/2025/08/should-we-have-allied-with-hitler/' },
+      { date: '2025', text: 'At Charlie Kirk\'s memorial eulogy, he invoked "guys sitting around eating hummus" plotting to silence truth-tellers—a food associated with Jews that was not around when Jesus lived—to allege that the Jews killed Jesus. That is the Jewish deicide conspiracy theory. Commentators compared him to Father Coughlin; the New York Post and Times of Israel described him as "today\'s Father Coughlin with a sleek podcast" and noted that even Nick Fuentes reportedly said Carlson is "more antisemitic than me."', url: 'https://www.msnbc.com/opinion/msnbc-opinion/tucker-carlson-charlie-kirk-eulogy-antisemitism-maga-rcna233067' },
+      { date: '2025', text: 'Carlson has developed close ties with Qatar and Saudi Arabia—paid appearances at Gulf forums, soft-focus coverage, and a 9/11 documentary that avoided implicating the Saudis. Critics use the nickname "Qatarlson" to highlight his favorable coverage of regimes that bankroll Hamas and have been accused of ties to terrorism. Learn more at the link below.', url: 'https://qatarlson.com' },
       { date: '2025', text: '36 Falsehoods in One Huckabee Interview: Tucker Carlson Fact-Checked — catalog of 36 distinct falsehoods from the Huckabee interview.', url: '/agitators/tucker-carlson/36-falsehoods' },
     ],
   },
@@ -121,36 +125,6 @@ export const AGITATORS = [
     ],
   },
   {
-    slug: 'stew-peters',
-    name: 'Stew Peters',
-    subtitle: 'Antisemitic conspiracy theories and Great Replacement',
-    image: '/agitators/stewpeters.jpg',
-    description: 'Far-right host and podcaster who has promoted antisemitic conspiracy theories, including Great Replacement rhetoric and tropes about "globalists" and elite control that antisemites interpret as Jews. His show has platformed guests who spread Holocaust denial and other antisemitic content.',
-    sources: [
-      { date: 'Ongoing', text: 'Show content and guests promoting replacement theory and antisemitic conspiracy tropes.', url: '#' },
-    ],
-  },
-  {
-    slug: 'dan-bilzerian',
-    name: 'Dan Bilzerian',
-    subtitle: 'Antisemitic posts and memes on social media',
-    image: 'https://commons.wikimedia.org/wiki/Special:FilePath/Dan_Bilzerian.jpg',
-    description: 'Social media personality and poker player who has posted antisemitic memes and comments online. His posts have included classic antisemitic imagery and conspiracy tropes, contributing to normalization of Jew-hatred in online spaces.',
-    sources: [
-      { date: 'Various', text: 'Social media posts containing antisemitic imagery and conspiracy rhetoric.', url: '#' },
-    ],
-  },
-  {
-    slug: 'lucas-gage',
-    name: 'Lucas Gage',
-    subtitle: 'Antisemitic rhetoric and Holocaust minimization',
-    image: '/agitators/lucasgage.jpg',
-    description: 'Streamer and online commentator who has promoted antisemitic rhetoric and Holocaust minimization. He has used "globalist" and "Zionist" conspiracy language and made statements that downplay or distort the Holocaust and Jewish experience.',
-    sources: [
-      { date: 'Ongoing', text: 'Streams and posts featuring antisemitic tropes and Holocaust minimization.', url: '#' },
-    ],
-  },
-  {
     slug: 'jackson-hinkle',
     name: 'Jackson Hinkle',
     subtitle: 'Anti-Israel rhetoric that crosses into antisemitic tropes',
@@ -158,16 +132,6 @@ export const AGITATORS = [
     description: 'Social media commentator known for virulent anti-Israel content who has repeatedly used rhetoric that critics say crosses into antisemitic tropes: conspiracy framing about "Zionist" control of media and government, and content that blurs Jews with the Israeli state and dehumanizes Israelis.',
     sources: [
       { date: '2023–2024', text: 'Posts and commentary invoking "Zionist" control and conspiracy tropes; millions of followers.', url: '#' },
-    ],
-  },
-  {
-    slug: 'jake-shields',
-    name: 'Jake Shields',
-    subtitle: 'Antisemitic conspiracy posts and "globalist" rhetoric',
-    image: '/agitators/jakeshields.jpg',
-    description: 'MMA fighter and social media figure who has posted antisemitic conspiracy content online, including references to George Soros and "globalists" in ways that echo classic antisemitic tropes about Jewish power and control.',
-    sources: [
-      { date: 'Various', text: 'Social media posts promoting antisemitic conspiracy theories and "globalist" tropes.', url: '#' },
     ],
   },
   {

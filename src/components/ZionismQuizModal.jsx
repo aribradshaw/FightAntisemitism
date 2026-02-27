@@ -20,10 +20,10 @@ const QUESTIONS = [
     explain: 'Resolution 46/86 (1991) revoked the 1975 equation of Zionism with racism. Zionism is national liberation and self-determination for the Jewish people, not racial supremacy.',
   },
   {
-    q: 'What kind of claim is that?',
-    options: ['A factual claim with evidence', 'An antisemitic conspiracy myth—the same as "Jews control the world," with "Zionist" as a stand-in for Jews'],
+    q: 'When someone says "Zionists" or "Jews" control the media and the banks, what are they doing?',
+    options: ['Making a testable claim that can be checked against evidence', 'Repeating a scapegoating pattern—blaming a single, hidden group for complex problems—that has no basis in evidence and has been used to justify persecuting Jews for centuries'],
     correct: 1,
-    explain: 'There is no evidence that "Zionists" or Jews control the media, banks, or governments. The claim recycles an ancient antisemitic myth used to blame Jews and justify hatred.',
+    explain: 'The claim is not testable in any serious way; there is no evidence of such control. It fits the old pattern of blaming a designated "other" for society\'s ills. Using "Zionist" instead of "Jew" doesn\'t change what the myth is.',
   },
   {
     q: 'So, what is Zionism?',
@@ -54,8 +54,8 @@ const STEPS = [
   { type: 'question', questionIndex: 2 },
   {
     type: 'info',
-    title: 'Something you might hear',
-    text: 'Someone says: <em>"Zionists control the media and the banks."</em>',
+    title: 'A pattern that repeats',
+    text: 'When societies are under stress, people often look for a single, hidden group to blame—one that supposedly controls money, media, or government. The same story appears across centuries under different labels.',
   },
   { type: 'question', questionIndex: 3 },
   { type: 'question', questionIndex: 4 },
@@ -135,6 +135,10 @@ export default function ZionismQuizModal({ open, onClose }) {
     if (currentStep?.type === 'question' && !showExplain) return
     setSelected(null)
     setShowExplain(false)
+    if (currentStep?.type === 'question' && stepIndex === steps.length - 2 && !isCorrect) {
+      setStepIndex(0)
+      return
+    }
     if (stepIndex < steps.length - 1) {
       setStepIndex((i) => i + 1)
     } else {
@@ -158,7 +162,8 @@ export default function ZionismQuizModal({ open, onClose }) {
 
   const canGoNext = currentStep?.type !== 'question' || showExplain
   const isDoneStep = currentStep?.type === 'done'
-  const nextLabel = isDoneStep ? 'Close' : stepIndex === steps.length - 2 ? 'Finish' : 'Next'
+  const isLastQuestionWrong = currentStep?.type === 'question' && stepIndex === steps.length - 2 && showExplain && !isCorrect
+  const nextLabel = isDoneStep ? 'Close' : isLastQuestionWrong ? 'Retake quiz' : stepIndex === steps.length - 2 ? 'Finish' : 'Next'
 
   if (!open) return null
 

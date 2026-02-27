@@ -1361,6 +1361,78 @@ h3 { font-size: 1.2rem; }
   color: var(--text-primary);
 }
 
+/* Tucker detail: name + overview left, Qatar module right; then sources full width */
+.agitator-detail-top-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2rem;
+  align-items: start;
+  margin-bottom: 2rem;
+}
+.agitator-detail-top-row .agitator-sources {
+  grid-column: 1 / -1;
+  width: 100%;
+  box-sizing: border-box;
+}
+@media (max-width: 768px) {
+  .agitator-detail-top-row {
+    grid-template-columns: 1fr;
+  }
+}
+.agitator-qatar-module {
+  width: 280px;
+  flex-shrink: 0;
+}
+.agitator-qatar-link {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1rem;
+  padding: 0;
+  background: #0f0c0c;
+  border: 1px solid #8B1538;
+  border-radius: var(--radius);
+  overflow: hidden;
+  text-decoration: none;
+  color: #f0eae8;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+.agitator-qatar-link:hover {
+  background: #1a1212;
+  border-color: #a61c42;
+  color: #fff;
+}
+.agitator-qatar-link:hover .agitator-qatar-cta {
+  color: #e8b4bc;
+}
+.agitator-qatar-img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  display: block;
+}
+.agitator-qatar-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0 1.25rem 1.25rem;
+}
+.agitator-qatar-title {
+  margin: 0 0 0.35rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #f0eae8;
+  letter-spacing: 0.02em;
+}
+.agitator-qatar-cta {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #8B1538;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
 /* 36 Falsehoods (Tucker / Huckabee) — long-form source module */
 .huckabee-36-falsehoods {
   max-width: 720px;
