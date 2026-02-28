@@ -25,11 +25,15 @@ import './App.css'
 
 const EXIT_MS = 320
 const ENTER_MS = 320
+const FAB_FADE_MS = 220
 
 function AppRoutes() {
   const location = useLocation()
   const [displayLocation, setDisplayLocation] = useState(location)
   const [transitionState, setTransitionState] = useState('idle')
+  const showFabOnRoute = location.pathname !== '/'
+  const [fabMounted, setFabMounted] = useState(showFabOnRoute)
+  const [fabVisible, setFabVisible] = useState(showFabOnRoute)
   const isInitialMount = useRef(true)
 
   useEffect(() => {
@@ -49,6 +53,18 @@ function AppRoutes() {
     }, EXIT_MS)
     return () => clearTimeout(exitTimer)
   }, [location, displayLocation.key])
+
+  useEffect(() => {
+    if (showFabOnRoute) {
+      setFabMounted(true)
+      // Ensure a paint happens so opacity transition runs.
+      const frame = requestAnimationFrame(() => setFabVisible(true))
+      return () => cancelAnimationFrame(frame)
+    }
+    setFabVisible(false)
+    const hideTimer = setTimeout(() => setFabMounted(false), FAB_FADE_MS)
+    return () => clearTimeout(hideTimer)
+  }, [showFabOnRoute])
 
   const currentYear = new Date().getFullYear()
   return (
@@ -74,7 +90,7 @@ function AppRoutes() {
           <Route path="stylesheet" element={<Stylesheet />} />
         </Route>
       </Routes>
-      <ContactFAB />
+      {fabMounted && <ContactFAB visibilityClass={fabVisible ? 'contact-fab--visible' : 'contact-fab--hidden'} />}
       <div className="app-copyright" aria-label="Copyright and disclaimer">
         © {currentYear} Ari Daniel Bradshaw.
         <span className="app-copyright-rest"> All rights reserved. This site is for educational purposes.</span>

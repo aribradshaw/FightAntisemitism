@@ -128,7 +128,35 @@ export default function Timeline() {
         <section className="timeline-content">
           <h2>Events near {clampedYear}</h2>
           {error && <p className="timeline-map-error">{error}</p>}
-          {loading && <p className="timeline-empty">Loading timeline…</p>}
+          {loading && (
+            <div className="timeline-loading" role="status" aria-live="polite" aria-label="Loading timeline">
+              <div className="timeline-loading-spinner" aria-hidden />
+              <p className="timeline-loading-text">Loading timeline…</p>
+              <ul className="timeline-loading-list" aria-hidden>
+                <li className="timeline-loading-item">
+                  <span className="timeline-loading-year" />
+                  <div className="timeline-loading-lines">
+                    <span className="timeline-loading-line timeline-loading-line--lg" />
+                    <span className="timeline-loading-line timeline-loading-line--md" />
+                  </div>
+                </li>
+                <li className="timeline-loading-item">
+                  <span className="timeline-loading-year" />
+                  <div className="timeline-loading-lines">
+                    <span className="timeline-loading-line timeline-loading-line--lg" />
+                    <span className="timeline-loading-line timeline-loading-line--sm" />
+                  </div>
+                </li>
+                <li className="timeline-loading-item">
+                  <span className="timeline-loading-year" />
+                  <div className="timeline-loading-lines">
+                    <span className="timeline-loading-line timeline-loading-line--md" />
+                    <span className="timeline-loading-line timeline-loading-line--sm" />
+                  </div>
+                </li>
+              </ul>
+            </div>
+          )}
           {!loading && !error && filtered.length === 0 && (
             <p className="timeline-empty">No events in this range. Try moving the slider.</p>
           )}

@@ -25,7 +25,7 @@ function getTokenWithTimeout(executeRecaptcha) {
   ])
 }
 
-export default function ContactFAB() {
+export default function ContactFAB({ visibilityClass = 'contact-fab--visible' }) {
   const { executeRecaptcha } = useGoogleReCaptcha()
   const [open, setOpen] = useState(false)
   const [sending, setSending] = useState(false)
@@ -110,7 +110,7 @@ export default function ContactFAB() {
     <>
       <button
         type="button"
-        className="contact-fab contact-fab--ghost"
+        className={`contact-fab contact-fab--ghost ${visibilityClass}`.trim()}
         onClick={() => setOpen(true)}
         aria-label="Have more questions? Open contact form"
       >
