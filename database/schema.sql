@@ -165,9 +165,11 @@ CREATE TABLE IF NOT EXISTS contact_entries (
   question TEXT NOT NULL,
   answer_text TEXT DEFAULT NULL,
   answered_at DATETIME DEFAULT NULL,
+  archived_at DATETIME DEFAULT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   KEY idx_created (created_at),
-  KEY idx_contact_entries_user (user_id)
+  KEY idx_contact_entries_user (user_id),
+  KEY idx_contact_entries_archived (archived_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Users (auth + profile)

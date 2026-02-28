@@ -561,11 +561,13 @@ app.get('/api/admin/contact-entries', async (req, res) => {
   try {
     const limitRaw = Number(req.query?.limit)
     const limit = Number.isFinite(limitRaw) ? Math.min(Math.max(Math.floor(limitRaw), 1), 500) : 200
+    const includeArchived = req.query?.archived === '1' || req.query?.archived === 'true'
     const conn = await getConnection()
     try {
       const [rows] = await conn.execute(
-        `SELECT id, user_id, name, email, category, question, answer_text, answered_at, created_at
+        `SELECT id, user_id, name, email, category, question, answer_text, answered_at, archived_at, created_at
          FROM contact_entries
+         ${includeArchived ? '' : 'WHERE archived_at IS NULL'}
          ORDER BY created_at DESC
          LIMIT ?`,
         [limit]
@@ -588,14 +590,25 @@ app.patch('/api/admin/contact-entries/:id', async (req, res) => {
     const id = Number(req.params.id)
     if (!Number.isFinite(id) || id <= 0) return res.status(400).json({ error: 'Invalid entry id.' })
     const answerText = typeof req.body?.answer_text === 'string' ? req.body.answer_text.trim() : ''
+    const hasArchivedFlag = Object.prototype.hasOwnProperty.call(req.body || {}, 'archived')
+    const archived = hasArchivedFlag ? Boolean(req.body?.archived) : null
     const conn = await getConnection()
     try {
-      await conn.execute(
-        `UPDATE contact_entries
-         SET answer_text = ?, answered_at = ?
-         WHERE id = ?`,
-        [answerText || null, answerText ? new Date() : null, id]
-      )
+      if (hasArchivedFlag) {
+        await conn.execute(
+          `UPDATE contact_entries
+           SET archived_at = ?
+           WHERE id = ?`,
+          [archived ? new Date() : null, id]
+        )
+      } else {
+        await conn.execute(
+          `UPDATE contact_entries
+           SET answer_text = ?, answered_at = ?
+           WHERE id = ?`,
+          [answerText || null, answerText ? new Date() : null, id]
+        )
+      }
       return res.json({ success: true })
     } finally {
       await conn.end()
@@ -603,6 +616,62 @@ app.patch('/api/admin/contact-entries/:id', async (req, res) => {
   } catch (err) {
     console.error('PATCH /api/admin/contact-entries/:id:', err.message)
     return res.status(500).json({ error: 'Failed to update answer.' })
+  }
+})
+
+// DELETE /api/admin/contact-entries/:id — hard-delete a contact submission
+app.delete('/api/admin/contact-entries/:id', async (req, res) => {
+  const admin = getAdminFromRequest(req)
+  if (!admin) return res.status(401).json({ error: 'Unauthorized' })
+  try {
+    const id = Number(req.params.id)
+    if (!Number.isFinite(id) || id <= 0) return res.status(400).json({ error: 'Invalid entry id.' })
+    const conn = await getConnection()
+    try {
+      await conn.execute('DELETE FROM contact_entries WHERE id = ?', [id])
+      return res.json({ success: true })
+    } finally {
+      await conn.end()
+    }
+  } catch (err) {
+    console.error('DELETE /api/admin/contact-entries/:id:', err.message)
+    return res.status(500).json({ error: 'Failed to delete submission.' })
+  }
+})
+
+// GET /api/admin/users — users database with submission counts
+app.get('/api/admin/users', async (req, res) => {
+  const admin = getAdminFromRequest(req)
+  if (!admin) return res.status(401).json({ error: 'Unauthorized' })
+  try {
+    const limitRaw = Number(req.query?.limit)
+    const limit = Number.isFinite(limitRaw) ? Math.min(Math.max(Math.floor(limitRaw), 1), 1000) : 500
+    const conn = await getConnection()
+    try {
+      const [rows] = await conn.execute(
+        `SELECT
+           u.id,
+           u.username,
+           u.email,
+           u.first_name,
+           u.last_name,
+           u.created_at,
+           COUNT(c.id) AS submissions_count,
+           MAX(c.created_at) AS last_submission_at
+         FROM users u
+         LEFT JOIN contact_entries c ON c.user_id = u.id
+         GROUP BY u.id, u.username, u.email, u.first_name, u.last_name, u.created_at
+         ORDER BY u.created_at DESC
+         LIMIT ?`,
+        [limit]
+      )
+      return res.json({ users: rows || [] })
+    } finally {
+      await conn.end()
+    }
+  } catch (err) {
+    console.error('GET /api/admin/users:', err.message)
+    return res.status(500).json({ error: 'Failed to load users.' })
   }
 })
 
