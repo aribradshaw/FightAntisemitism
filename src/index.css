@@ -2447,3 +2447,67 @@ h3 { font-size: 1.2rem; }
   cursor: pointer;
 }
 .contact-fab-submit:disabled { opacity: 0.7; cursor: not-allowed; }
+
+.admin-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem 3rem;
+}
+.admin-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+.admin-head-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+.admin-login-form {
+  max-width: 440px;
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 1rem;
+}
+.admin-login-form input {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 0.65rem 0.75rem;
+}
+.admin-stats {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--card-bg);
+  padding: 0.8rem 0.9rem;
+}
+.admin-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--card-bg);
+}
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.admin-table th,
+.admin-table td {
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.65rem 0.6rem;
+  vertical-align: top;
+}
+.admin-table th {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.admin-question-cell {
+  min-width: 420px;
+  white-space: pre-wrap;
+}
+.admin-error {
+  margin-top: 0.75rem;
+  color: #b91c1c;
+}

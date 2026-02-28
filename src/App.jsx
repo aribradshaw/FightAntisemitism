@@ -19,6 +19,7 @@ import TalmudDetail from './pages/TalmudDetail'
 import Slideshow from './pages/Slideshow'
 import Stylesheet from './pages/Stylesheet'
 import Profile from './pages/Profile'
+import Admin from './pages/Admin'
 import Layout from './components/Layout'
 import ContactFAB from './components/ContactFAB'
 import { TransitionContext } from './context/TransitionContext'
@@ -33,7 +34,7 @@ function AppRoutes() {
   const location = useLocation()
   const [displayLocation, setDisplayLocation] = useState(location)
   const [transitionState, setTransitionState] = useState('idle')
-  const showFabOnRoute = location.pathname !== '/'
+  const showFabOnRoute = location.pathname !== '/' && location.pathname !== '/admin'
   const [fabMounted, setFabMounted] = useState(showFabOnRoute)
   const [fabVisible, setFabVisible] = useState(showFabOnRoute)
   const isInitialMount = useRef(true)
@@ -73,6 +74,7 @@ function AppRoutes() {
     <TransitionContext.Provider value={transitionState}>
       <Routes location={displayLocation}>
         <Route path="/" element={<Landing />} />
+        <Route path="/admin" element={<Admin />} />
         <Route path="/" element={<Layout />}>
           <Route path="explore" element={<Hub />} />
           <Route path="timeline" element={<Timeline />} />

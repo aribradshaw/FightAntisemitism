@@ -10,7 +10,7 @@ import { existsSync } from 'fs'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 import { config as loadEnv } from 'dotenv'
-import { randomBytes, createHash } from 'crypto'
+import { randomBytes, createHash, createHmac, timingSafeEqual } from 'crypto'
 import bcrypt from 'bcryptjs'
 import { promises as dns } from 'dns'
 import net from 'net'
@@ -113,9 +113,15 @@ const SMTP_CONNECT_TIMEOUT_MS = Number(process.env.SMTP_CONNECT_TIMEOUT_MS) || 1
 const SMTP_SOCKET_TIMEOUT_MS = Number(process.env.SMTP_SOCKET_TIMEOUT_MS) || 10000
 const SMTP_DEBUG_TOKEN = process.env.SMTP_DEBUG_TOKEN || ''
 const SESSION_COOKIE_NAME = 'af_session'
+const ADMIN_SESSION_COOKIE_NAME = 'af_admin_session'
 const SESSION_DAYS = Number(process.env.SESSION_DAYS) || 30
 const SESSION_TTL_MS = SESSION_DAYS * 24 * 60 * 60 * 1000
 const SESSION_SECRET = process.env.SESSION_SECRET || process.env.DB_PASSWORD || 'change-me-session-secret'
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || 'aribradshawaz@gmail.com')
+  .split(',')
+  .map((v) => v.trim().toLowerCase())
+  .filter(Boolean)
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || ''
 
 const PROGRESS_CATEGORY_SQL = {
   definitions: 'SELECT COUNT(*) AS c FROM definitions',
@@ -164,6 +170,47 @@ function setSessionCookie(res, token, expiresAt) {
 function clearSessionCookie(res) {
   const secureFlag = isProduction ? '; Secure' : ''
   res.setHeader('Set-Cookie', `${SESSION_COOKIE_NAME}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${secureFlag}`)
+}
+
+function signAdminSession(email, expiresAtMs) {
+  const payload = `${email}|${expiresAtMs}`
+  const sig = createHmac('sha256', SESSION_SECRET).update(payload).digest('hex')
+  return Buffer.from(`${payload}|${sig}`).toString('base64url')
+}
+
+function parseAdminSession(token) {
+  try {
+    const decoded = Buffer.from(token, 'base64url').toString('utf8')
+    const [email, expiresAtRaw, sig] = decoded.split('|')
+    const expiresAtMs = Number(expiresAtRaw)
+    if (!email || !Number.isFinite(expiresAtMs) || !sig) return null
+    const payload = `${email}|${expiresAtMs}`
+    const expectedSig = createHmac('sha256', SESSION_SECRET).update(payload).digest('hex')
+    const a = Buffer.from(sig, 'hex')
+    const b = Buffer.from(expectedSig, 'hex')
+    if (a.length !== b.length || !timingSafeEqual(a, b)) return null
+    if (Date.now() > expiresAtMs) return null
+    return { email }
+  } catch {
+    return null
+  }
+}
+
+function setAdminSessionCookie(res, token, expiresAtMs) {
+  const maxAge = Math.max(0, Math.floor((expiresAtMs - Date.now()) / 1000))
+  const secureFlag = isProduction ? '; Secure' : ''
+  res.setHeader('Set-Cookie', `${ADMIN_SESSION_COOKIE_NAME}=${encodeURIComponent(token)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}${secureFlag}`)
+}
+
+function clearAdminSessionCookie(res) {
+  const secureFlag = isProduction ? '; Secure' : ''
+  res.setHeader('Set-Cookie', `${ADMIN_SESSION_COOKIE_NAME}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${secureFlag}`)
+}
+
+function getAdminFromRequest(req) {
+  const token = parseCookies(req)[ADMIN_SESSION_COOKIE_NAME]
+  if (!token) return null
+  return parseAdminSession(token)
 }
 
 async function fetchJsonWithTimeout(url, init, timeoutMs) {
@@ -420,6 +467,64 @@ app.get('/api/auth/me', async (req, res) => {
   } catch (err) {
     console.error('GET /api/auth/me:', err.message)
     return res.status(500).json({ error: 'Failed to load current user.' })
+  }
+})
+
+// POST /api/admin/login — admin-only email/password login from env vars
+app.post('/api/admin/login', async (req, res) => {
+  try {
+    const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : ''
+    const password = typeof req.body?.password === 'string' ? req.body.password : ''
+    if (!email || !password) return res.status(400).json({ error: 'Email and password are required.' })
+    if (!ADMIN_PASSWORD) return res.status(503).json({ error: 'Admin login is not configured.' })
+    if (!ADMIN_EMAILS.includes(email) || password !== ADMIN_PASSWORD) {
+      return res.status(401).json({ error: 'Invalid admin credentials.' })
+    }
+    const expiresAtMs = Date.now() + SESSION_TTL_MS
+    const token = signAdminSession(email, expiresAtMs)
+    setAdminSessionCookie(res, token, expiresAtMs)
+    return res.json({ admin: { email } })
+  } catch (err) {
+    console.error('POST /api/admin/login:', err.message)
+    return res.status(500).json({ error: 'Failed to login.' })
+  }
+})
+
+// POST /api/admin/logout — clear admin session
+app.post('/api/admin/logout', (req, res) => {
+  clearAdminSessionCookie(res)
+  return res.json({ success: true })
+})
+
+// GET /api/admin/me — current admin identity
+app.get('/api/admin/me', (req, res) => {
+  const admin = getAdminFromRequest(req)
+  return res.json({ admin: admin ? { email: admin.email } : null })
+})
+
+// GET /api/admin/contact-entries — latest submitted questions for dashboard
+app.get('/api/admin/contact-entries', async (req, res) => {
+  const admin = getAdminFromRequest(req)
+  if (!admin) return res.status(401).json({ error: 'Unauthorized' })
+  try {
+    const limitRaw = Number(req.query?.limit)
+    const limit = Number.isFinite(limitRaw) ? Math.min(Math.max(Math.floor(limitRaw), 1), 500) : 200
+    const conn = await getConnection()
+    try {
+      const [rows] = await conn.execute(
+        `SELECT id, name, email, category, question, created_at
+         FROM contact_entries
+         ORDER BY created_at DESC
+         LIMIT ?`,
+        [limit]
+      )
+      return res.json({ entries: rows || [] })
+    } finally {
+      await conn.end()
+    }
+  } catch (err) {
+    console.error('GET /api/admin/contact-entries:', err.message)
+    return res.status(500).json({ error: 'Failed to load contact entries.' })
   }
 })
 
