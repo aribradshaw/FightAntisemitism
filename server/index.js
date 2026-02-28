@@ -35,6 +35,11 @@ const isProduction = process.env.NODE_ENV === 'production'
 const app = express()
 app.use(express.json())
 
+// Fast health endpoint for platform checks.
+app.get('/api/healthz', (_req, res) => {
+  res.status(200).json({ ok: true })
+})
+
 const RECAPTCHA_SECRET = process.env.RECAPTCHA_SECRET_KEY || process.env.RECAPTCHA_SECRET
 if (!RECAPTCHA_SECRET && !isProduction) {
   console.warn('Contact form: RECAPTCHA_SECRET_KEY not set. Add it to .env in the project root and restart the server.')
