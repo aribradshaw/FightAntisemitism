@@ -45,7 +45,13 @@ export default function ContactFAB() {
     }
     setSending(true)
     try {
-      const recaptchaToken = await executeRecaptcha('contact')
+      const RECAPTCHA_TIMEOUT_MS = 15000
+      const recaptchaToken = await Promise.race([
+        executeRecaptcha('contact'),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('reCAPTCHA_TIMEOUT')), RECAPTCHA_TIMEOUT_MS)
+        ),
+      ])
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -68,8 +74,15 @@ export default function ContactFAB() {
         setOpen(false)
         setMessage(null)
       }, 2000)
-    } catch {
-      setMessage({ type: 'error', text: 'Failed to send. Please try again.' })
+    } catch (err) {
+      const isTimeout = err?.message === 'reCAPTCHA_TIMEOUT'
+      const isRecaptcha = err?.message?.includes('recaptcha') || err?.message?.includes('RECAPTCHA')
+      setMessage({
+        type: 'error',
+        text: isTimeout || isRecaptcha
+          ? 'Verification failed or timed out. If you\'re on localhost, add it in Google reCAPTCHA admin for this key, or try again.'
+          : 'Failed to send. Please try again.',
+      })
     } finally {
       setSending(false)
     }
