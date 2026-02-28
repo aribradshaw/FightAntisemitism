@@ -15,6 +15,7 @@ const CATEGORIES = [
 ]
 
 const RECAPTCHA_TIMEOUT_MS = 20000
+const CONTACT_API_TIMEOUT_MS = 15000
 
 function getTokenWithTimeout(executeRecaptcha) {
   return Promise.race([
@@ -63,9 +64,12 @@ export default function ContactFAB({ visibilityClass = 'contact-fab--visible' })
         // Retry once (Google sometimes returns 401 then succeeds on retry)
         recaptchaToken = await getTokenWithTimeout(executeRecaptcha)
       }
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), CONTACT_API_TIMEOUT_MS)
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
         body: JSON.stringify({
           name: name.trim(),
           email: email.trim(),
@@ -73,7 +77,7 @@ export default function ContactFAB({ visibilityClass = 'contact-fab--visible' })
           category,
           recaptchaToken,
         }),
-      })
+      }).finally(() => clearTimeout(timeoutId))
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
         setMessage({ type: 'error', text: data.error || 'Something went wrong. Please try again.' })
@@ -87,10 +91,13 @@ export default function ContactFAB({ visibilityClass = 'contact-fab--visible' })
       }, 2000)
     } catch (err) {
       const isTimeout = err?.message === 'reCAPTCHA_TIMEOUT'
+      const isApiTimeout = err?.name === 'AbortError'
       const isRecaptcha = err?.message?.includes('recaptcha') || err?.message?.includes('RECAPTCHA')
       setMessage({
         type: 'error',
-        text: isTimeout || isRecaptcha
+        text: isApiTimeout
+          ? 'Request timed out. Please try again.'
+          : isTimeout || isRecaptcha
           ? 'Verification failed or timed out. Please try again.'
           : 'Failed to send. Please try again.',
       })
