@@ -12,8 +12,12 @@ import { dirname, join } from 'path'
 import { config as loadEnv } from 'dotenv'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-// override: false so Railway/platform env vars are not overwritten by .env
-loadEnv({ path: join(__dirname, '..', '.env'), override: false })
+// Load .env from project root (override: false so Railway/platform env vars win)
+const envPath = join(__dirname, '..', '.env')
+loadEnv({ path: envPath, override: false })
+if (!process.env.RECAPTCHA_SECRET_KEY && existsSync(join(process.cwd(), '.env'))) {
+  loadEnv({ path: join(process.cwd(), '.env'), override: false })
+}
 
 const config = {
   host: process.env.DB_HOST || '192.232.249.125',
@@ -28,7 +32,10 @@ const isProduction = process.env.NODE_ENV === 'production'
 const app = express()
 app.use(express.json())
 
-const RECAPTCHA_SECRET = process.env.RECAPTCHA_SECRET_KEY
+const RECAPTCHA_SECRET = process.env.RECAPTCHA_SECRET_KEY || process.env.RECAPTCHA_SECRET
+if (!RECAPTCHA_SECRET && !isProduction) {
+  console.warn('Contact form: RECAPTCHA_SECRET_KEY not set. Add it to .env in the project root and restart the server.')
+}
 const CONTACT_EMAIL_TO = process.env.CONTACT_EMAIL_TO || 'aribradshawaz@gmail.com'
 const EMAIL_FROM = process.env.EMAIL_FROM || 'no-reply@hashem.faith'
 const EMAIL_USER = process.env.EMAIL_USER
@@ -292,8 +299,10 @@ app.post('/api/contact', async (req, res) => {
       return res.status(400).json({ error: 'Name, email, question, and reCAPTCHA are required.' })
     }
     if (!RECAPTCHA_SECRET) {
-      console.error('RECAPTCHA_SECRET_KEY not set')
-      return res.status(503).json({ error: 'Contact form is not configured.' })
+      console.error('RECAPTCHA_SECRET_KEY (or RECAPTCHA_SECRET) not set. Add it to .env in project root or set the env var, then restart the server.')
+      return res.status(503).json({
+        error: 'Contact form is not configured. Set RECAPTCHA_SECRET_KEY in .env and restart the API server (e.g. npm run dev).',
+      })
     }
     const verifyRes = await fetch('https://www.google.com/recaptcha/api/siteverify', {
       method: 'POST',
