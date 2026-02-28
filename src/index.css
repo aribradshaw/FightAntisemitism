@@ -45,6 +45,7 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 a {
@@ -139,6 +140,9 @@ h3 { font-size: 1.2rem; }
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
 }
 .layout--explore .layout-main {
   min-height: 100vh;
@@ -182,9 +186,10 @@ h3 { font-size: 1.2rem; }
 .layout-main {
   flex: 1;
   padding: 2rem;
-  max-width: 1200px;
+  max-width: min(1200px, 100vw);
   margin: 0 auto;
   width: 100%;
+  box-sizing: border-box;
 }
 
 /* Page transition (zoom / blur / fade) */
@@ -223,6 +228,9 @@ h3 { font-size: 1.2rem; }
 /* Detail (and other non-hub) pages: extra left padding so back button never overlaps header when zoomed */
 .layout:not(.layout--explore) .layout-main {
   padding-left: 6rem;
+  /* Size to content so long pages (e.g. Misconceptions list) can scroll to bottom */
+  flex: 0 0 auto;
+  min-height: 0;
 }
 .app-copyright {
   position: fixed;
@@ -362,6 +370,37 @@ h3 { font-size: 1.2rem; }
   box-shadow: var(--shadow-hover);
   color: var(--text-primary);
   text-decoration: none;
+}
+
+/* Hub & layout: mobile padding and centering */
+@media (max-width: 640px) {
+  .layout-main {
+    padding: 5rem 1.25rem 2rem;
+    /* top clears fixed back button; symmetric horizontal padding */
+  }
+  .layout--explore .layout-main {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+  /* Non-explore pages (Misconceptions, Definitions, etc.): same symmetric padding, no big left gap */
+  .layout:not(.layout--explore) .layout-main {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+  .hub {
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+  }
+  .hub-grid {
+    width: 100%;
+    max-width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+  .hub-slideshow-button {
+    grid-column: 1 / -1;
+  }
 }
 
 /* Slideshow (presentation) */
@@ -789,6 +828,27 @@ h3 { font-size: 1.2rem; }
 /* Definitions */
 .definitions-page h1 { margin-bottom: 0.5rem; }
 .definitions-intro { color: var(--text-secondary); margin-bottom: 1.5rem; }
+.definitions-search-wrap { margin-bottom: 1.5rem; }
+.definitions-search {
+  width: 100%;
+  max-width: 360px;
+  padding: 0.65rem 1rem;
+  font-size: 1rem;
+  font-family: inherit;
+  color: var(--text-primary);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.definitions-search::placeholder { color: var(--text-muted); }
+.definitions-search:hover { border-color: var(--border-strong); }
+.definitions-search:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px var(--accent-blue-muted);
+}
+.definitions-search-empty { color: var(--text-muted); margin-top: 1rem; }
 .definitions-list {
   list-style: none;
   padding: 0;
@@ -1242,6 +1302,27 @@ h3 { font-size: 1.2rem; }
 /* Agitators */
 .agitators-page h1 { margin-bottom: 0.5rem; }
 .agitators-intro { color: var(--text-secondary); margin-bottom: 1.5rem; }
+.agitators-search-wrap { margin-bottom: 1.5rem; }
+.agitators-search {
+  width: 100%;
+  max-width: 360px;
+  padding: 0.65rem 1rem;
+  font-size: 1rem;
+  font-family: inherit;
+  color: var(--text-primary);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.agitators-search::placeholder { color: var(--text-muted); }
+.agitators-search:hover { border-color: var(--border-strong); }
+.agitators-search:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px var(--accent-blue-muted);
+}
+.agitators-search-empty { color: var(--text-muted); margin-top: 1rem; }
 .agitators-list {
   list-style: none;
   padding: 0;
@@ -1565,6 +1646,29 @@ h3 { font-size: 1.2rem; }
 .misconceptions-card:hover { border-color: var(--accent-gold); box-shadow: var(--shadow-hover); text-decoration: none; color: inherit; }
 .misconceptions-card h3 { margin: 0 0 0.5rem; font-size: 1.1rem; color: var(--text-primary); text-align: center; }
 .misconceptions-card p { margin: 0; font-size: 0.95rem; color: var(--text-secondary); text-align: center; }
+
+@media (max-width: 640px) {
+  .misconceptions-page {
+    width: 100%;
+    max-width: 100%;
+  }
+  .misconceptions-intro {
+    margin-bottom: 1.5rem;
+    padding: 0 0.25rem;
+  }
+  .misconceptions-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    max-width: 100%;
+    width: 100%;
+  }
+  .misconceptions-card {
+    aspect-ratio: auto;
+    min-height: 0;
+    padding: 1.25rem 1rem;
+    text-align: center;
+  }
+}
 
 .misconception-topic .misconception-back { display: inline-block; margin-bottom: 1rem; }
 .misconception-body p { margin-bottom: 1rem; }

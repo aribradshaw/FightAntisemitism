@@ -37,7 +37,9 @@ CREATE TABLE IF NOT EXISTS agitators (
   subtitle VARCHAR(512) DEFAULT NULL,
   description TEXT,
   image_url VARCHAR(512) DEFAULT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  priority INT UNSIGNED NOT NULL DEFAULT 100 COMMENT 'Lower = shown first on Agitators page',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  KEY idx_priority (priority)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Agitator sources (quotes, actions, timeline of antisemitic comments)

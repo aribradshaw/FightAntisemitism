@@ -5,10 +5,12 @@ export async function run(conn) {
   await conn.execute('TRUNCATE TABLE agitator_sources')
   await conn.execute('TRUNCATE TABLE agitators')
   await conn.execute('SET FOREIGN_KEY_CHECKS = 1')
-  for (const a of AGITATORS) {
+  for (let i = 0; i < AGITATORS.length; i++) {
+    const a = AGITATORS[i]
+    const priority = a.priority != null ? a.priority : i + 1
     const [r] = await conn.execute(
-      'INSERT INTO agitators (slug, name, subtitle, description, image_url) VALUES (?, ?, ?, ?, ?)',
-      [a.slug, a.name, a.subtitle, a.description, a.image_url || null]
+      'INSERT INTO agitators (slug, name, subtitle, description, image_url, priority) VALUES (?, ?, ?, ?, ?, ?)',
+      [a.slug, a.name, a.subtitle, a.description, a.image_url || null, priority]
     )
     const agitatorId = r.insertId
     let order = 0

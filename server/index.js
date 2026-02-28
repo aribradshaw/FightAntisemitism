@@ -141,7 +141,7 @@ app.get('/api/agitators', async (_req, res) => {
   try {
     const conn = await getConnection()
     const [agitators] = await conn.execute(
-      'SELECT id, slug, name, subtitle, description, image_url FROM agitators ORDER BY name ASC'
+      'SELECT id, slug, name, subtitle, description, image_url, priority FROM agitators ORDER BY priority ASC, name ASC'
     )
     const [sources] = await conn.execute(
       'SELECT agitator_id, date_label, text, url, sort_order FROM agitator_sources ORDER BY agitator_id, sort_order ASC'
@@ -158,6 +158,7 @@ app.get('/api/agitators', async (_req, res) => {
       subtitle: a.subtitle,
       description: a.description,
       image: a.image_url,
+      priority: Number(a.priority ?? a.PRIORITY ?? 100),
       sources: sourcesByAgitator[a.id] || [],
     }))
     res.json(result)
