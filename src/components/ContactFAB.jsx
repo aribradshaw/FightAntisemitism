@@ -29,7 +29,7 @@ function getTokenWithTimeout(executeRecaptcha) {
 
 export default function ContactFAB({ visibilityClass = 'contact-fab--visible' }) {
   const { executeRecaptcha } = useGoogleReCaptcha()
-  const { user } = useAuth()
+  const { user, refreshMe } = useAuth()
   const [open, setOpen] = useState(false)
   const [sending, setSending] = useState(false)
   const [message, setMessage] = useState(null)
@@ -75,6 +75,7 @@ export default function ContactFAB({ visibilityClass = 'contact-fab--visible' })
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         signal: controller.signal,
         body: JSON.stringify({
           first_name: first_name.trim(),
@@ -91,6 +92,7 @@ export default function ContactFAB({ visibilityClass = 'contact-fab--visible' })
         setMessage({ type: 'error', text: data.error || 'Something went wrong. Please try again.' })
         return
       }
+      await refreshMe().catch(() => {})
       setMessage({ type: 'success', text: 'Thanks! Your question has been sent.' })
       setForm({ first_name: '', last_name: '', email: '', password: '', question: '', category: '' })
       setTimeout(() => {
