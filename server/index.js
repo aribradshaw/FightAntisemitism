@@ -30,8 +30,12 @@ app.use(express.json())
 
 const RECAPTCHA_SECRET = process.env.RECAPTCHA_SECRET_KEY
 const CONTACT_EMAIL_TO = process.env.CONTACT_EMAIL_TO || 'aribradshawaz@gmail.com'
+const EMAIL_FROM = process.env.EMAIL_FROM || 'no-reply@hashem.faith'
 const EMAIL_USER = process.env.EMAIL_USER
 const EMAIL_PASS = process.env.EMAIL_PASS
+const SMTP_HOST = process.env.SMTP_HOST
+const SMTP_PORT = Number(process.env.SMTP_PORT) || 587
+const SMTP_SECURE = process.env.SMTP_SECURE === 'true' || process.env.SMTP_SECURE === '1'
 
 async function getConnection() {
   if (!config.password) {
@@ -275,11 +279,16 @@ app.get('/api/misconception-entries/:topic', async (req, res) => {
   }
 })
 
-// POST /api/contact — submit question form (name, email, question, category, recaptchaToken)
+// POST /api/contact — submit question form (name, email, question, category, recaptchaToken); save to DB and email
 app.post('/api/contact', async (req, res) => {
   try {
     const { name, email, question, category, recaptchaToken } = req.body || {}
-    if (!name || !email || !question || !recaptchaToken) {
+    const nameStr = typeof name === 'string' ? name.trim() : ''
+    const emailStr = typeof email === 'string' ? email.trim() : ''
+    const questionStr = typeof question === 'string' ? question.trim() : ''
+    const categoryStr = typeof category === 'string' ? category.trim() || 'other' : 'other'
+
+    if (!nameStr || !emailStr || !questionStr || !recaptchaToken) {
       return res.status(400).json({ error: 'Name, email, question, and reCAPTCHA are required.' })
     }
     if (!RECAPTCHA_SECRET) {
@@ -295,23 +304,35 @@ app.post('/api/contact', async (req, res) => {
     if (!verify.success) {
       return res.status(400).json({ error: 'reCAPTCHA verification failed. Please try again.' })
     }
+
+    // 1) Save to database
+    const conn = await getConnection()
+    try {
+      await conn.execute(
+        'INSERT INTO contact_entries (name, email, category, question) VALUES (?, ?, ?, ?)',
+        [nameStr, emailStr, categoryStr, questionStr]
+      )
+    } finally {
+      conn.end()
+    }
+
+    // 2) Send email to you (from no-reply@hashem.faith)
     if (!EMAIL_USER || !EMAIL_PASS) {
-      console.error('EMAIL_USER or EMAIL_PASS not set; cannot send contact email')
-      return res.status(503).json({ error: 'Email is not configured. Please try again later.' })
+      console.error('EMAIL_USER or EMAIL_PASS not set; entry saved but email not sent')
+      return res.json({ success: true })
     }
     const nodemailer = (await import('nodemailer')).default
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: { user: EMAIL_USER, pass: EMAIL_PASS },
-    })
-    const categoryLabel = category || 'Not specified'
+    const transporterOpts = SMTP_HOST
+      ? { host: SMTP_HOST, port: SMTP_PORT, secure: SMTP_SECURE, auth: { user: EMAIL_USER, pass: EMAIL_PASS } }
+      : { service: 'gmail', auth: { user: EMAIL_USER, pass: EMAIL_PASS } }
+    const transporter = nodemailer.createTransport(transporterOpts)
     await transporter.sendMail({
-      from: EMAIL_USER,
+      from: EMAIL_FROM,
       to: CONTACT_EMAIL_TO,
-      replyTo: email,
-      subject: `[Site contact] ${categoryLabel}: ${(name || '').slice(0, 50)}`,
-      text: `Name: ${name}\nEmail: ${email}\nCategory: ${categoryLabel}\n\nQuestion:\n${question}`,
-      html: `<p><strong>Name:</strong> ${escapeHtml(name)}</p><p><strong>Email:</strong> ${escapeHtml(email)}</p><p><strong>Category:</strong> ${escapeHtml(categoryLabel)}</p><p><strong>Question:</strong></p><p>${escapeHtml(question).replace(/\n/g, '<br>')}</p>`,
+      replyTo: emailStr,
+      subject: `[Site contact] ${categoryStr}: ${nameStr.slice(0, 50)}`,
+      text: `Name: ${nameStr}\nEmail: ${emailStr}\nCategory: ${categoryStr}\n\nQuestion:\n${questionStr}`,
+      html: `<p><strong>Name:</strong> ${escapeHtml(nameStr)}</p><p><strong>Email:</strong> ${escapeHtml(emailStr)}</p><p><strong>Category:</strong> ${escapeHtml(categoryStr)}</p><p><strong>Question:</strong></p><p>${escapeHtml(questionStr).replace(/\n/g, '<br>')}</p>`,
     })
     res.json({ success: true })
   } catch (err) {
