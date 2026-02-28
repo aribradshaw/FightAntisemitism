@@ -237,7 +237,7 @@ h3 { font-size: 1.2rem; }
   bottom: 0;
   left: 0;
   padding: 0.5rem 1rem;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: var(--text-muted);
   /* Outside stroke via text-shadow (no blur = crisp outline) */
   text-shadow:
@@ -250,6 +250,9 @@ h3 { font-size: 1.2rem; }
     2px 0 0 var(--bg-main),
     2px 2px 0 var(--bg-main);
   text-align: left;
+}
+.app-copyright-rest {
+  display: inline;
 }
 
 /* Landing */
@@ -1969,8 +1972,8 @@ h3 { font-size: 1.2rem; }
 /* Contact FAB — bottom right */
 .contact-fab {
   position: fixed;
-  bottom: 1.5rem;
-  right: 1.5rem;
+  bottom: 2.25rem;
+  left: 1rem;
   z-index: 9998;
   display: inline-flex;
   align-items: center;
@@ -1981,6 +1984,31 @@ h3 { font-size: 1.2rem; }
   border-radius: var(--radius);
   cursor: pointer;
   transition: transform 0.2s, background 0.2s, border-color 0.2s, color 0.2s;
+}
+@media (max-width: 768px) {
+  .contact-fab {
+    position: static;
+    bottom: auto;
+    left: auto;
+    right: auto;
+    z-index: auto;
+    display: inline-flex;
+    margin: 1.25rem 1rem 1.5rem;
+    width: calc(100% - 2rem);
+    max-width: none;
+    justify-content: center;
+  }
+  .app-copyright {
+    position: static;
+    bottom: auto;
+    left: auto;
+    padding: 0.25rem 1rem calc(1rem + env(safe-area-inset-bottom));
+    font-size: 0.68rem;
+    text-align: center;
+  }
+  .app-copyright-rest {
+    display: block;
+  }
 }
 .contact-fab-icon {
   font-size: 1.25rem;

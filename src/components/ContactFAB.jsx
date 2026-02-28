@@ -177,13 +177,6 @@ export default function ContactFAB() {
               {message && (
                 <p className={`contact-fab-message contact-fab-message--${message.type}`}>{message.text}</p>
               )}
-              <p className="contact-fab-recaptcha-notice">
-                This form is protected by reCAPTCHA and the Google{' '}
-                <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
-                {' '}and{' '}
-                <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer">Terms of Service</a>
-                {' '}apply.
-              </p>
               <button type="submit" className="contact-fab-submit primary" disabled={sending}>
                 {sending ? 'Sending…' : 'Send'}
               </button>

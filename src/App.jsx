@@ -76,7 +76,8 @@ function AppRoutes() {
       </Routes>
       <ContactFAB />
       <div className="app-copyright" aria-label="Copyright and disclaimer">
-        © {currentYear} Ari Daniel Bradshaw. All rights reserved. This site is for educational purposes.
+        © {currentYear} Ari Daniel Bradshaw.
+        <span className="app-copyright-rest"> All rights reserved. This site is for educational purposes.</span>
       </div>
     </TransitionContext.Provider>
   )
