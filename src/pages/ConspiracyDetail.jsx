@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import TagWithPopup from '../components/TagWithPopup'
+import useMarkRead from '../hooks/useMarkRead'
 
 export default function ConspiracyDetail() {
   const { slug } = useParams()
@@ -18,6 +19,12 @@ export default function ConspiracyDetail() {
       .catch(() => setConspiracy(null))
       .finally(() => setLoading(false))
   }, [slug])
+
+  useMarkRead({
+    category: 'conspiracies',
+    itemSlug: slug,
+    enabled: Boolean(slug) && !loading && Boolean(conspiracy),
+  })
 
   if (loading) {
     return (

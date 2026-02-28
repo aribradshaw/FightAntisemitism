@@ -10,6 +10,8 @@ import { existsSync } from 'fs'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 import { config as loadEnv } from 'dotenv'
+import { randomBytes, createHash } from 'crypto'
+import bcrypt from 'bcryptjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 // Load .env from project root (override: false so Railway/platform env vars win)
@@ -24,6 +26,7 @@ const config = {
   user: process.env.DB_USER || 'redsaber_antisemitism',
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME || 'redsaber_antisemitism',
+  connectTimeout: Number(process.env.DB_CONNECT_TIMEOUT_MS) || 10000,
 }
 
 const PORT = Number(process.env.PORT) || Number(process.env.API_PORT) || 3001
@@ -43,6 +46,22 @@ const EMAIL_PASS = process.env.EMAIL_PASS
 const SMTP_HOST = process.env.SMTP_HOST
 const SMTP_PORT = Number(process.env.SMTP_PORT) || 587
 const SMTP_SECURE = process.env.SMTP_SECURE === 'true' || process.env.SMTP_SECURE === '1'
+const RECAPTCHA_VERIFY_TIMEOUT_MS = Number(process.env.RECAPTCHA_VERIFY_TIMEOUT_MS) || 10000
+const SMTP_CONNECT_TIMEOUT_MS = Number(process.env.SMTP_CONNECT_TIMEOUT_MS) || 10000
+const SMTP_SOCKET_TIMEOUT_MS = Number(process.env.SMTP_SOCKET_TIMEOUT_MS) || 10000
+const SESSION_COOKIE_NAME = 'af_session'
+const SESSION_DAYS = Number(process.env.SESSION_DAYS) || 30
+const SESSION_TTL_MS = SESSION_DAYS * 24 * 60 * 60 * 1000
+const SESSION_SECRET = process.env.SESSION_SECRET || process.env.DB_PASSWORD || 'change-me-session-secret'
+
+const PROGRESS_CATEGORY_SQL = {
+  definitions: 'SELECT COUNT(*) AS c FROM definitions',
+  agitators: 'SELECT COUNT(*) AS c FROM agitators',
+  conspiracies: 'SELECT COUNT(*) AS c FROM conspiracies',
+  talmud: 'SELECT COUNT(*) AS c FROM talmud_entries',
+  misconceptions: 'SELECT COUNT(*) AS c FROM misconception_entries',
+}
+const VALID_PROGRESS_CATEGORIES = new Set(Object.keys(PROGRESS_CATEGORY_SQL))
 
 async function getConnection() {
   if (!config.password) {
@@ -53,6 +72,326 @@ async function getConnection() {
   }
   return mysql.createConnection(config)
 }
+
+function parseCookies(req) {
+  const raw = req.headers?.cookie
+  if (!raw) return {}
+  const out = {}
+  raw.split(';').forEach((part) => {
+    const idx = part.indexOf('=')
+    if (idx <= 0) return
+    const key = part.slice(0, idx).trim()
+    const value = part.slice(idx + 1).trim()
+    if (!key) return
+    out[key] = decodeURIComponent(value)
+  })
+  return out
+}
+
+function hashSessionToken(token) {
+  return createHash('sha256').update(`${token}:${SESSION_SECRET}`).digest('hex')
+}
+
+function setSessionCookie(res, token, expiresAt) {
+  const maxAge = Math.max(0, Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000))
+  const secureFlag = isProduction ? '; Secure' : ''
+  res.setHeader('Set-Cookie', `${SESSION_COOKIE_NAME}=${encodeURIComponent(token)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}${secureFlag}`)
+}
+
+function clearSessionCookie(res) {
+  const secureFlag = isProduction ? '; Secure' : ''
+  res.setHeader('Set-Cookie', `${SESSION_COOKIE_NAME}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${secureFlag}`)
+}
+
+async function fetchJsonWithTimeout(url, init, timeoutMs) {
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs)
+  try {
+    const res = await fetch(url, { ...init, signal: controller.signal })
+    const data = await res.json()
+    return { res, data }
+  } finally {
+    clearTimeout(timeoutId)
+  }
+}
+
+function sanitizeUser(row) {
+  if (!row) return null
+  return {
+    id: row.id,
+    username: row.username,
+    profile_image_url: row.profile_image_url || null,
+    first_name: row.first_name || '',
+    last_name: row.last_name || '',
+    zip_code: row.zip_code || '',
+    created_at: row.created_at || null,
+  }
+}
+
+async function getSessionUser(req, conn) {
+  const cookies = parseCookies(req)
+  const token = cookies[SESSION_COOKIE_NAME]
+  if (!token) return null
+  const tokenHash = hashSessionToken(token)
+  const [rows] = await conn.execute(
+    `SELECT u.id, u.username, u.profile_image_url, u.first_name, u.last_name, u.zip_code, u.created_at
+     FROM user_sessions s
+     JOIN users u ON u.id = s.user_id
+     WHERE s.session_token_hash = ? AND s.expires_at > NOW()
+     LIMIT 1`,
+    [tokenHash]
+  )
+  if (!rows || rows.length === 0) return null
+  await conn.execute('UPDATE user_sessions SET last_seen_at = CURRENT_TIMESTAMP WHERE session_token_hash = ?', [tokenHash])
+  return sanitizeUser(rows[0])
+}
+
+async function requireAuth(req, res) {
+  const conn = await getConnection()
+  const user = await getSessionUser(req, conn)
+  if (!user) {
+    await conn.end()
+    res.status(401).json({ error: 'Unauthorized' })
+    return null
+  }
+  return { conn, user }
+}
+
+const authAttempts = new Map()
+function isRateLimited(req) {
+  const key = req.ip || req.headers['x-forwarded-for'] || 'unknown'
+  const now = Date.now()
+  const windowMs = 5 * 60 * 1000
+  const max = 25
+  const existing = authAttempts.get(key) || []
+  const recent = existing.filter((t) => now - t < windowMs)
+  recent.push(now)
+  authAttempts.set(key, recent)
+  return recent.length > max
+}
+
+// POST /api/auth/register — create account and session
+app.post('/api/auth/register', async (req, res) => {
+  if (isRateLimited(req)) return res.status(429).json({ error: 'Too many requests. Please try again later.' })
+  try {
+    const username = typeof req.body?.username === 'string' ? req.body.username.trim().toLowerCase() : ''
+    const password = typeof req.body?.password === 'string' ? req.body.password : ''
+    if (!/^[a-z0-9_]{3,32}$/.test(username)) {
+      return res.status(400).json({ error: 'Username must be 3-32 chars using letters, numbers, or underscores.' })
+    }
+    if (!password || password.length < 8) {
+      return res.status(400).json({ error: 'Password must be at least 8 characters.' })
+    }
+    const conn = await getConnection()
+    try {
+      const [existing] = await conn.execute('SELECT id FROM users WHERE username = ? LIMIT 1', [username])
+      if (existing && existing.length > 0) {
+        return res.status(409).json({ error: 'Username already exists.' })
+      }
+      const passwordHash = await bcrypt.hash(password, 12)
+      const [result] = await conn.execute(
+        'INSERT INTO users (username, password_hash) VALUES (?, ?)',
+        [username, passwordHash]
+      )
+      const userId = result.insertId
+      const sessionToken = randomBytes(32).toString('hex')
+      const tokenHash = hashSessionToken(sessionToken)
+      const expiresAt = new Date(Date.now() + SESSION_TTL_MS)
+      await conn.execute(
+        'INSERT INTO user_sessions (user_id, session_token_hash, expires_at) VALUES (?, ?, ?)',
+        [userId, tokenHash, expiresAt]
+      )
+      const [users] = await conn.execute(
+        'SELECT id, username, profile_image_url, first_name, last_name, zip_code, created_at FROM users WHERE id = ? LIMIT 1',
+        [userId]
+      )
+      setSessionCookie(res, sessionToken, expiresAt)
+      return res.json({ user: sanitizeUser(users?.[0]) })
+    } finally {
+      await conn.end()
+    }
+  } catch (err) {
+    console.error('POST /api/auth/register:', err.message)
+    return res.status(500).json({ error: 'Failed to register.' })
+  }
+})
+
+// POST /api/auth/login — authenticate and create session
+app.post('/api/auth/login', async (req, res) => {
+  if (isRateLimited(req)) return res.status(429).json({ error: 'Too many requests. Please try again later.' })
+  try {
+    const username = typeof req.body?.username === 'string' ? req.body.username.trim().toLowerCase() : ''
+    const password = typeof req.body?.password === 'string' ? req.body.password : ''
+    if (!username || !password) return res.status(400).json({ error: 'Username and password are required.' })
+    const conn = await getConnection()
+    try {
+      const [rows] = await conn.execute(
+        'SELECT id, username, password_hash, profile_image_url, first_name, last_name, zip_code, created_at FROM users WHERE username = ? LIMIT 1',
+        [username]
+      )
+      if (!rows || rows.length === 0) return res.status(401).json({ error: 'Invalid username or password.' })
+      const row = rows[0]
+      const ok = await bcrypt.compare(password, row.password_hash)
+      if (!ok) return res.status(401).json({ error: 'Invalid username or password.' })
+      const sessionToken = randomBytes(32).toString('hex')
+      const tokenHash = hashSessionToken(sessionToken)
+      const expiresAt = new Date(Date.now() + SESSION_TTL_MS)
+      await conn.execute(
+        'INSERT INTO user_sessions (user_id, session_token_hash, expires_at) VALUES (?, ?, ?)',
+        [row.id, tokenHash, expiresAt]
+      )
+      setSessionCookie(res, sessionToken, expiresAt)
+      return res.json({ user: sanitizeUser(row) })
+    } finally {
+      await conn.end()
+    }
+  } catch (err) {
+    console.error('POST /api/auth/login:', err.message)
+    return res.status(500).json({ error: 'Failed to login.' })
+  }
+})
+
+// POST /api/auth/logout — invalidate current session
+app.post('/api/auth/logout', async (req, res) => {
+  try {
+    const token = parseCookies(req)[SESSION_COOKIE_NAME]
+    if (token) {
+      const conn = await getConnection()
+      try {
+        await conn.execute('DELETE FROM user_sessions WHERE session_token_hash = ?', [hashSessionToken(token)])
+      } finally {
+        await conn.end()
+      }
+    }
+    clearSessionCookie(res)
+    return res.json({ success: true })
+  } catch (err) {
+    console.error('POST /api/auth/logout:', err.message)
+    return res.status(500).json({ error: 'Failed to logout.' })
+  }
+})
+
+// GET /api/auth/me — current user (if logged in)
+app.get('/api/auth/me', async (req, res) => {
+  try {
+    const conn = await getConnection()
+    try {
+      const user = await getSessionUser(req, conn)
+      return res.json({ user: user || null })
+    } finally {
+      await conn.end()
+    }
+  } catch (err) {
+    console.error('GET /api/auth/me:', err.message)
+    return res.status(500).json({ error: 'Failed to load current user.' })
+  }
+})
+
+// PATCH /api/profile — update profile fields
+app.patch('/api/profile', async (req, res) => {
+  try {
+    const auth = await requireAuth(req, res)
+    if (!auth) return
+    const { conn, user } = auth
+    try {
+      const profile_image_url = typeof req.body?.profile_image_url === 'string' ? req.body.profile_image_url.trim() : ''
+      const first_name = typeof req.body?.first_name === 'string' ? req.body.first_name.trim() : ''
+      const last_name = typeof req.body?.last_name === 'string' ? req.body.last_name.trim() : ''
+      const zip_code = typeof req.body?.zip_code === 'string' ? req.body.zip_code.trim() : ''
+      if (profile_image_url && profile_image_url.length > 512) return res.status(400).json({ error: 'Profile image URL is too long.' })
+      if (first_name.length > 128 || last_name.length > 128 || zip_code.length > 20) {
+        return res.status(400).json({ error: 'One or more profile fields are too long.' })
+      }
+      await conn.execute(
+        `UPDATE users
+         SET profile_image_url = ?, first_name = ?, last_name = ?, zip_code = ?
+         WHERE id = ?`,
+        [profile_image_url || null, first_name || null, last_name || null, zip_code || null, user.id]
+      )
+      const [rows] = await conn.execute(
+        'SELECT id, username, profile_image_url, first_name, last_name, zip_code, created_at FROM users WHERE id = ? LIMIT 1',
+        [user.id]
+      )
+      return res.json({ user: sanitizeUser(rows?.[0]) })
+    } finally {
+      await conn.end()
+    }
+  } catch (err) {
+    console.error('PATCH /api/profile:', err.message)
+    return res.status(500).json({ error: 'Failed to update profile.' })
+  }
+})
+
+// POST /api/progress/mark-read — mark one detail page as read
+app.post('/api/progress/mark-read', async (req, res) => {
+  try {
+    const auth = await requireAuth(req, res)
+    if (!auth) return
+    const { conn, user } = auth
+    try {
+      const category = typeof req.body?.category === 'string' ? req.body.category.trim() : ''
+      const itemSlug = typeof req.body?.item_slug === 'string' ? req.body.item_slug.trim() : ''
+      if (!VALID_PROGRESS_CATEGORIES.has(category)) return res.status(400).json({ error: 'Invalid category.' })
+      if (!itemSlug || itemSlug.length > 128) return res.status(400).json({ error: 'Invalid item slug.' })
+      await conn.execute(
+        `INSERT INTO user_read_progress (user_id, category, item_slug)
+         VALUES (?, ?, ?)
+         ON DUPLICATE KEY UPDATE last_read_at = CURRENT_TIMESTAMP`,
+        [user.id, category, itemSlug]
+      )
+      return res.json({ success: true })
+    } finally {
+      await conn.end()
+    }
+  } catch (err) {
+    console.error('POST /api/progress/mark-read:', err.message)
+    return res.status(500).json({ error: 'Failed to update progress.' })
+  }
+})
+
+// GET /api/progress/summary — overall and per-category progress for current user
+app.get('/api/progress/summary', async (req, res) => {
+  try {
+    const auth = await requireAuth(req, res)
+    if (!auth) return
+    const { conn, user } = auth
+    try {
+      const categories = Object.keys(PROGRESS_CATEGORY_SQL)
+      const totals = {}
+      for (const cat of categories) {
+        const [rows] = await conn.execute(PROGRESS_CATEGORY_SQL[cat])
+        totals[cat] = Number(rows?.[0]?.c || 0)
+      }
+      const [readRows] = await conn.execute(
+        `SELECT category, COUNT(*) AS c
+         FROM user_read_progress
+         WHERE user_id = ?
+         GROUP BY category`,
+        [user.id]
+      )
+      const readByCategory = {}
+      for (const r of readRows || []) readByCategory[r.category] = Number(r.c || 0)
+      const byCategory = categories.map((category) => {
+        const completed = Math.min(readByCategory[category] || 0, totals[category] || 0)
+        const total = totals[category] || 0
+        const percent = total > 0 ? Math.round((completed / total) * 100) : 0
+        return { category, completed, total, percent }
+      })
+      const overall = byCategory.reduce((acc, row) => {
+        acc.completed += row.completed
+        acc.total += row.total
+        return acc
+      }, { completed: 0, total: 0 })
+      overall.percent = overall.total > 0 ? Math.round((overall.completed / overall.total) * 100) : 0
+      return res.json({ overall, byCategory })
+    } finally {
+      await conn.end()
+    }
+  } catch (err) {
+    console.error('GET /api/progress/summary:', err.message)
+    return res.status(500).json({ error: 'Failed to load progress summary.' })
+  }
+})
 
 // GET /api/timeline-events — all timeline events (year, label, region, description, source_label, source_url)
 app.get('/api/timeline-events', async (_req, res) => {
@@ -304,12 +643,15 @@ app.post('/api/contact', async (req, res) => {
         error: 'Contact form is not configured. Set RECAPTCHA_SECRET_KEY in .env and restart the API server (e.g. npm run dev).',
       })
     }
-    const verifyRes = await fetch('https://www.google.com/recaptcha/api/siteverify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ secret: RECAPTCHA_SECRET, response: recaptchaToken }).toString(),
-    })
-    const verify = await verifyRes.json()
+    const { data: verify } = await fetchJsonWithTimeout(
+      'https://www.google.com/recaptcha/api/siteverify',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ secret: RECAPTCHA_SECRET, response: recaptchaToken }).toString(),
+      },
+      RECAPTCHA_VERIFY_TIMEOUT_MS
+    )
     if (!verify.success) {
       return res.status(400).json({ error: 'reCAPTCHA verification failed. Please try again.' })
     }
@@ -331,26 +673,44 @@ app.post('/api/contact', async (req, res) => {
       conn.end()
     }
 
-    // 2) Send email to you (from no-reply@hashem.faith)
+    // 2) Return success immediately after save; send notification email in background.
+    // This prevents SMTP/network stalls from leaving users stuck on "Sending...".
+    res.json({ success: true })
     if (!EMAIL_USER || !EMAIL_PASS) {
       console.error('EMAIL_USER or EMAIL_PASS not set; entry saved but email not sent')
-      return res.json({ success: true })
+      return
     }
-    const nodemailer = (await import('nodemailer')).default
-    const transporterOpts = SMTP_HOST
-      ? { host: SMTP_HOST, port: SMTP_PORT, secure: SMTP_SECURE, auth: { user: EMAIL_USER, pass: EMAIL_PASS } }
-      : { service: 'gmail', auth: { user: EMAIL_USER, pass: EMAIL_PASS } }
-    const transporter = nodemailer.createTransport(transporterOpts)
-    await transporter.sendMail({
-      from: EMAIL_FROM,
-      to: CONTACT_EMAIL_TO,
-      replyTo: emailStr,
-      subject: `[Site contact] ${categoryStr}: ${nameStr.slice(0, 50)}`,
-      text: `Name: ${nameStr}\nEmail: ${emailStr}\nCategory: ${categoryStr}\n\nQuestion:\n${questionStr}`,
-      html: `<p><strong>Name:</strong> ${escapeHtml(nameStr)}</p><p><strong>Email:</strong> ${escapeHtml(emailStr)}</p><p><strong>Category:</strong> ${escapeHtml(categoryStr)}</p><p><strong>Question:</strong></p><p>${escapeHtml(questionStr).replace(/\n/g, '<br>')}</p>`,
-    })
-    res.json({ success: true })
+    ;(async () => {
+      try {
+        const nodemailer = (await import('nodemailer')).default
+        const baseOpts = {
+          auth: { user: EMAIL_USER, pass: EMAIL_PASS },
+          connectionTimeout: SMTP_CONNECT_TIMEOUT_MS,
+          greetingTimeout: SMTP_CONNECT_TIMEOUT_MS,
+          socketTimeout: SMTP_SOCKET_TIMEOUT_MS,
+        }
+        const transporterOpts = SMTP_HOST
+          ? { ...baseOpts, host: SMTP_HOST, port: SMTP_PORT, secure: SMTP_SECURE }
+          : { ...baseOpts, service: 'gmail' }
+        const transporter = nodemailer.createTransport(transporterOpts)
+        await transporter.sendMail({
+          from: EMAIL_FROM,
+          to: CONTACT_EMAIL_TO,
+          replyTo: emailStr,
+          subject: `[Site contact] ${categoryStr}: ${nameStr.slice(0, 50)}`,
+          text: `Name: ${nameStr}\nEmail: ${emailStr}\nCategory: ${categoryStr}\n\nQuestion:\n${questionStr}`,
+          html: `<p><strong>Name:</strong> ${escapeHtml(nameStr)}</p><p><strong>Email:</strong> ${escapeHtml(emailStr)}</p><p><strong>Category:</strong> ${escapeHtml(categoryStr)}</p><p><strong>Question:</strong></p><p>${escapeHtml(questionStr).replace(/\n/g, '<br>')}</p>`,
+        })
+      } catch (mailErr) {
+        console.error('POST /api/contact email delivery failed:', mailErr.message)
+      }
+    })()
+    return
   } catch (err) {
+    if (err?.name === 'AbortError') {
+      console.error('POST /api/contact: upstream timeout')
+      return res.status(504).json({ error: 'Verification timed out. Please try again.' })
+    }
     console.error('POST /api/contact:', err.message)
     res.status(500).json({ error: 'Failed to send your message. Please try again.' })
   }

@@ -60,7 +60,7 @@ export default function ContactFAB({ visibilityClass = 'contact-fab--visible' })
       let recaptchaToken
       try {
         recaptchaToken = await getTokenWithTimeout(executeRecaptcha)
-      } catch (firstErr) {
+      } catch {
         // Retry once (Google sometimes returns 401 then succeeds on retry)
         recaptchaToken = await getTokenWithTimeout(executeRecaptcha)
       }

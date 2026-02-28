@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { FALLBACK_TALMUD_ENTRIES } from '../data/talmud'
 import TagWithPopup from '../components/TagWithPopup'
+import useMarkRead from '../hooks/useMarkRead'
 
 export default function TalmudDetail() {
   const { slug } = useParams()
@@ -22,6 +23,12 @@ export default function TalmudDetail() {
       })
       .finally(() => setLoading(false))
   }, [slug])
+
+  useMarkRead({
+    category: 'talmud',
+    itemSlug: slug,
+    enabled: Boolean(slug) && !loading && Boolean(entry),
+  })
 
   if (loading) {
     return (

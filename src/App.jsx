@@ -18,9 +18,11 @@ import Talmud from './pages/Talmud'
 import TalmudDetail from './pages/TalmudDetail'
 import Slideshow from './pages/Slideshow'
 import Stylesheet from './pages/Stylesheet'
+import Profile from './pages/Profile'
 import Layout from './components/Layout'
 import ContactFAB from './components/ContactFAB'
 import { TransitionContext } from './context/TransitionContext'
+import { AuthProvider } from './context/AuthContext'
 import './App.css'
 
 const EXIT_MS = 320
@@ -88,6 +90,7 @@ function AppRoutes() {
           <Route path="talmud/:slug" element={<TalmudDetail />} />
           <Route path="slideshow" element={<Slideshow />} />
           <Route path="stylesheet" element={<Stylesheet />} />
+          <Route path="profile" element={<Profile />} />
         </Route>
       </Routes>
       {fabMounted && <ContactFAB visibilityClass={fabVisible ? 'contact-fab--visible' : 'contact-fab--hidden'} />}
@@ -103,11 +106,13 @@ const RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY || '6LeGO3ssA
 
 function App() {
   return (
-    <GoogleReCaptchaProvider reCaptchaKey={RECAPTCHA_SITE_KEY}>
-      <BrowserRouter>
-        <AppRoutes />
-      </BrowserRouter>
-    </GoogleReCaptchaProvider>
+    <AuthProvider>
+      <GoogleReCaptchaProvider reCaptchaKey={RECAPTCHA_SITE_KEY}>
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
+      </GoogleReCaptchaProvider>
+    </AuthProvider>
   )
 }
 

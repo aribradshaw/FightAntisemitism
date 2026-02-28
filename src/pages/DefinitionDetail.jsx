@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import { HASHEM_FAITH_LABEL } from '../data/hashemFaithSources'
 import GazaGenocideModal from '../components/GazaGenocideModal'
 import ZionismQuizModal from '../components/ZionismQuizModal'
+import useMarkRead from '../hooks/useMarkRead'
 
 function DefinitionDetail() {
   const { slug } = useParams()
@@ -28,6 +29,12 @@ function DefinitionDetail() {
       .catch(() => setDefinition(null))
       .finally(() => setLoading(false))
   }, [slug])
+
+  useMarkRead({
+    category: 'definitions',
+    itemSlug: slug,
+    enabled: Boolean(slug) && !loading && Boolean(definition),
+  })
 
   if (loading) {
     return (

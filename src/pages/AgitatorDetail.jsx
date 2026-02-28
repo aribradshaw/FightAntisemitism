@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { AGITATORS as FALLBACK_AGITATORS } from '../data/agitators'
+import useMarkRead from '../hooks/useMarkRead'
 
 export default function AgitatorDetail() {
   const { slug } = useParams()
@@ -17,6 +18,12 @@ export default function AgitatorDetail() {
       .catch(() => setPerson(FALLBACK_AGITATORS.find((a) => a.slug === slug) || null))
       .finally(() => setLoading(false))
   }, [slug])
+
+  useMarkRead({
+    category: 'agitators',
+    itemSlug: slug,
+    enabled: Boolean(slug) && !loading && Boolean(person),
+  })
 
   if (loading) {
     return (

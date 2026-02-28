@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
+import useMarkRead from '../hooks/useMarkRead'
 
 const TOPIC_TITLES = { israel: 'Israel', 'jewish-race': 'Jewish Identity' }
 
@@ -24,6 +25,12 @@ export default function MisconceptionEntryDetail() {
       .catch(() => setEntry(null))
       .finally(() => setLoading(false))
   }, [topic, slug])
+
+  useMarkRead({
+    category: 'misconceptions',
+    itemSlug: slug,
+    enabled: (topic === 'israel' || topic === 'jewish-race') && Boolean(slug) && !loading && Boolean(entry),
+  })
 
   if (topic !== 'israel' && topic !== 'jewish-race') {
     return (
