@@ -22,8 +22,8 @@ export default function Profile() {
   const [questions, setQuestions] = useState([])
   const [questionsError, setQuestionsError] = useState('')
   const [progressDetails, setProgressDetails] = useState({})
-  const [progressOpen, setProgressOpen] = useState({})
-  const [progressFilter, setProgressFilter] = useState({})
+  const [progressModalCategory, setProgressModalCategory] = useState(null)
+  const [progressModalFilter, setProgressModalFilter] = useState('unread')
   const [progressLoading, setProgressLoading] = useState({})
   const [progressError, setProgressError] = useState({})
   const [form, setForm] = useState({
@@ -115,10 +115,7 @@ export default function Profile() {
 
   const overall = summary.overall || { completed: 0, total: 0, percent: 0 }
   const loadCategoryDetails = async (category) => {
-    if (progressDetails[category]) {
-      setProgressOpen((prev) => ({ ...prev, [category]: true }))
-      return
-    }
+    if (progressDetails[category]) return
     setProgressLoading((prev) => ({ ...prev, [category]: true }))
     setProgressError((prev) => ({ ...prev, [category]: '' }))
     try {
@@ -126,8 +123,6 @@ export default function Profile() {
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data?.error || 'Failed to load progress details.')
       setProgressDetails((prev) => ({ ...prev, [category]: { read: data.read || [], unread: data.unread || [] } }))
-      setProgressOpen((prev) => ({ ...prev, [category]: true }))
-      setProgressFilter((prev) => ({ ...prev, [category]: 'unread' }))
     } catch (err) {
       setProgressError((prev) => ({ ...prev, [category]: err.message || 'Failed to load progress details.' }))
     } finally {
@@ -254,66 +249,79 @@ export default function Profile() {
 
           <ul className="profile-progress-categories">
             {(summary.byCategory || []).map((row) => {
-              const detail = progressDetails[row.category] || { read: [], unread: [] }
-              const isOpen = !!progressOpen[row.category]
-              const filter = progressFilter[row.category] || 'unread'
-              const items = filter === 'read' ? detail.read : detail.unread
               return (
                 <li key={row.category}>
                   <div className="profile-progress-category-head">
                     <strong>{CATEGORY_LABELS[row.category] || row.category}</strong>
                     <span>{row.completed}/{row.total} ({row.percent}%)</span>
                   </div>
-                  <div className="profile-progress-bar" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={row.percent}>
-                    <span style={{ width: `${row.percent}%` }} />
-                  </div>
-                  <div className="profile-progress-actions">
-                    <button type="button" className="ghost" onClick={() => loadCategoryDetails(row.category)}>
-                      {isOpen ? 'Refresh list' : 'View read/unread'}
+                  <div className="profile-progress-row">
+                    <div className="profile-progress-bar" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={row.percent}>
+                      <span style={{ width: `${row.percent}%` }} />
+                    </div>
+                    <button
+                      type="button"
+                      className="ghost profile-progress-view-btn"
+                      onClick={() => {
+                        setProgressModalCategory(row.category)
+                        setProgressModalFilter('unread')
+                        loadCategoryDetails(row.category)
+                      }}
+                    >
+                      View
                     </button>
-                    {isOpen && (
-                      <>
-                        <button
-                          type="button"
-                          className={filter === 'read' ? 'ghost profile-chip-active' : 'ghost'}
-                          onClick={() => setProgressFilter((prev) => ({ ...prev, [row.category]: 'read' }))}
-                        >
-                          Read ({detail.read.length})
-                        </button>
-                        <button
-                          type="button"
-                          className={filter === 'unread' ? 'ghost profile-chip-active' : 'ghost'}
-                          onClick={() => setProgressFilter((prev) => ({ ...prev, [row.category]: 'unread' }))}
-                        >
-                          Unread ({detail.unread.length})
-                        </button>
-                        <button
-                          type="button"
-                          className="ghost"
-                          onClick={() => setProgressOpen((prev) => ({ ...prev, [row.category]: false }))}
-                        >
-                          Hide
-                        </button>
-                      </>
-                    )}
                   </div>
-                  {progressLoading[row.category] && <p className="profile-progress-list-note">Loading list…</p>}
-                  {progressError[row.category] && <p className="profile-message profile-message--error">{progressError[row.category]}</p>}
-                  {isOpen && !progressLoading[row.category] && (
-                    <ul className="profile-progress-items">
-                      {items.map((item) => (
-                        <li key={`${row.category}:${item.slug}`}>
-                          <Link to={item.url}>{item.title}</Link>
-                        </li>
-                      ))}
-                      {items.length === 0 && <li className="profile-progress-list-note">No items in this list yet.</li>}
-                    </ul>
-                  )}
                 </li>
               )
             })}
           </ul>
         </section>
+      )}
+      {progressModalCategory && (
+        <div className="profile-progress-modal-overlay" onClick={() => setProgressModalCategory(null)}>
+          <div className="profile-progress-modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="profile-progress-modal-title">
+            <div className="profile-progress-modal-head">
+              <h3 id="profile-progress-modal-title">{CATEGORY_LABELS[progressModalCategory] || progressModalCategory}</h3>
+              <button type="button" className="profile-progress-modal-close" onClick={() => setProgressModalCategory(null)} aria-label="Close">×</button>
+            </div>
+            <div className="profile-progress-modal-body">
+              <div className="profile-progress-actions">
+                <button
+                  type="button"
+                  className={progressModalFilter === 'read' ? 'ghost profile-chip-active' : 'ghost'}
+                  onClick={() => setProgressModalFilter('read')}
+                >
+                  Read ({(progressDetails[progressModalCategory]?.read || []).length})
+                </button>
+                <button
+                  type="button"
+                  className={progressModalFilter === 'unread' ? 'ghost profile-chip-active' : 'ghost'}
+                  onClick={() => setProgressModalFilter('unread')}
+                >
+                  Unread ({(progressDetails[progressModalCategory]?.unread || []).length})
+                </button>
+              </div>
+              {progressLoading[progressModalCategory] && <p className="profile-progress-list-note">Loading list…</p>}
+              {progressError[progressModalCategory] && <p className="profile-message profile-message--error">{progressError[progressModalCategory]}</p>}
+              {!progressLoading[progressModalCategory] && !progressError[progressModalCategory] && (
+                <ul className="profile-progress-items">
+                  {(progressModalFilter === 'read'
+                    ? (progressDetails[progressModalCategory]?.read || [])
+                    : (progressDetails[progressModalCategory]?.unread || [])
+                  ).map((item) => (
+                    <li key={`${progressModalCategory}:${progressModalFilter}:${item.slug}`}>
+                      <Link to={item.url} onClick={() => setProgressModalCategory(null)}>{item.title}</Link>
+                    </li>
+                  ))}
+                  {(progressModalFilter === 'read'
+                    ? (progressDetails[progressModalCategory]?.read || [])
+                    : (progressDetails[progressModalCategory]?.unread || [])
+                  ).length === 0 && <li className="profile-progress-list-note">No items in this list yet.</li>}
+                </ul>
+              )}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

@@ -2293,6 +2293,15 @@ h3 { font-size: 1.2rem; }
   font-size: 0.9rem;
   margin-bottom: 0.25rem;
 }
+.profile-progress-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.55rem;
+  align-items: center;
+}
+.profile-progress-view-btn {
+  white-space: nowrap;
+}
 .profile-progress-actions {
   margin-top: 0.45rem;
   display: flex;
@@ -2320,6 +2329,52 @@ h3 { font-size: 1.2rem; }
 .profile-chip-active {
   border-color: var(--accent-blue) !important;
   color: var(--accent-blue) !important;
+}
+.profile-progress-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10001;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.profile-progress-modal {
+  width: min(100%, 680px);
+  max-height: min(85vh, 760px);
+  background: var(--bg-main);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-hover);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.profile-progress-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.profile-progress-modal-head h3 {
+  margin: 0;
+}
+.profile-progress-modal-close {
+  border: none;
+  background: transparent;
+  font-size: 1.6rem;
+  line-height: 1;
+  color: var(--text-muted);
+}
+.profile-progress-modal-close:hover {
+  color: var(--text-primary);
+}
+.profile-progress-modal-body {
+  padding: 0.85rem 1rem 1rem;
+  overflow: auto;
 }
 .profile-questions {
   margin-top: 1rem;
@@ -2438,6 +2493,9 @@ h3 { font-size: 1.2rem; }
   .profile-questions-head {
     flex-direction: column;
     align-items: stretch;
+  }
+  .profile-progress-row {
+    grid-template-columns: 1fr;
   }
 }
 .contact-fab-icon {
