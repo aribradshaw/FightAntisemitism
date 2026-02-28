@@ -19,7 +19,8 @@
     "db:seed:talmud": "node database/seed.js talmud",
     "db:seed:misconceptions": "node database/seed.js misconceptions",
     "db:migrate:contact": "node database/run-migrate-contact-entries.js",
-    "db:migrate:auth": "node database/run-migrate-user-auth-progress.js"
+    "db:migrate:auth": "node database/run-migrate-user-auth-progress.js",
+    "db:migrate:contact-users": "node database/run-migrate-contact-user-answers.js"
   },
   "dependencies": {
     "@tmcw/togeojson": "^7.1.2",

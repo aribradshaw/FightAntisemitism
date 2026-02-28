@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 import { FaQuestionCircle } from 'react-icons/fa'
+import { useAuth } from '../context/AuthContext'
 
 const CATEGORIES = [
   { value: '', label: 'Select a category…' },
@@ -28,10 +29,11 @@ function getTokenWithTimeout(executeRecaptcha) {
 
 export default function ContactFAB({ visibilityClass = 'contact-fab--visible' }) {
   const { executeRecaptcha } = useGoogleReCaptcha()
+  const { user } = useAuth()
   const [open, setOpen] = useState(false)
   const [sending, setSending] = useState(false)
   const [message, setMessage] = useState(null)
-  const [form, setForm] = useState({ name: '', email: '', question: '', category: '' })
+  const [form, setForm] = useState({ name: '', email: '', password: '', question: '', category: '' })
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -42,13 +44,17 @@ export default function ContactFAB({ visibilityClass = 'contact-fab--visible' })
   const handleSubmit = async (e) => {
     e.preventDefault()
     setMessage(null)
-    const { name, email, question, category } = form
+    const { name, email, password, question, category } = form
     if (!name?.trim() || !email?.trim() || !question?.trim()) {
       setMessage({ type: 'error', text: 'Please fill in name, email, and question.' })
       return
     }
     if (!category) {
       setMessage({ type: 'error', text: 'Please select a category.' })
+      return
+    }
+    if (!user && (!password || password.length < 8)) {
+      setMessage({ type: 'error', text: 'Create a password (8+ chars) to create your account.' })
       return
     }
     if (!executeRecaptcha) {
@@ -75,6 +81,7 @@ export default function ContactFAB({ visibilityClass = 'contact-fab--visible' })
           email: email.trim(),
           question: question.trim(),
           category,
+          password: user ? undefined : password,
           recaptchaToken,
         }),
       }).finally(() => clearTimeout(timeoutId))
@@ -84,7 +91,7 @@ export default function ContactFAB({ visibilityClass = 'contact-fab--visible' })
         return
       }
       setMessage({ type: 'success', text: 'Thanks! Your question has been sent.' })
-      setForm({ name: '', email: '', question: '', category: '' })
+      setForm({ name: '', email: '', password: '', question: '', category: '' })
       setTimeout(() => {
         setOpen(false)
         setMessage(null)
@@ -157,6 +164,23 @@ export default function ContactFAB({ visibilityClass = 'contact-fab--visible' })
                 autoComplete="email"
                 disabled={sending}
               />
+              {!user && (
+                <>
+                  <label htmlFor="contact-password">Create password *</label>
+                  <input
+                    id="contact-password"
+                    name="password"
+                    type="password"
+                    required
+                    minLength={8}
+                    value={form.password}
+                    onChange={handleChange}
+                    placeholder="At least 8 characters"
+                    autoComplete="new-password"
+                    disabled={sending}
+                  />
+                </>
+              )}
               <label htmlFor="contact-category">Category *</label>
               <select
                 id="contact-category"

@@ -158,18 +158,23 @@ CREATE TABLE IF NOT EXISTS misconception_entry_sources (
 -- Contact form submissions (saved and emailed to CONTACT_EMAIL_TO)
 CREATE TABLE IF NOT EXISTS contact_entries (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user_id INT UNSIGNED DEFAULT NULL,
   name VARCHAR(255) NOT NULL,
   email VARCHAR(255) NOT NULL,
   category VARCHAR(128) NOT NULL,
   question TEXT NOT NULL,
+  answer_text TEXT DEFAULT NULL,
+  answered_at DATETIME DEFAULT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  KEY idx_created (created_at)
+  KEY idx_created (created_at),
+  KEY idx_contact_entries_user (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Users (auth + profile)
 CREATE TABLE IF NOT EXISTS users (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   username VARCHAR(64) NOT NULL UNIQUE,
+  email VARCHAR(255) DEFAULT NULL UNIQUE,
   password_hash VARCHAR(255) NOT NULL,
   profile_image_url VARCHAR(512) DEFAULT NULL,
   first_name VARCHAR(128) DEFAULT NULL,

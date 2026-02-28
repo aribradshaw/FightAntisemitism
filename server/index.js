@@ -303,6 +303,7 @@ function sanitizeUser(row) {
   return {
     id: row.id,
     username: row.username,
+    email: row.email || null,
     profile_image_url: row.profile_image_url || null,
     first_name: row.first_name || '',
     last_name: row.last_name || '',
@@ -317,7 +318,7 @@ async function getSessionUser(req, conn) {
   if (!token) return null
   const tokenHash = hashSessionToken(token)
   const [rows] = await conn.execute(
-    `SELECT u.id, u.username, u.profile_image_url, u.first_name, u.last_name, u.zip_code, u.created_at
+    `SELECT u.id, u.username, u.email, u.profile_image_url, u.first_name, u.last_name, u.zip_code, u.created_at
      FROM user_sessions s
      JOIN users u ON u.id = s.user_id
      WHERE s.session_token_hash = ? AND s.expires_at > NOW()
@@ -341,6 +342,7 @@ async function requireAuth(req, res) {
 }
 
 const authAttempts = new Map()
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 function isRateLimited(req) {
   const key = req.ip || req.headers['x-forwarded-for'] || 'unknown'
   const now = Date.now()
@@ -353,14 +355,52 @@ function isRateLimited(req) {
   return recent.length > max
 }
 
+function normalizeEmail(value) {
+  const email = typeof value === 'string' ? value.trim().toLowerCase() : ''
+  return EMAIL_RE.test(email) ? email : ''
+}
+
+function usernameFromEmail(email) {
+  const local = (email.split('@')[0] || '').toLowerCase()
+  const base = local.replace(/[^a-z0-9_]/g, '_').replace(/_+/g, '_').replace(/^_+|_+$/g, '')
+  return (base || 'user').slice(0, 24)
+}
+
+async function createUserWithUniqueUsername(conn, email, password) {
+  const passwordHash = await bcrypt.hash(password, 12)
+  const base = usernameFromEmail(email)
+  let createdUserId = null
+  for (let i = 0; i < 20; i += 1) {
+    const suffix = i === 0 ? '' : `_${randomBytes(3).toString('hex')}`
+    const username = `${base}${suffix}`.slice(0, 32)
+    try {
+      const [result] = await conn.execute(
+        'INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)',
+        [username, email, passwordHash]
+      )
+      createdUserId = result.insertId
+      break
+    } catch (err) {
+      if (err?.code === 'ER_DUP_ENTRY') continue
+      throw err
+    }
+  }
+  if (!createdUserId) throw new Error('Failed to create account username.')
+  return createdUserId
+}
+
 // POST /api/auth/register — create account and session
 app.post('/api/auth/register', async (req, res) => {
   if (isRateLimited(req)) return res.status(429).json({ error: 'Too many requests. Please try again later.' })
   try {
     const username = typeof req.body?.username === 'string' ? req.body.username.trim().toLowerCase() : ''
+    const email = normalizeEmail(req.body?.email)
     const password = typeof req.body?.password === 'string' ? req.body.password : ''
     if (!/^[a-z0-9_]{3,32}$/.test(username)) {
       return res.status(400).json({ error: 'Username must be 3-32 chars using letters, numbers, or underscores.' })
+    }
+    if (req.body?.email && !email) {
+      return res.status(400).json({ error: 'Please provide a valid email.' })
     }
     if (!password || password.length < 8) {
       return res.status(400).json({ error: 'Password must be at least 8 characters.' })
@@ -371,11 +411,14 @@ app.post('/api/auth/register', async (req, res) => {
       if (existing && existing.length > 0) {
         return res.status(409).json({ error: 'Username already exists.' })
       }
+      if (email) {
+        const [emailExisting] = await conn.execute('SELECT id FROM users WHERE email = ? LIMIT 1', [email])
+        if (emailExisting && emailExisting.length > 0) {
+          return res.status(409).json({ error: 'Email already exists.' })
+        }
+      }
       const passwordHash = await bcrypt.hash(password, 12)
-      const [result] = await conn.execute(
-        'INSERT INTO users (username, password_hash) VALUES (?, ?)',
-        [username, passwordHash]
-      )
+      const [result] = await conn.execute('INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)', [username, email || null, passwordHash])
       const userId = result.insertId
       const sessionToken = randomBytes(32).toString('hex')
       const tokenHash = hashSessionToken(sessionToken)
@@ -385,7 +428,7 @@ app.post('/api/auth/register', async (req, res) => {
         [userId, tokenHash, expiresAt]
       )
       const [users] = await conn.execute(
-        'SELECT id, username, profile_image_url, first_name, last_name, zip_code, created_at FROM users WHERE id = ? LIMIT 1',
+        'SELECT id, username, email, profile_image_url, first_name, last_name, zip_code, created_at FROM users WHERE id = ? LIMIT 1',
         [userId]
       )
       setSessionCookie(res, sessionToken, expiresAt)
@@ -403,14 +446,23 @@ app.post('/api/auth/register', async (req, res) => {
 app.post('/api/auth/login', async (req, res) => {
   if (isRateLimited(req)) return res.status(429).json({ error: 'Too many requests. Please try again later.' })
   try {
-    const username = typeof req.body?.username === 'string' ? req.body.username.trim().toLowerCase() : ''
+    const identifierRaw =
+      typeof req.body?.identifier === 'string'
+        ? req.body.identifier
+        : typeof req.body?.username === 'string'
+        ? req.body.username
+        : ''
+    const identifier = identifierRaw.trim().toLowerCase()
     const password = typeof req.body?.password === 'string' ? req.body.password : ''
-    if (!username || !password) return res.status(400).json({ error: 'Username and password are required.' })
+    if (!identifier || !password) return res.status(400).json({ error: 'Username/email and password are required.' })
     const conn = await getConnection()
     try {
       const [rows] = await conn.execute(
-        'SELECT id, username, password_hash, profile_image_url, first_name, last_name, zip_code, created_at FROM users WHERE username = ? LIMIT 1',
-        [username]
+        `SELECT id, username, email, password_hash, profile_image_url, first_name, last_name, zip_code, created_at
+         FROM users
+         WHERE username = ? OR email = ?
+         LIMIT 1`,
+        [identifier, identifier]
       )
       if (!rows || rows.length === 0) return res.status(401).json({ error: 'Invalid username or password.' })
       const row = rows[0]
@@ -512,7 +564,7 @@ app.get('/api/admin/contact-entries', async (req, res) => {
     const conn = await getConnection()
     try {
       const [rows] = await conn.execute(
-        `SELECT id, name, email, category, question, created_at
+        `SELECT id, user_id, name, email, category, question, answer_text, answered_at, created_at
          FROM contact_entries
          ORDER BY created_at DESC
          LIMIT ?`,
@@ -525,6 +577,32 @@ app.get('/api/admin/contact-entries', async (req, res) => {
   } catch (err) {
     console.error('GET /api/admin/contact-entries:', err.message)
     return res.status(500).json({ error: 'Failed to load contact entries.' })
+  }
+})
+
+// PATCH /api/admin/contact-entries/:id — mark a question answered/unanswered
+app.patch('/api/admin/contact-entries/:id', async (req, res) => {
+  const admin = getAdminFromRequest(req)
+  if (!admin) return res.status(401).json({ error: 'Unauthorized' })
+  try {
+    const id = Number(req.params.id)
+    if (!Number.isFinite(id) || id <= 0) return res.status(400).json({ error: 'Invalid entry id.' })
+    const answerText = typeof req.body?.answer_text === 'string' ? req.body.answer_text.trim() : ''
+    const conn = await getConnection()
+    try {
+      await conn.execute(
+        `UPDATE contact_entries
+         SET answer_text = ?, answered_at = ?
+         WHERE id = ?`,
+        [answerText || null, answerText ? new Date() : null, id]
+      )
+      return res.json({ success: true })
+    } finally {
+      await conn.end()
+    }
+  } catch (err) {
+    console.error('PATCH /api/admin/contact-entries/:id:', err.message)
+    return res.status(500).json({ error: 'Failed to update answer.' })
   }
 })
 
@@ -550,7 +628,7 @@ app.patch('/api/profile', async (req, res) => {
         [profile_image_url || null, first_name || null, last_name || null, zip_code || null, user.id]
       )
       const [rows] = await conn.execute(
-        'SELECT id, username, profile_image_url, first_name, last_name, zip_code, created_at FROM users WHERE id = ? LIMIT 1',
+        'SELECT id, username, email, profile_image_url, first_name, last_name, zip_code, created_at FROM users WHERE id = ? LIMIT 1',
         [user.id]
       )
       return res.json({ user: sanitizeUser(rows?.[0]) })
@@ -631,6 +709,30 @@ app.get('/api/progress/summary', async (req, res) => {
   } catch (err) {
     console.error('GET /api/progress/summary:', err.message)
     return res.status(500).json({ error: 'Failed to load progress summary.' })
+  }
+})
+
+// GET /api/my/questions — current user's submitted contact questions with answer status
+app.get('/api/my/questions', async (req, res) => {
+  try {
+    const auth = await requireAuth(req, res)
+    if (!auth) return
+    const { conn, user } = auth
+    try {
+      const [rows] = await conn.execute(
+        `SELECT id, category, question, answer_text, answered_at, created_at
+         FROM contact_entries
+         WHERE user_id = ?
+         ORDER BY created_at DESC`,
+        [user.id]
+      )
+      return res.json({ questions: rows || [] })
+    } finally {
+      await conn.end()
+    }
+  } catch (err) {
+    console.error('GET /api/my/questions:', err.message)
+    return res.status(500).json({ error: 'Failed to load your questions.' })
   }
 })
 
@@ -869,9 +971,10 @@ app.get('/api/misconception-entries/:topic', async (req, res) => {
 // POST /api/contact — submit question form (name, email, question, category, recaptchaToken); save to DB and email
 app.post('/api/contact', async (req, res) => {
   try {
-    const { name, email, question, category, recaptchaToken } = req.body || {}
+    const { name, email, password, question, category, recaptchaToken } = req.body || {}
     const nameStr = typeof name === 'string' ? name.trim() : ''
-    const emailStr = typeof email === 'string' ? email.trim() : ''
+    const emailStr = normalizeEmail(email)
+    const passwordStr = typeof password === 'string' ? password : ''
     const questionStr = typeof question === 'string' ? question.trim() : ''
     const categoryStr = typeof category === 'string' ? category.trim() || 'other' : 'other'
 
@@ -903,18 +1006,55 @@ app.post('/api/contact', async (req, res) => {
       return res.status(400).json({ error: 'reCAPTCHA verification failed. Please try again.' })
     }
 
-    // 1) Save to database
+    // 1) Ensure account rules by email.
+    // - If not logged in and email exists: force login first.
+    // - If not logged in and email is new: create account (password required) and sign in.
+    // - If logged in: email must match their account email if one exists.
     const conn = await getConnection()
+    let userId = null
     try {
+      const sessionUser = await getSessionUser(req, conn)
+      if (sessionUser) {
+        userId = sessionUser.id
+        if (sessionUser.email && sessionUser.email.toLowerCase() !== emailStr) {
+          return res.status(400).json({ error: 'Use your account email when submitting questions.' })
+        }
+        if (!sessionUser.email) {
+          const [emailOwner] = await conn.execute('SELECT id FROM users WHERE email = ? LIMIT 1', [emailStr])
+          if (emailOwner && emailOwner.length > 0 && Number(emailOwner[0].id) !== Number(sessionUser.id)) {
+            return res.status(409).json({ error: 'This email is already used by another account.' })
+          }
+          await conn.execute('UPDATE users SET email = ? WHERE id = ?', [emailStr, sessionUser.id])
+        }
+      } else {
+        const [existingByEmail] = await conn.execute('SELECT id FROM users WHERE email = ? LIMIT 1', [emailStr])
+        if (existingByEmail && existingByEmail.length > 0) {
+          return res.status(409).json({ error: 'This email already has an account. Please log in first.' })
+        }
+        if (!passwordStr || passwordStr.length < 8) {
+          return res.status(400).json({ error: 'Create a password (8+ chars) to submit your first question.' })
+        }
+        userId = await createUserWithUniqueUsername(conn, emailStr, passwordStr)
+        const sessionToken = randomBytes(32).toString('hex')
+        const tokenHash = hashSessionToken(sessionToken)
+        const expiresAt = new Date(Date.now() + SESSION_TTL_MS)
+        await conn.execute(
+          'INSERT INTO user_sessions (user_id, session_token_hash, expires_at) VALUES (?, ?, ?)',
+          [userId, tokenHash, expiresAt]
+        )
+        setSessionCookie(res, sessionToken, expiresAt)
+      }
+
+      // 2) Save question linked to account
       await conn.execute(
-        'INSERT INTO contact_entries (name, email, category, question) VALUES (?, ?, ?, ?)',
-        [nameStr, emailStr, categoryStr, questionStr]
+        'INSERT INTO contact_entries (user_id, name, email, category, question) VALUES (?, ?, ?, ?, ?)',
+        [userId, nameStr, emailStr, categoryStr, questionStr]
       )
     } finally {
-      conn.end()
+      await conn.end()
     }
 
-    // 2) Return success immediately after save; send notification email in background.
+    // 3) Return success immediately after save; send notification email in background.
     // This prevents SMTP/network stalls from leaving users stuck on "Sending...".
     res.json({ success: true })
     if (!EMAIL_USER || !EMAIL_PASS) {

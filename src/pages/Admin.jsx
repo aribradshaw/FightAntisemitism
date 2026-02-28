@@ -7,6 +7,7 @@ export default function Admin() {
   const [error, setError] = useState('')
   const [admin, setAdmin] = useState(null)
   const [entries, setEntries] = useState([])
+  const [draftAnswers, setDraftAnswers] = useState({})
   const [form, setForm] = useState({ email: 'aribradshawaz@gmail.com', password: '' })
 
   const refreshAdmin = async () => {
@@ -26,6 +27,13 @@ export default function Admin() {
     const data = await res.json().catch(() => ({}))
     if (!res.ok) throw new Error(data?.error || 'Failed to load entries')
     setEntries(Array.isArray(data?.entries) ? data.entries : [])
+    setDraftAnswers((prev) => {
+      const next = { ...prev }
+      for (const row of Array.isArray(data?.entries) ? data.entries : []) {
+        if (typeof next[row.id] !== 'string') next[row.id] = row.answer_text || ''
+      }
+      return next
+    })
   }
 
   useEffect(() => {
@@ -74,13 +82,35 @@ export default function Admin() {
 
   const stats = useMemo(() => {
     const total = entries.length
+    const answered = entries.filter((row) => !!row.answered_at).length
     const categoryCounts = entries.reduce((acc, row) => {
       const key = row?.category || 'other'
       acc[key] = (acc[key] || 0) + 1
       return acc
     }, {})
-    return { total, categoryCounts }
+    return { total, answered, categoryCounts }
   }, [entries])
+
+  const saveAnswer = async (entryId) => {
+    setBusy(true)
+    setError('')
+    try {
+      const answerText = (draftAnswers[entryId] || '').trim()
+      const res = await fetch(`/api/admin/contact-entries/${entryId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ answer_text: answerText }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data?.error || 'Failed to save answer')
+      await refreshEntries()
+    } catch (err) {
+      setError(err.message || 'Failed to save answer')
+    } finally {
+      setBusy(false)
+    }
+  }
 
   if (loading || checking) {
     return (
@@ -150,6 +180,7 @@ export default function Admin() {
 
       <section className="admin-stats">
         <p><strong>Total submissions:</strong> {stats.total}</p>
+        <p><strong>Answered:</strong> {stats.answered} / {stats.total}</p>
         <p>
           <strong>By category:</strong>{' '}
           {Object.entries(stats.categoryCounts).map(([k, v]) => `${k} (${v})`).join(', ') || 'none'}
@@ -165,6 +196,7 @@ export default function Admin() {
               <th>Email</th>
               <th>Category</th>
               <th>Question</th>
+              <th>Answer</th>
             </tr>
           </thead>
           <tbody>
@@ -175,11 +207,26 @@ export default function Admin() {
                 <td><a href={`mailto:${row.email}`}>{row.email}</a></td>
                 <td>{row.category}</td>
                 <td className="admin-question-cell">{row.question}</td>
+                <td className="admin-answer-cell">
+                  <p className={row.answered_at ? 'admin-answer-status answered' : 'admin-answer-status pending'}>
+                    {row.answered_at ? `Answered ${new Date(row.answered_at).toLocaleString()}` : 'Pending'}
+                  </p>
+                  <textarea
+                    value={draftAnswers[row.id] || ''}
+                    onChange={(e) => setDraftAnswers((prev) => ({ ...prev, [row.id]: e.target.value }))}
+                    rows={4}
+                    placeholder="Write answer to show on user profile..."
+                    disabled={busy}
+                  />
+                  <button type="button" className="ghost" onClick={() => saveAnswer(row.id)} disabled={busy}>
+                    Save answer
+                  </button>
+                </td>
               </tr>
             ))}
             {entries.length === 0 && (
               <tr>
-                <td colSpan={5}>No submissions yet.</td>
+                <td colSpan={6}>No submissions yet.</td>
               </tr>
             )}
           </tbody>

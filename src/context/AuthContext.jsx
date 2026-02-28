@@ -42,7 +42,7 @@ export function AuthProvider({ children }) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ identifier: username, password }),
     })
     const data = await jsonOrError(res)
     setUser(data.user || null)

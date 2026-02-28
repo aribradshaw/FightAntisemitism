@@ -128,7 +128,7 @@ export default function Layout() {
               }}
               className="layout-auth-form"
             >
-              <label htmlFor="auth-username">Username</label>
+              <label htmlFor="auth-username">Username or email</label>
               <input
                 id="auth-username"
                 name="username"
