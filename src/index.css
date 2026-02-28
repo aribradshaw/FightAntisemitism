@@ -2088,6 +2088,16 @@ h3 { font-size: 1.2rem; }
 }
 .contact-fab-message--error { background: #fef2f2; color: #b91c1c; }
 .contact-fab-message--success { background: #f0fdf4; color: #15803d; }
+.contact-fab-recaptcha-notice {
+  margin: 0.5rem 0 0;
+  font-size: 0.75rem;
+  color: var(--text-muted, #6b7280);
+  line-height: 1.4;
+}
+.contact-fab-recaptcha-notice a {
+  color: var(--accent-blue, #2563eb);
+  text-decoration: underline;
+}
 .contact-fab-submit {
   margin-top: 0.5rem;
   padding: 0.75rem 1.25rem;
