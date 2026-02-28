@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 
-const TOPIC_TITLES = { israel: 'Israel', 'jewish-race': 'The Jewish Race' }
+const TOPIC_TITLES = { israel: 'Israel', 'jewish-race': 'Jewish Identity' }
 
 export default function MisconceptionEntryDetail() {
   const { topic, slug } = useParams()
@@ -54,7 +54,7 @@ export default function MisconceptionEntryDetail() {
   return (
     <div className="misconception-entry-detail detail-page-with-parent">
       <div className="corner-parent-ribbon" aria-hidden="true"><span>{topicTitle.toUpperCase()}</span></div>
-      <h1 className="misconception-entry-title">&ldquo;{entry.title}&rdquo;</h1>
+      <h1 className="misconception-entry-title">{entry.title}</h1>
       <div className="misconception-entry-body">
         {entry.body_text ? (
           typeof entry.body_text === 'string' && entry.body_text.startsWith('<') ? (

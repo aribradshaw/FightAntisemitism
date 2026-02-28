@@ -38,7 +38,7 @@ export default function ConspiracyDetail() {
   return (
     <div className="conspiracy-detail detail-page-with-parent">
       <div className="corner-parent-ribbon" aria-hidden="true"><span>CONSPIRACIES</span></div>
-      <h1 className="conspiracy-title">&ldquo;{conspiracy.title}&rdquo;</h1>
+      <h1 className="conspiracy-title">{conspiracy.title}</h1>
       {conspiracy.category && (
         <span className="conspiracy-category-pill">{conspiracy.category}</span>
       )}

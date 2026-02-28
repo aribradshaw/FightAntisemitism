@@ -61,7 +61,7 @@ export default function TagWithPopup({ tag, className = '', currentSlug, current
                     to={it.parent === 'talmud' ? `/talmud/${it.slug}` : `/conspiracies/${it.slug}`}
                     onClick={() => setOpen(false)}
                   >
-                    &ldquo;{it.title}&rdquo;
+                    {it.title}
                     <span className="tag-popover-parent"> ({parentLabels[it.parent] || it.parent})</span>
                   </Link>
                 </li>

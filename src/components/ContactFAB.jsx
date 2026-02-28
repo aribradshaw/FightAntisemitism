@@ -1,0 +1,184 @@
+import { useState, useRef } from 'react'
+import ReCAPTCHA from 'react-google-recaptcha'
+import { FaQuestionCircle } from 'react-icons/fa'
+
+const SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY || '6LeGO3ssAAAAAKvcDYfhTPVFEKDjjNLhjiWq9apa'
+
+const CATEGORIES = [
+  { value: '', label: 'Select a category…' },
+  { value: 'definitions', label: 'Definitions' },
+  { value: 'agitators', label: 'Agitators' },
+  { value: 'conspiracy-theories', label: 'Conspiracy Theories' },
+  { value: 'talmud', label: 'Talmud' },
+  { value: 'misconceptions-israel', label: 'Misconceptions (Israel)' },
+  { value: 'misconceptions-jewish-identity', label: 'Misconceptions (Jewish Identity)' },
+  { value: 'timeline', label: 'Timeline' },
+  { value: 'other', label: 'Other' },
+]
+
+export default function ContactFAB() {
+  const [open, setOpen] = useState(false)
+  const [sending, setSending] = useState(false)
+  const [message, setMessage] = useState(null)
+  const [form, setForm] = useState({ name: '', email: '', question: '', category: '' })
+  const recaptchaRef = useRef(null)
+
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setForm((prev) => ({ ...prev, [name]: value }))
+    setMessage(null)
+  }
+
+  const onRecaptchaChange = (token) => {
+    setForm((prev) => ({ ...prev, recaptchaToken: token }))
+    setMessage(null)
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setMessage(null)
+    const { name, email, question, category, recaptchaToken } = form
+    if (!name?.trim() || !email?.trim() || !question?.trim()) {
+      setMessage({ type: 'error', text: 'Please fill in name, email, and question.' })
+      return
+    }
+    if (!category) {
+      setMessage({ type: 'error', text: 'Please select a category.' })
+      return
+    }
+    if (!recaptchaToken) {
+      setMessage({ type: 'error', text: 'Please complete the reCAPTCHA.' })
+      return
+    }
+    setSending(true)
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim(),
+          question: question.trim(),
+          category,
+          recaptchaToken,
+        }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setMessage({ type: 'error', text: data.error || 'Something went wrong. Please try again.' })
+        recaptchaRef.current?.reset()
+        setForm((prev) => ({ ...prev, recaptchaToken: '' }))
+        return
+      }
+      setMessage({ type: 'success', text: 'Thanks! Your question has been sent.' })
+      setForm({ name: '', email: '', question: '', category: '' })
+      recaptchaRef.current?.reset()
+      setTimeout(() => {
+        setOpen(false)
+        setMessage(null)
+      }, 2000)
+    } catch {
+      setMessage({ type: 'error', text: 'Failed to send. Please try again.' })
+      recaptchaRef.current?.reset()
+      setForm((prev) => ({ ...prev, recaptchaToken: '' }))
+    } finally {
+      setSending(false)
+    }
+  }
+
+  const handleClose = () => {
+    if (!sending) {
+      setOpen(false)
+      setMessage(null)
+    }
+  }
+
+  return (
+    <>
+      <button
+        type="button"
+        className="contact-fab contact-fab--ghost"
+        onClick={() => setOpen(true)}
+        aria-label="Have more questions? Open contact form"
+      >
+        <FaQuestionCircle className="contact-fab-icon" aria-hidden />
+        <span>Have More Questions?</span>
+      </button>
+
+      {open && (
+        <div className="contact-fab-overlay" onClick={handleClose} aria-hidden="true">
+          <div className="contact-fab-modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="contact-form-title">
+            <div className="contact-fab-modal-head">
+              <h2 id="contact-form-title">Have More Questions?</h2>
+              <button type="button" className="contact-fab-close" onClick={handleClose} aria-label="Close">×</button>
+            </div>
+            <form className="contact-fab-form" onSubmit={handleSubmit}>
+              <label htmlFor="contact-name">Name *</label>
+              <input
+                id="contact-name"
+                name="name"
+                type="text"
+                required
+                value={form.name}
+                onChange={handleChange}
+                placeholder="Your name"
+                autoComplete="name"
+                disabled={sending}
+              />
+              <label htmlFor="contact-email">Email *</label>
+              <input
+                id="contact-email"
+                name="email"
+                type="email"
+                required
+                value={form.email}
+                onChange={handleChange}
+                placeholder="your@email.com"
+                autoComplete="email"
+                disabled={sending}
+              />
+              <label htmlFor="contact-category">Category *</label>
+              <select
+                id="contact-category"
+                name="category"
+                required
+                value={form.category}
+                onChange={handleChange}
+                disabled={sending}
+              >
+                {CATEGORIES.map((opt) => (
+                  <option key={opt.value || 'blank'} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+              <label htmlFor="contact-question">Question *</label>
+              <textarea
+                id="contact-question"
+                name="question"
+                required
+                rows={4}
+                value={form.question}
+                onChange={handleChange}
+                placeholder="Your question…"
+                disabled={sending}
+              />
+              <div className="contact-fab-recaptcha">
+                <ReCAPTCHA
+                  ref={recaptchaRef}
+                  sitekey={SITE_KEY}
+                  onChange={onRecaptchaChange}
+                  onExpired={() => setForm((prev) => ({ ...prev, recaptchaToken: '' }))}
+                />
+              </div>
+              {message && (
+                <p className={`contact-fab-message contact-fab-message--${message.type}`}>{message.text}</p>
+              )}
+              <button type="submit" className="contact-fab-submit primary" disabled={sending}>
+                {sending ? 'Sending…' : 'Send'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+    </>
+  )
+}

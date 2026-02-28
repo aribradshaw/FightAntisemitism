@@ -26,6 +26,12 @@ const PORT = Number(process.env.PORT) || Number(process.env.API_PORT) || 3001
 const isProduction = process.env.NODE_ENV === 'production'
 
 const app = express()
+app.use(express.json())
+
+const RECAPTCHA_SECRET = process.env.RECAPTCHA_SECRET_KEY
+const CONTACT_EMAIL_TO = process.env.CONTACT_EMAIL_TO || 'aribradshawaz@gmail.com'
+const EMAIL_USER = process.env.EMAIL_USER
+const EMAIL_PASS = process.env.EMAIL_PASS
 
 async function getConnection() {
   if (!config.password) {
@@ -268,6 +274,61 @@ app.get('/api/misconception-entries/:topic', async (req, res) => {
     res.status(500).json({ error: 'Failed to load misconception entries.' })
   }
 })
+
+// POST /api/contact — submit question form (name, email, question, category, recaptchaToken)
+app.post('/api/contact', async (req, res) => {
+  try {
+    const { name, email, question, category, recaptchaToken } = req.body || {}
+    if (!name || !email || !question || !recaptchaToken) {
+      return res.status(400).json({ error: 'Name, email, question, and reCAPTCHA are required.' })
+    }
+    if (!RECAPTCHA_SECRET) {
+      console.error('RECAPTCHA_SECRET_KEY not set')
+      return res.status(503).json({ error: 'Contact form is not configured.' })
+    }
+    const verifyRes = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ secret: RECAPTCHA_SECRET, response: recaptchaToken }).toString(),
+    })
+    const verify = await verifyRes.json()
+    if (!verify.success) {
+      return res.status(400).json({ error: 'reCAPTCHA verification failed. Please try again.' })
+    }
+    if (!EMAIL_USER || !EMAIL_PASS) {
+      console.error('EMAIL_USER or EMAIL_PASS not set; cannot send contact email')
+      return res.status(503).json({ error: 'Email is not configured. Please try again later.' })
+    }
+    const nodemailer = (await import('nodemailer')).default
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: { user: EMAIL_USER, pass: EMAIL_PASS },
+    })
+    const categoryLabel = category || 'Not specified'
+    await transporter.sendMail({
+      from: EMAIL_USER,
+      to: CONTACT_EMAIL_TO,
+      replyTo: email,
+      subject: `[Site contact] ${categoryLabel}: ${(name || '').slice(0, 50)}`,
+      text: `Name: ${name}\nEmail: ${email}\nCategory: ${categoryLabel}\n\nQuestion:\n${question}`,
+      html: `<p><strong>Name:</strong> ${escapeHtml(name)}</p><p><strong>Email:</strong> ${escapeHtml(email)}</p><p><strong>Category:</strong> ${escapeHtml(categoryLabel)}</p><p><strong>Question:</strong></p><p>${escapeHtml(question).replace(/\n/g, '<br>')}</p>`,
+    })
+    res.json({ success: true })
+  } catch (err) {
+    console.error('POST /api/contact:', err.message)
+    res.status(500).json({ error: 'Failed to send your message. Please try again.' })
+  }
+})
+
+function escapeHtml(s) {
+  if (typeof s !== 'string') return ''
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
 
 // GET /api/by-tag?tag=... — items (conspiracies, talmud, etc.) that have this tag
 app.get('/api/by-tag', async (req, res) => {

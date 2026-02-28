@@ -1733,7 +1733,23 @@ h3 { font-size: 1.2rem; }
 .misconception-entry-sources li { margin-bottom: 0.35rem; }
 .misconception-entry-sources a { color: var(--accent-blue); }
 .misconception-entry-back { margin-top: 1.5rem; }
-.misconception-entry-back a { color: var(--accent-blue); }
+.misconception-entry-back a {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: background 0.2s, border-color 0.2s;
+}
+.misconception-entry-back a:hover {
+  background: var(--bg-card);
+  border-color: var(--accent-blue);
+  color: var(--accent-blue);
+  text-decoration: none;
+}
 
 /* Conspiracy Theories — masonry list */
 .conspiracies-page {
@@ -1949,3 +1965,139 @@ h3 { font-size: 1.2rem; }
   margin-bottom: 0.5rem;
 }
 .stylesheet-link-muted { color: var(--text-muted); }
+
+/* Contact FAB — bottom right */
+.contact-fab {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 9998;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s, border-color 0.2s, color 0.2s;
+}
+.contact-fab-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+.contact-fab--ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-strong);
+}
+.contact-fab--ghost:hover {
+  background: var(--bg-elevated);
+  border-color: var(--accent-blue);
+  color: var(--accent-blue);
+  transform: translateY(-2px);
+}
+.contact-fab--ghost .contact-fab-icon {
+  color: inherit;
+}
+.contact-fab-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: contact-fab-fadeIn 0.2s ease-out;
+}
+@keyframes contact-fab-fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.contact-fab-modal {
+  background: var(--bg-main);
+  border-radius: var(--radius);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  max-width: 440px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: contact-fab-slideUp 0.25s ease-out;
+}
+@keyframes contact-fab-slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.contact-fab-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.contact-fab-modal-head h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+.contact-fab-close {
+  background: none;
+  border: none;
+  font-size: 1.75rem;
+  line-height: 1;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.25rem;
+  margin: -0.25rem;
+}
+.contact-fab-close:hover { color: var(--text-primary); }
+.contact-fab-form {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.contact-fab-form label {
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+.contact-fab-form input,
+.contact-fab-form select,
+.contact-fab-form textarea {
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 1rem;
+}
+.contact-fab-form input:focus,
+.contact-fab-form select:focus,
+.contact-fab-form textarea:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 2px var(--accent-blue-muted);
+}
+.contact-fab-form textarea { resize: vertical; min-height: 100px; }
+.contact-fab-recaptcha {
+  display: flex;
+  justify-content: flex-start;
+  margin: 0.25rem 0;
+}
+.contact-fab-recaptcha iframe { max-width: 100%; }
+.contact-fab-message {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+}
+.contact-fab-message--error { background: #fef2f2; color: #b91c1c; }
+.contact-fab-message--success { background: #f0fdf4; color: #15803d; }
+.contact-fab-submit {
+  margin-top: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.contact-fab-submit:disabled { opacity: 0.7; cursor: not-allowed; }

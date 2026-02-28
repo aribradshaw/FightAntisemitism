@@ -18,6 +18,7 @@ import TalmudDetail from './pages/TalmudDetail'
 import Slideshow from './pages/Slideshow'
 import Stylesheet from './pages/Stylesheet'
 import Layout from './components/Layout'
+import ContactFAB from './components/ContactFAB'
 import { TransitionContext } from './context/TransitionContext'
 import './App.css'
 
@@ -72,6 +73,7 @@ function AppRoutes() {
           <Route path="stylesheet" element={<Stylesheet />} />
         </Route>
       </Routes>
+      <ContactFAB />
       <div className="app-copyright" aria-label="Copyright and disclaimer">
         © {currentYear} Ari Daniel Bradshaw. All rights reserved. This site is for educational purposes.
       </div>

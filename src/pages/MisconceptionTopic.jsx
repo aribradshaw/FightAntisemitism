@@ -6,7 +6,7 @@ import { MISCONCEPTION_SOURCES, HASHEM_FAITH_LABEL } from '../data/hashemFaithSo
 
 const ISRAEL_ICON_URL = 'https://upload.wikimedia.org/wikipedia/commons/c/c9/Mandatory_Palestine_Silhouette_Template.svg'
 
-const TOPIC_TITLES = { israel: 'Israel', 'jewish-race': 'The Jewish Race' }
+const TOPIC_TITLES = { israel: 'Israel', 'jewish-race': 'Jewish Identity' }
 
 const TOPIC_ICONS = {
   israel: { imageUrl: ISRAEL_ICON_URL },
@@ -38,11 +38,12 @@ const TOPIC_CONTENT = {
     ),
   },
   'jewish-race': {
-    title: 'The Jewish Race',
+    title: 'Jewish Identity',
     body: (
       <>
-        <p><strong>“Are Jews a race?”</strong> Jews are an ethnoreligious group. Identity is passed through family and community; there is genetic diversity but also shared ancestry among many Jews. Nazis racialized Jews to justify genocide; today, many Jews identify as both an ethnicity and a religion.</p>
-        <p><strong>“Jews are white / not white.”</strong> Jewish identity predates modern racial categories. Jews have been classified differently in different times and places. Reducing Jews to a single “race” ignores this history and diversity.</p>
+        <p><strong>Are Jews an ethnicity?</strong> Yes. Jews are a united ethnoreligious group. Identity is passed through family and community; Jews have intermarried within the community for thousands of years, sustaining shared ancestry alongside cultural and religious bonds. Nazis racialized Jews to justify genocide; today, many Jews identify as both an ethnicity and a religion.</p>
+        <p><strong>Genetic links across Jewish communities.</strong> Studies have shown genetic connections between the major Jewish diaspora groups—from Beta Israel (Ethiopian Jews) to Ashkenazim (Central and Eastern Europe), Mizrahim (Middle East and North Africa), and Sephardim (Iberian and Mediterranean)—reflecting a common Levantine origin and millennia of shared descent alongside local admixture.</p>
+        <p><strong>Jews are white / not white.</strong> Jewish identity predates modern racial categories. Jews have been classified differently in different times and places. Reducing Jews to a single “race” ignores this history and diversity.</p>
         <p><a href="https://hashem.faith/is-judaism-a-religion-or-race/" target="_blank" rel="noopener noreferrer">Hashem.Faith</a> discusses whether Judaism is a religion or race, where gentiles fit in the Jewish worldview, and refutes the myth that Jewish texts dehumanize non-Jews.</p>
       </>
     ),
@@ -101,7 +102,7 @@ export default function MisconceptionTopic() {
             {entries.map((e) => (
               <li key={e.slug}>
                 <Link to={`/misconceptions/${topic}/${e.slug}`} className="misconception-card">
-                  &ldquo;{e.title}&rdquo;
+                  {e.title}
                 </Link>
               </li>
             ))}

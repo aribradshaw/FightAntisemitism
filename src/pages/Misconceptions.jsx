@@ -7,7 +7,7 @@ const ISRAEL_ICON_URL = 'https://upload.wikimedia.org/wikipedia/commons/c/c9/Man
 const TOPICS = [
   { slug: 'israel', title: 'Israel', to: '/misconceptions/israel', imageUrl: ISRAEL_ICON_URL, summary: 'Myths about Israel’s founding, “colonialism,” and the conflict.' },
   { slug: 'talmud', title: 'The Talmud', to: '/talmud', Icon: FaBook, summary: 'Misquotes and false claims about what the Talmud says.' },
-  { slug: 'jewish-race', title: 'The Jewish Race', Icon: PiStarOfDavid, summary: 'Facts about Jewish identity: ethnicity, religion, and race.' },
+  { slug: 'jewish-race', title: 'Jewish Identity', Icon: PiStarOfDavid, summary: 'Facts about Jewish identity: a united ethnoreligious group, shared ancestry, and genetic links across diaspora communities.' },
   { slug: 'conspiracy', title: 'Conspiracy Theories', to: '/conspiracies', Icon: FaExclamationTriangle, summary: 'Classic antisemitic conspiracy myths and why they’re false.' },
 ]
 
