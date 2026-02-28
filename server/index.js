@@ -366,7 +366,7 @@ function usernameFromEmail(email) {
   return (base || 'user').slice(0, 24)
 }
 
-async function createUserWithUniqueUsername(conn, email, password) {
+async function createUserWithUniqueUsername(conn, email, password, firstName, lastName) {
   const passwordHash = await bcrypt.hash(password, 12)
   const base = usernameFromEmail(email)
   let createdUserId = null
@@ -375,8 +375,8 @@ async function createUserWithUniqueUsername(conn, email, password) {
     const username = `${base}${suffix}`.slice(0, 32)
     try {
       const [result] = await conn.execute(
-        'INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)',
-        [username, email, passwordHash]
+        'INSERT INTO users (username, email, password_hash, first_name, last_name) VALUES (?, ?, ?, ?, ?)',
+        [username, email, passwordHash, firstName || null, lastName || null]
       )
       createdUserId = result.insertId
       break
@@ -1040,15 +1040,21 @@ app.get('/api/misconception-entries/:topic', async (req, res) => {
 // POST /api/contact — submit question form (name, email, question, category, recaptchaToken); save to DB and email
 app.post('/api/contact', async (req, res) => {
   try {
-    const { name, email, password, question, category, recaptchaToken } = req.body || {}
-    const nameStr = typeof name === 'string' ? name.trim() : ''
+    const { first_name, last_name, name, email, password, question, category, recaptchaToken } = req.body || {}
+    const firstNameStr = typeof first_name === 'string' ? first_name.trim() : ''
+    const lastNameStr = typeof last_name === 'string' ? last_name.trim() : ''
+    const fallbackName = typeof name === 'string' ? name.trim() : ''
+    const fullName = `${firstNameStr} ${lastNameStr}`.trim() || fallbackName
     const emailStr = normalizeEmail(email)
     const passwordStr = typeof password === 'string' ? password : ''
     const questionStr = typeof question === 'string' ? question.trim() : ''
     const categoryStr = typeof category === 'string' ? category.trim() || 'other' : 'other'
 
-    if (!nameStr || !emailStr || !questionStr || !recaptchaToken) {
-      return res.status(400).json({ error: 'Name, email, question, and reCAPTCHA are required.' })
+    if (!fullName || !emailStr || !questionStr || !recaptchaToken) {
+      return res.status(400).json({ error: 'First name, last name, email, question, and reCAPTCHA are required.' })
+    }
+    if (!firstNameStr || !lastNameStr) {
+      return res.status(400).json({ error: 'Please provide first and last name.' })
     }
     if (!RECAPTCHA_SECRET) {
       console.error('RECAPTCHA_SECRET_KEY (or RECAPTCHA_SECRET) not set. Add it to .env in project root or set the env var, then restart the server.')
@@ -1095,6 +1101,10 @@ app.post('/api/contact', async (req, res) => {
           }
           await conn.execute('UPDATE users SET email = ? WHERE id = ?', [emailStr, sessionUser.id])
         }
+        await conn.execute(
+          'UPDATE users SET first_name = COALESCE(NULLIF(first_name, ""), ?), last_name = COALESCE(NULLIF(last_name, ""), ?) WHERE id = ?',
+          [firstNameStr, lastNameStr, sessionUser.id]
+        )
       } else {
         const [existingByEmail] = await conn.execute('SELECT id FROM users WHERE email = ? LIMIT 1', [emailStr])
         if (existingByEmail && existingByEmail.length > 0) {
@@ -1103,7 +1113,7 @@ app.post('/api/contact', async (req, res) => {
         if (!passwordStr || passwordStr.length < 8) {
           return res.status(400).json({ error: 'Create a password (8+ chars) to submit your first question.' })
         }
-        userId = await createUserWithUniqueUsername(conn, emailStr, passwordStr)
+        userId = await createUserWithUniqueUsername(conn, emailStr, passwordStr, firstNameStr, lastNameStr)
         const sessionToken = randomBytes(32).toString('hex')
         const tokenHash = hashSessionToken(sessionToken)
         const expiresAt = new Date(Date.now() + SESSION_TTL_MS)
@@ -1117,7 +1127,7 @@ app.post('/api/contact', async (req, res) => {
       // 2) Save question linked to account
       await conn.execute(
         'INSERT INTO contact_entries (user_id, name, email, category, question) VALUES (?, ?, ?, ?, ?)',
-        [userId, nameStr, emailStr, categoryStr, questionStr]
+        [userId, fullName, emailStr, categoryStr, questionStr]
       )
     } finally {
       await conn.end()
@@ -1147,9 +1157,9 @@ app.post('/api/contact', async (req, res) => {
           from: EMAIL_FROM,
           to: CONTACT_EMAIL_TO,
           replyTo: emailStr,
-          subject: `[Site contact] ${categoryStr}: ${nameStr.slice(0, 50)}`,
-          text: `Name: ${nameStr}\nEmail: ${emailStr}\nCategory: ${categoryStr}\n\nQuestion:\n${questionStr}`,
-          html: `<p><strong>Name:</strong> ${escapeHtml(nameStr)}</p><p><strong>Email:</strong> ${escapeHtml(emailStr)}</p><p><strong>Category:</strong> ${escapeHtml(categoryStr)}</p><p><strong>Question:</strong></p><p>${escapeHtml(questionStr).replace(/\n/g, '<br>')}</p>`,
+          subject: `[Site contact] ${categoryStr}: ${fullName.slice(0, 50)}`,
+          text: `Name: ${fullName}\nEmail: ${emailStr}\nCategory: ${categoryStr}\n\nQuestion:\n${questionStr}`,
+          html: `<p><strong>Name:</strong> ${escapeHtml(fullName)}</p><p><strong>Email:</strong> ${escapeHtml(emailStr)}</p><p><strong>Category:</strong> ${escapeHtml(categoryStr)}</p><p><strong>Question:</strong></p><p>${escapeHtml(questionStr).replace(/\n/g, '<br>')}</p>`,
         })
       } catch (mailErr) {
         console.error(

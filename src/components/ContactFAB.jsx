@@ -33,7 +33,7 @@ export default function ContactFAB({ visibilityClass = 'contact-fab--visible' })
   const [open, setOpen] = useState(false)
   const [sending, setSending] = useState(false)
   const [message, setMessage] = useState(null)
-  const [form, setForm] = useState({ name: '', email: '', password: '', question: '', category: '' })
+  const [form, setForm] = useState({ first_name: '', last_name: '', email: '', password: '', question: '', category: '' })
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -44,9 +44,9 @@ export default function ContactFAB({ visibilityClass = 'contact-fab--visible' })
   const handleSubmit = async (e) => {
     e.preventDefault()
     setMessage(null)
-    const { name, email, password, question, category } = form
-    if (!name?.trim() || !email?.trim() || !question?.trim()) {
-      setMessage({ type: 'error', text: 'Please fill in name, email, and question.' })
+    const { first_name, last_name, email, password, question, category } = form
+    if (!first_name?.trim() || !last_name?.trim() || !email?.trim() || !question?.trim()) {
+      setMessage({ type: 'error', text: 'Please fill in first name, last name, email, and question.' })
       return
     }
     if (!category) {
@@ -77,7 +77,8 @@ export default function ContactFAB({ visibilityClass = 'contact-fab--visible' })
         headers: { 'Content-Type': 'application/json' },
         signal: controller.signal,
         body: JSON.stringify({
-          name: name.trim(),
+          first_name: first_name.trim(),
+          last_name: last_name.trim(),
           email: email.trim(),
           question: question.trim(),
           category,
@@ -91,7 +92,7 @@ export default function ContactFAB({ visibilityClass = 'contact-fab--visible' })
         return
       }
       setMessage({ type: 'success', text: 'Thanks! Your question has been sent.' })
-      setForm({ name: '', email: '', password: '', question: '', category: '' })
+      setForm({ first_name: '', last_name: '', email: '', password: '', question: '', category: '' })
       setTimeout(() => {
         setOpen(false)
         setMessage(null)
@@ -140,18 +141,36 @@ export default function ContactFAB({ visibilityClass = 'contact-fab--visible' })
               <button type="button" className="contact-fab-close" onClick={handleClose} aria-label="Close">×</button>
             </div>
             <form className="contact-fab-form" onSubmit={handleSubmit}>
-              <label htmlFor="contact-name">Name *</label>
-              <input
-                id="contact-name"
-                name="name"
-                type="text"
-                required
-                value={form.name}
-                onChange={handleChange}
-                placeholder="Your name"
-                autoComplete="name"
-                disabled={sending}
-              />
+              <div className="contact-fab-name-row">
+                <div>
+                  <label htmlFor="contact-first-name">First name *</label>
+                  <input
+                    id="contact-first-name"
+                    name="first_name"
+                    type="text"
+                    required
+                    value={form.first_name}
+                    onChange={handleChange}
+                    placeholder="First name"
+                    autoComplete="given-name"
+                    disabled={sending}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="contact-last-name">Last name *</label>
+                  <input
+                    id="contact-last-name"
+                    name="last_name"
+                    type="text"
+                    required
+                    value={form.last_name}
+                    onChange={handleChange}
+                    placeholder="Last name"
+                    autoComplete="family-name"
+                    disabled={sending}
+                  />
+                </div>
+              </div>
               <label htmlFor="contact-email">Email *</label>
               <input
                 id="contact-email"
@@ -208,6 +227,9 @@ export default function ContactFAB({ visibilityClass = 'contact-fab--visible' })
               {message && (
                 <p className={`contact-fab-message contact-fab-message--${message.type}`}>{message.text}</p>
               )}
+              <p className="contact-fab-account-notice">
+                By submitting a question, you are creating an account on hashem.faith.
+              </p>
               <button type="submit" className="contact-fab-submit primary" disabled={sending}>
                 {sending ? 'Sending…' : 'Send'}
               </button>

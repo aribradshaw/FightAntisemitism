@@ -2462,6 +2462,15 @@ h3 { font-size: 1.2rem; }
   flex-direction: column;
   gap: 0.75rem;
 }
+.contact-fab-name-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.7rem;
+}
+.contact-fab-name-row > div {
+  display: grid;
+  gap: 0.35rem;
+}
 .contact-fab-form label {
   font-weight: 500;
   font-size: 0.9rem;
@@ -2492,6 +2501,11 @@ h3 { font-size: 1.2rem; }
 }
 .contact-fab-message--error { background: #fef2f2; color: #b91c1c; }
 .contact-fab-message--success { background: #f0fdf4; color: #15803d; }
+.contact-fab-account-notice {
+  margin: 0.2rem 0 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
 .contact-fab-recaptcha-notice {
   margin: 0.5rem 0 0;
   font-size: 0.75rem;
@@ -2509,6 +2523,12 @@ h3 { font-size: 1.2rem; }
   cursor: pointer;
 }
 .contact-fab-submit:disabled { opacity: 0.7; cursor: not-allowed; }
+@media (max-width: 640px) {
+  .contact-fab-name-row {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+}
 
 .admin-page {
   max-width: 1200px;
