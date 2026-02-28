@@ -12,6 +12,9 @@ import { dirname, join } from 'path'
 import { config as loadEnv } from 'dotenv'
 import { randomBytes, createHash } from 'crypto'
 import bcrypt from 'bcryptjs'
+import { promises as dns } from 'dns'
+import net from 'net'
+import tls from 'tls'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 // Load .env from project root (override: false so Railway/platform env vars win)
@@ -40,6 +43,60 @@ app.get('/api/healthz', (_req, res) => {
   res.status(200).json({ ok: true })
 })
 
+// Runtime SMTP diagnostics for Railway->provider connectivity.
+// Set SMTP_DEBUG_TOKEN and call /api/diagnostics/smtp?token=... to run.
+app.get('/api/diagnostics/smtp', async (req, res) => {
+  if (!SMTP_DEBUG_TOKEN || req.query?.token !== SMTP_DEBUG_TOKEN) {
+    return res.status(404).json({ error: 'Not found' })
+  }
+  try {
+    if (!SMTP_HOST || !SMTP_PORT) {
+      return res.status(400).json({ error: 'SMTP_HOST and SMTP_PORT are required.' })
+    }
+    const timeoutMs = Math.max(SMTP_CONNECT_TIMEOUT_MS, 5000)
+    const report = {
+      host: SMTP_HOST,
+      port: SMTP_PORT,
+      secure: SMTP_SECURE,
+      timeoutMs,
+      dns: await resolveHost(SMTP_HOST),
+      tcp: await testTcpConnect(SMTP_HOST, SMTP_PORT, timeoutMs),
+      tls: null,
+      verify: null,
+    }
+    if (SMTP_SECURE) {
+      report.tls = await testTlsConnect(SMTP_HOST, SMTP_PORT, timeoutMs)
+    }
+    try {
+      const nodemailer = (await import('nodemailer')).default
+      const transporter = nodemailer.createTransport({
+        host: SMTP_HOST,
+        port: SMTP_PORT,
+        secure: SMTP_SECURE,
+        auth: { user: EMAIL_USER, pass: EMAIL_PASS },
+        connectionTimeout: SMTP_CONNECT_TIMEOUT_MS,
+        greetingTimeout: SMTP_CONNECT_TIMEOUT_MS,
+        socketTimeout: SMTP_SOCKET_TIMEOUT_MS,
+      })
+      await transporter.verify()
+      report.verify = { ok: true }
+    } catch (err) {
+      report.verify = {
+        ok: false,
+        message: err?.message || String(err),
+        code: err?.code || null,
+        errno: err?.errno || null,
+        command: err?.command || null,
+        address: err?.address || null,
+        port: err?.port || null,
+      }
+    }
+    return res.json(report)
+  } catch (err) {
+    return res.status(500).json({ error: err?.message || String(err) })
+  }
+})
+
 const RECAPTCHA_SECRET = process.env.RECAPTCHA_SECRET_KEY || process.env.RECAPTCHA_SECRET
 if (!RECAPTCHA_SECRET && !isProduction) {
   console.warn('Contact form: RECAPTCHA_SECRET_KEY not set. Add it to .env in the project root and restart the server.')
@@ -54,6 +111,7 @@ const SMTP_SECURE = process.env.SMTP_SECURE === 'true' || process.env.SMTP_SECUR
 const RECAPTCHA_VERIFY_TIMEOUT_MS = Number(process.env.RECAPTCHA_VERIFY_TIMEOUT_MS) || 10000
 const SMTP_CONNECT_TIMEOUT_MS = Number(process.env.SMTP_CONNECT_TIMEOUT_MS) || 10000
 const SMTP_SOCKET_TIMEOUT_MS = Number(process.env.SMTP_SOCKET_TIMEOUT_MS) || 10000
+const SMTP_DEBUG_TOKEN = process.env.SMTP_DEBUG_TOKEN || ''
 const SESSION_COOKIE_NAME = 'af_session'
 const SESSION_DAYS = Number(process.env.SESSION_DAYS) || 30
 const SESSION_TTL_MS = SESSION_DAYS * 24 * 60 * 60 * 1000
@@ -118,6 +176,79 @@ async function fetchJsonWithTimeout(url, init, timeoutMs) {
   } finally {
     clearTimeout(timeoutId)
   }
+}
+
+async function resolveHost(host) {
+  const out = { host, a: [], aaaa: [] }
+  try {
+    out.a = await dns.resolve4(host)
+  } catch (err) {
+    out.a_error = err?.message || String(err)
+  }
+  try {
+    out.aaaa = await dns.resolve6(host)
+  } catch (err) {
+    out.aaaa_error = err?.message || String(err)
+  }
+  return out
+}
+
+function testTcpConnect(host, port, timeoutMs) {
+  return new Promise((resolve) => {
+    const startedAt = Date.now()
+    const socket = net.createConnection({ host, port })
+    let settled = false
+    const done = (result) => {
+      if (settled) return
+      settled = true
+      resolve({ ...result, elapsed_ms: Date.now() - startedAt })
+      socket.destroy()
+    }
+    socket.setTimeout(timeoutMs)
+    socket.on('connect', () => {
+      done({
+        ok: true,
+        remoteAddress: socket.remoteAddress || null,
+        remoteFamily: socket.remoteFamily || null,
+        remotePort: socket.remotePort || null,
+      })
+    })
+    socket.on('timeout', () => done({ ok: false, error: 'TCP timeout' }))
+    socket.on('error', (err) => done({ ok: false, error: err?.message || String(err), code: err?.code || null }))
+  })
+}
+
+function testTlsConnect(host, port, timeoutMs) {
+  return new Promise((resolve) => {
+    const startedAt = Date.now()
+    const socket = tls.connect({
+      host,
+      port,
+      servername: host,
+      rejectUnauthorized: false,
+    })
+    let settled = false
+    const done = (result) => {
+      if (settled) return
+      settled = true
+      resolve({ ...result, elapsed_ms: Date.now() - startedAt })
+      socket.destroy()
+    }
+    socket.setTimeout(timeoutMs)
+    socket.on('secureConnect', () => {
+      done({
+        ok: true,
+        authorized: socket.authorized,
+        authorizationError: socket.authorizationError || null,
+        protocol: socket.getProtocol?.() || null,
+        remoteAddress: socket.remoteAddress || null,
+        remoteFamily: socket.remoteFamily || null,
+        remotePort: socket.remotePort || null,
+      })
+    })
+    socket.on('timeout', () => done({ ok: false, error: 'TLS timeout' }))
+    socket.on('error', (err) => done({ ok: false, error: err?.message || String(err), code: err?.code || null }))
+  })
 }
 
 function sanitizeUser(row) {
@@ -707,7 +838,20 @@ app.post('/api/contact', async (req, res) => {
           html: `<p><strong>Name:</strong> ${escapeHtml(nameStr)}</p><p><strong>Email:</strong> ${escapeHtml(emailStr)}</p><p><strong>Category:</strong> ${escapeHtml(categoryStr)}</p><p><strong>Question:</strong></p><p>${escapeHtml(questionStr).replace(/\n/g, '<br>')}</p>`,
         })
       } catch (mailErr) {
-        console.error('POST /api/contact email delivery failed:', mailErr.message)
+        console.error(
+          'POST /api/contact email delivery failed:',
+          mailErr?.message || String(mailErr),
+          JSON.stringify({
+            code: mailErr?.code || null,
+            errno: mailErr?.errno || null,
+            command: mailErr?.command || null,
+            address: mailErr?.address || null,
+            port: mailErr?.port || null,
+            host: SMTP_HOST || null,
+            smtpPort: SMTP_PORT || null,
+            secure: SMTP_SECURE,
+          })
+        )
       }
     })()
     return
