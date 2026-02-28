@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import ContactFAB from '../components/ContactFAB'
 
 const CATEGORY_LABELS = {
   definitions: 'Definitions',
@@ -15,12 +16,16 @@ export default function Profile() {
   const { user, authLoading, updateProfile } = useAuth()
   const [activeTab, setActiveTab] = useState('profile')
   const [saving, setSaving] = useState(false)
-  const [expanded, setExpanded] = useState(false)
   const [message, setMessage] = useState(null)
   const [summary, setSummary] = useState({ overall: { completed: 0, total: 0, percent: 0 }, byCategory: [] })
   const [questionsLoading, setQuestionsLoading] = useState(false)
   const [questions, setQuestions] = useState([])
   const [questionsError, setQuestionsError] = useState('')
+  const [progressDetails, setProgressDetails] = useState({})
+  const [progressOpen, setProgressOpen] = useState({})
+  const [progressFilter, setProgressFilter] = useState({})
+  const [progressLoading, setProgressLoading] = useState({})
+  const [progressError, setProgressError] = useState({})
   const [form, setForm] = useState({
     profile_image_url: '',
     first_name: '',
@@ -109,6 +114,26 @@ export default function Profile() {
   if (!user) return null
 
   const overall = summary.overall || { completed: 0, total: 0, percent: 0 }
+  const loadCategoryDetails = async (category) => {
+    if (progressDetails[category]) {
+      setProgressOpen((prev) => ({ ...prev, [category]: true }))
+      return
+    }
+    setProgressLoading((prev) => ({ ...prev, [category]: true }))
+    setProgressError((prev) => ({ ...prev, [category]: '' }))
+    try {
+      const res = await fetch(`/api/progress/category-details/${category}`, { credentials: 'include' })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data?.error || 'Failed to load progress details.')
+      setProgressDetails((prev) => ({ ...prev, [category]: { read: data.read || [], unread: data.unread || [] } }))
+      setProgressOpen((prev) => ({ ...prev, [category]: true }))
+      setProgressFilter((prev) => ({ ...prev, [category]: 'unread' }))
+    } catch (err) {
+      setProgressError((prev) => ({ ...prev, [category]: err.message || 'Failed to load progress details.' }))
+    } finally {
+      setProgressLoading((prev) => ({ ...prev, [category]: false }))
+    }
+  }
 
   return (
     <div className="profile-page">
@@ -131,6 +156,15 @@ export default function Profile() {
           onClick={() => setActiveTab('questions')}
         >
           My Questions
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === 'progress'}
+          className={activeTab === 'progress' ? 'profile-tab profile-tab--active' : 'profile-tab'}
+          onClick={() => setActiveTab('progress')}
+        >
+          Reading Progress
         </button>
       </div>
       <div className="profile-header">
@@ -175,40 +209,15 @@ export default function Profile() {
             </button>
           </form>
 
-          <section className="profile-progress">
-            <h2>Reading Progress</h2>
-            <p className="profile-progress-meta">{overall.completed} of {overall.total} pages read</p>
-            <div className="profile-progress-bar" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={overall.percent}>
-              <span style={{ width: `${overall.percent}%` }} />
-            </div>
-            <p className="profile-progress-percent">{overall.percent}% complete</p>
-
-            <button type="button" className="ghost profile-progress-toggle" onClick={() => setExpanded((v) => !v)}>
-              {expanded ? 'Hide category breakdown' : 'Show category breakdown'}
-            </button>
-
-            {expanded && (
-              <ul className="profile-progress-categories">
-                {(summary.byCategory || []).map((row) => (
-                  <li key={row.category}>
-                    <div className="profile-progress-category-head">
-                      <strong>{CATEGORY_LABELS[row.category] || row.category}</strong>
-                      <span>{row.completed}/{row.total} ({row.percent}%)</span>
-                    </div>
-                    <div className="profile-progress-bar" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={row.percent}>
-                      <span style={{ width: `${row.percent}%` }} />
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
         </>
       )}
 
       {activeTab === 'questions' && (
         <section className="profile-questions">
-          <h2>My Questions</h2>
+          <div className="profile-questions-head">
+            <h2>My Questions</h2>
+            <ContactFAB inline triggerLabel="Submit New Question" />
+          </div>
           {questionsLoading && <p>Loading questions…</p>}
           {!questionsLoading && questionsError && <p className="profile-message profile-message--error">{questionsError}</p>}
           {!questionsLoading && !questionsError && questions.length === 0 && (
@@ -231,6 +240,79 @@ export default function Profile() {
               ))}
             </ul>
           )}
+        </section>
+      )}
+
+      {activeTab === 'progress' && (
+        <section className="profile-progress">
+          <h2>Reading Progress</h2>
+          <p className="profile-progress-meta">{overall.completed} of {overall.total} pages read</p>
+          <div className="profile-progress-bar" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={overall.percent}>
+            <span style={{ width: `${overall.percent}%` }} />
+          </div>
+          <p className="profile-progress-percent">{overall.percent}% complete</p>
+
+          <ul className="profile-progress-categories">
+            {(summary.byCategory || []).map((row) => {
+              const detail = progressDetails[row.category] || { read: [], unread: [] }
+              const isOpen = !!progressOpen[row.category]
+              const filter = progressFilter[row.category] || 'unread'
+              const items = filter === 'read' ? detail.read : detail.unread
+              return (
+                <li key={row.category}>
+                  <div className="profile-progress-category-head">
+                    <strong>{CATEGORY_LABELS[row.category] || row.category}</strong>
+                    <span>{row.completed}/{row.total} ({row.percent}%)</span>
+                  </div>
+                  <div className="profile-progress-bar" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={row.percent}>
+                    <span style={{ width: `${row.percent}%` }} />
+                  </div>
+                  <div className="profile-progress-actions">
+                    <button type="button" className="ghost" onClick={() => loadCategoryDetails(row.category)}>
+                      {isOpen ? 'Refresh list' : 'View read/unread'}
+                    </button>
+                    {isOpen && (
+                      <>
+                        <button
+                          type="button"
+                          className={filter === 'read' ? 'ghost profile-chip-active' : 'ghost'}
+                          onClick={() => setProgressFilter((prev) => ({ ...prev, [row.category]: 'read' }))}
+                        >
+                          Read ({detail.read.length})
+                        </button>
+                        <button
+                          type="button"
+                          className={filter === 'unread' ? 'ghost profile-chip-active' : 'ghost'}
+                          onClick={() => setProgressFilter((prev) => ({ ...prev, [row.category]: 'unread' }))}
+                        >
+                          Unread ({detail.unread.length})
+                        </button>
+                        <button
+                          type="button"
+                          className="ghost"
+                          onClick={() => setProgressOpen((prev) => ({ ...prev, [row.category]: false }))}
+                        >
+                          Hide
+                        </button>
+                      </>
+                    )}
+                  </div>
+                  {progressLoading[row.category] && <p className="profile-progress-list-note">Loading list…</p>}
+                  {progressError[row.category] && <p className="profile-message profile-message--error">{progressError[row.category]}</p>}
+                  {isOpen && !progressLoading[row.category] && (
+                    <ul className="profile-progress-items">
+                      {items.map((item) => (
+                        <li key={`${row.category}:${item.slug}`}>
+                          <Link to={item.url}>{item.title}</Link>
+                        </li>
+                      ))}
+                      {items.length === 0 && <li className="profile-progress-list-note">No items in this list yet.</li>}
+                    </ul>
+                  )}
+                </li>
+              )
+            })}
+          </ul>
         </section>
       )}
     </div>

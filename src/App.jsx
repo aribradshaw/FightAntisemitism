@@ -34,7 +34,7 @@ function AppRoutes() {
   const location = useLocation()
   const [displayLocation, setDisplayLocation] = useState(location)
   const [transitionState, setTransitionState] = useState('idle')
-  const showFabOnRoute = location.pathname !== '/' && location.pathname !== '/admin'
+  const showFabOnRoute = location.pathname !== '/' && location.pathname !== '/admin' && location.pathname !== '/profile'
   const [fabMounted, setFabMounted] = useState(showFabOnRoute)
   const [fabVisible, setFabVisible] = useState(showFabOnRoute)
   const isInitialMount = useRef(true)

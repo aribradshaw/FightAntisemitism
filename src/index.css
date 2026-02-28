@@ -2158,7 +2158,9 @@ h3 { font-size: 1.2rem; }
 
 /* Profile */
 .profile-page {
-  max-width: 760px;
+  width: min(100%, 980px);
+  max-width: 980px;
+  margin: 0 auto;
 }
 .profile-page h1 {
   margin-bottom: 0.9rem;
@@ -2291,12 +2293,49 @@ h3 { font-size: 1.2rem; }
   font-size: 0.9rem;
   margin-bottom: 0.25rem;
 }
+.profile-progress-actions {
+  margin-top: 0.45rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.profile-progress-items {
+  margin: 0.5rem 0 0;
+  padding-left: 1.05rem;
+  display: grid;
+  gap: 0.25rem;
+}
+.profile-progress-items a {
+  color: var(--text-primary);
+  text-decoration: none;
+}
+.profile-progress-items a:hover {
+  text-decoration: underline;
+}
+.profile-progress-list-note {
+  margin: 0.45rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.86rem;
+}
+.profile-chip-active {
+  border-color: var(--accent-blue) !important;
+  color: var(--accent-blue) !important;
+}
 .profile-questions {
   margin-top: 1rem;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 1rem;
+}
+.profile-questions-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+}
+.profile-questions-head h2 {
+  margin: 0;
 }
 .profile-question-list {
   list-style: none;
@@ -2353,6 +2392,15 @@ h3 { font-size: 1.2rem; }
   opacity: 1;
   transition: opacity 0.22s ease, transform 0.2s, background 0.2s, border-color 0.2s, color 0.2s;
 }
+.contact-fab--inline-trigger {
+  position: static;
+  left: auto;
+  bottom: auto;
+  z-index: auto;
+  transform: none;
+  font-size: 0.88rem;
+  padding: 0.55rem 0.85rem;
+}
 .contact-fab--visible {
   opacity: 1;
   pointer-events: auto;
@@ -2384,6 +2432,12 @@ h3 { font-size: 1.2rem; }
   }
   .app-copyright-rest {
     display: block;
+  }
+}
+@media (max-width: 640px) {
+  .profile-questions-head {
+    flex-direction: column;
+    align-items: stretch;
   }
 }
 .contact-fab-icon {

@@ -801,6 +801,58 @@ app.get('/api/progress/summary', async (req, res) => {
   }
 })
 
+// GET /api/progress/category-details/:category — read/unread items for one category
+app.get('/api/progress/category-details/:category', async (req, res) => {
+  try {
+    const auth = await requireAuth(req, res)
+    if (!auth) return
+    const { conn, user } = auth
+    try {
+      const category = typeof req.params?.category === 'string' ? req.params.category.trim() : ''
+      if (!VALID_PROGRESS_CATEGORIES.has(category)) return res.status(400).json({ error: 'Invalid category.' })
+
+      const [readRows] = await conn.execute(
+        'SELECT item_slug FROM user_read_progress WHERE user_id = ? AND category = ?',
+        [user.id, category]
+      )
+      const readSet = new Set((readRows || []).map((r) => String(r.item_slug || '')))
+
+      let allItems = []
+      if (category === 'definitions') {
+        const [rows] = await conn.execute('SELECT slug, title FROM definitions ORDER BY title ASC')
+        allItems = (rows || []).map((r) => ({ slug: r.slug, title: r.title, url: `/definitions/${r.slug}` }))
+      } else if (category === 'agitators') {
+        const [rows] = await conn.execute('SELECT slug, name FROM agitators ORDER BY name ASC')
+        allItems = (rows || []).map((r) => ({ slug: r.slug, title: r.name, url: `/agitators/${r.slug}` }))
+      } else if (category === 'conspiracies') {
+        const [rows] = await conn.execute('SELECT slug, title FROM conspiracies ORDER BY title ASC')
+        allItems = (rows || []).map((r) => ({ slug: r.slug, title: r.title, url: `/conspiracies/${r.slug}` }))
+      } else if (category === 'talmud') {
+        const [rows] = await conn.execute('SELECT slug, title FROM talmud_entries ORDER BY title ASC')
+        allItems = (rows || []).map((r) => ({ slug: r.slug, title: r.title, url: `/talmud/${r.slug}` }))
+      } else if (category === 'misconceptions') {
+        const [rows] = await conn.execute(
+          'SELECT topic_slug, slug, title FROM misconception_entries ORDER BY topic_slug ASC, sort_order ASC, title ASC'
+        )
+        allItems = (rows || []).map((r) => ({
+          slug: r.slug,
+          title: r.title,
+          url: `/misconceptions/${r.topic_slug}/${r.slug}`,
+        }))
+      }
+
+      const read = allItems.filter((item) => readSet.has(item.slug))
+      const unread = allItems.filter((item) => !readSet.has(item.slug))
+      return res.json({ category, read, unread })
+    } finally {
+      await conn.end()
+    }
+  } catch (err) {
+    console.error('GET /api/progress/category-details/:category:', err.message)
+    return res.status(500).json({ error: 'Failed to load category progress details.' })
+  }
+})
+
 // GET /api/my/questions — current user's submitted contact questions with answer status
 app.get('/api/my/questions', async (req, res) => {
   try {

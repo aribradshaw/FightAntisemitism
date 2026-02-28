@@ -27,7 +27,7 @@ function getTokenWithTimeout(executeRecaptcha) {
   ])
 }
 
-export default function ContactFAB({ visibilityClass = 'contact-fab--visible' }) {
+export default function ContactFAB({ visibilityClass = 'contact-fab--visible', inline = false, triggerLabel = 'Have More Questions?' }) {
   const { executeRecaptcha } = useGoogleReCaptcha()
   const { user, refreshMe } = useAuth()
   const [open, setOpen] = useState(false)
@@ -127,12 +127,12 @@ export default function ContactFAB({ visibilityClass = 'contact-fab--visible' })
     <>
       <button
         type="button"
-        className={`contact-fab contact-fab--ghost ${visibilityClass}`.trim()}
+        className={`contact-fab ${inline ? 'contact-fab--inline-trigger primary' : 'contact-fab--ghost'} ${visibilityClass}`.trim()}
         onClick={() => setOpen(true)}
         aria-label="Have more questions? Open contact form"
       >
         <FaQuestionCircle className="contact-fab-icon" aria-hidden />
-        <span>Have More Questions?</span>
+        <span>{triggerLabel}</span>
       </button>
 
       {open && (
