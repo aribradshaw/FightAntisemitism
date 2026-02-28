@@ -43,10 +43,11 @@ If the app deploys but API calls return **500** and pages are blank, the server 
 
 ### WebSocket to localhost:8081 (console warning)
 
-If the browser console shows `WebSocket connection to 'ws://localhost:8081/' failed`, that is usually **Vite’s dev hot-reload client** trying to connect. It does not affect production data.
+If the browser console shows `WebSocket connection to 'ws://localhost:8081/' failed` and a `refresh.js` script, that script is **not** from our app. The production build (`npm run build`) does not include it; it is injected by the **host** (e.g. Cloudflare Pages live-reload for preview) or a **browser extension**. It does not affect production data or reCAPTCHA.
 
-- Confirm Railway **Build** is `npm install && npm run build` and **Start** is `npm start` (not `npm run dev`).
-- Do a **hard refresh** (Ctrl+Shift+R / Cmd+Shift+R) or open the site in a private window so the browser isn’t using a cached dev bundle.
+- Confirm **Build** is `npm install && npm run build` and **Start** is `npm start` (not `npm run dev`).
+- If using Cloudflare (or similar), turn off any “Development” or “Live reload” option for the production deployment.
+- To confirm it’s external: test in an incognito/private window with extensions disabled; the message may disappear.
 
 ---
 

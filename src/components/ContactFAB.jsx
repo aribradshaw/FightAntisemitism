@@ -14,6 +14,17 @@ const CATEGORIES = [
   { value: 'other', label: 'Other' },
 ]
 
+const RECAPTCHA_TIMEOUT_MS = 20000
+
+function getTokenWithTimeout(executeRecaptcha) {
+  return Promise.race([
+    executeRecaptcha('contact'),
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('reCAPTCHA_TIMEOUT')), RECAPTCHA_TIMEOUT_MS)
+    ),
+  ])
+}
+
 export default function ContactFAB() {
   const { executeRecaptcha } = useGoogleReCaptcha()
   const [open, setOpen] = useState(false)
@@ -45,13 +56,13 @@ export default function ContactFAB() {
     }
     setSending(true)
     try {
-      const RECAPTCHA_TIMEOUT_MS = 15000
-      const recaptchaToken = await Promise.race([
-        executeRecaptcha('contact'),
-        new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('reCAPTCHA_TIMEOUT')), RECAPTCHA_TIMEOUT_MS)
-        ),
-      ])
+      let recaptchaToken
+      try {
+        recaptchaToken = await getTokenWithTimeout(executeRecaptcha)
+      } catch (firstErr) {
+        // Retry once (Google sometimes returns 401 then succeeds on retry)
+        recaptchaToken = await getTokenWithTimeout(executeRecaptcha)
+      }
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -80,7 +91,7 @@ export default function ContactFAB() {
       setMessage({
         type: 'error',
         text: isTimeout || isRecaptcha
-          ? 'Verification failed or timed out. If you\'re on localhost, add it in Google reCAPTCHA admin for this key, or try again.'
+          ? 'Verification failed or timed out. Please try again.'
           : 'Failed to send. Please try again.',
       })
     } finally {
