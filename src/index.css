@@ -2413,6 +2413,7 @@ h3 { font-size: 1.2rem; }
   align-items: center;
   justify-content: center;
   padding: 1rem;
+  overflow: hidden;
   animation: contact-fab-fadeIn 0.2s ease-out;
 }
 @keyframes contact-fab-fadeIn {
@@ -2423,10 +2424,11 @@ h3 { font-size: 1.2rem; }
   background: var(--bg-main);
   border-radius: var(--radius);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-  max-width: 440px;
-  width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
+  width: min(100%, 430px);
+  max-height: min(86vh, 740px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   animation: contact-fab-slideUp 0.25s ease-out;
 }
 @keyframes contact-fab-slideUp {
@@ -2437,12 +2439,12 @@ h3 { font-size: 1.2rem; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.25rem 1.5rem;
+  padding: 0.95rem 1.1rem;
   border-bottom: 1px solid var(--border);
 }
 .contact-fab-modal-head h2 {
   margin: 0;
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   font-weight: 600;
 }
 .contact-fab-close {
@@ -2457,10 +2459,12 @@ h3 { font-size: 1.2rem; }
 }
 .contact-fab-close:hover { color: var(--text-primary); }
 .contact-fab-form {
-  padding: 1.5rem;
+  padding: 1rem 1.1rem 1.1rem;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.6rem;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 .contact-fab-name-row {
   display: grid;
@@ -2479,6 +2483,8 @@ h3 { font-size: 1.2rem; }
 .contact-fab-form input,
 .contact-fab-form select,
 .contact-fab-form textarea {
+  width: 100%;
+  box-sizing: border-box;
   padding: 0.6rem 0.75rem;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
@@ -2492,7 +2498,7 @@ h3 { font-size: 1.2rem; }
   border-color: var(--accent-blue);
   box-shadow: 0 0 0 2px var(--accent-blue-muted);
 }
-.contact-fab-form textarea { resize: vertical; min-height: 100px; }
+.contact-fab-form textarea { resize: vertical; min-height: 88px; }
 .contact-fab-message {
   margin: 0;
   padding: 0.5rem 0.75rem;
@@ -2502,9 +2508,10 @@ h3 { font-size: 1.2rem; }
 .contact-fab-message--error { background: #fef2f2; color: #b91c1c; }
 .contact-fab-message--success { background: #f0fdf4; color: #15803d; }
 .contact-fab-account-notice {
-  margin: 0.2rem 0 0;
-  font-size: 0.78rem;
+  margin: 0.1rem 0 0;
+  font-size: 0.74rem;
   color: var(--text-muted);
+  line-height: 1.35;
 }
 .contact-fab-recaptcha-notice {
   margin: 0.5rem 0 0;
@@ -2517,8 +2524,8 @@ h3 { font-size: 1.2rem; }
   text-decoration: underline;
 }
 .contact-fab-submit {
-  margin-top: 0.5rem;
-  padding: 0.75rem 1.25rem;
+  margin-top: 0.35rem;
+  padding: 0.68rem 1.1rem;
   font-weight: 600;
   cursor: pointer;
 }

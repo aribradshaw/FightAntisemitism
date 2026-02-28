@@ -218,7 +218,7 @@ export default function ContactFAB({ visibilityClass = 'contact-fab--visible' })
                 id="contact-question"
                 name="question"
                 required
-                rows={4}
+                rows={3}
                 value={form.question}
                 onChange={handleChange}
                 placeholder="Your question…"
