@@ -376,7 +376,7 @@ h3 { font-size: 1.2rem; }
   color: var(--text-primary);
 }
 .landing-title-line2 {
-  display: block;
+  display: inline;
   white-space: normal;
 }
 .landing-subtitle {
@@ -391,6 +391,7 @@ h3 { font-size: 1.2rem; }
     max-width: 980px;
   }
   .landing-title-line2 {
+    display: block;
     white-space: nowrap;
   }
   .landing-subtitle {
@@ -400,7 +401,27 @@ h3 { font-size: 1.2rem; }
   }
 }
 @media (max-width: 640px) {
-  .landing-title-line2 { white-space: normal; }
+  .landing-content {
+    padding: 1.25rem 1rem;
+  }
+  .landing-title {
+    font-size: clamp(2rem, 10vw, 2.5rem);
+    line-height: 1.08;
+    margin-bottom: 0.55rem;
+  }
+  .landing-title-line2 {
+    display: inline;
+    white-space: normal;
+  }
+  .landing-subtitle {
+    font-size: 1.02rem;
+    line-height: 1.55;
+    margin-bottom: 1.25rem;
+  }
+  .landing-enter {
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+  }
 }
 .landing-enter {
   display: inline-block;
