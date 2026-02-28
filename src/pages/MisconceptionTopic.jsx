@@ -102,7 +102,7 @@ export default function MisconceptionTopic() {
             {entries.map((e) => (
               <li key={e.slug}>
                 <Link to={`/misconceptions/${topic}/${e.slug}`} className="misconception-card">
-                  {e.title}
+                  {topic === 'israel' ? `"${e.title}"` : e.title}
                 </Link>
               </li>
             ))}

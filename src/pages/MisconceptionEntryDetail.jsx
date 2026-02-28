@@ -61,7 +61,7 @@ export default function MisconceptionEntryDetail() {
   return (
     <div className="misconception-entry-detail detail-page-with-parent">
       <div className="corner-parent-ribbon" aria-hidden="true"><span>{topicTitle.toUpperCase()}</span></div>
-      <h1 className="misconception-entry-title">{entry.title}</h1>
+      <h1 className="misconception-entry-title">{topic === 'israel' ? `"${entry.title}"` : entry.title}</h1>
       <div className="misconception-entry-body">
         {entry.body_text ? (
           typeof entry.body_text === 'string' && entry.body_text.startsWith('<') ? (

@@ -25,7 +25,7 @@ export default function Conspiracies() {
           {conspiracies.map((c) => (
             <li key={c.slug}>
               <Link to={`/conspiracies/${c.slug}`} className="conspiracies-card">
-                {c.title}
+                "{c.title}"
               </Link>
             </li>
           ))}
