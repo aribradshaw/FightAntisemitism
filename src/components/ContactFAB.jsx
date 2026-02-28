@@ -229,9 +229,11 @@ export default function ContactFAB({ visibilityClass = 'contact-fab--visible', i
               {message && (
                 <p className={`contact-fab-message contact-fab-message--${message.type}`}>{message.text}</p>
               )}
-              <p className="contact-fab-account-notice">
-                By submitting a question, you are creating an account on hashem.faith.
-              </p>
+              {!user && (
+                <p className="contact-fab-account-notice">
+                  By submitting a question, you are creating an account on hashem.faith.
+                </p>
+              )}
               <button type="submit" className="contact-fab-submit primary" disabled={sending}>
                 {sending ? 'Sending…' : 'Send'}
               </button>
