@@ -168,6 +168,26 @@ export default function Admin() {
     }
   }
 
+  const deleteUser = async (userId) => {
+    if (!window.confirm('Delete this user account permanently?')) return
+    setBusy(true)
+    setError('')
+    try {
+      const res = await fetch(`/api/admin/users/${userId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data?.error || 'Failed to delete user')
+      await refreshUsers()
+      if (activeDb === 'submissions') await refreshEntries()
+    } catch (err) {
+      setError(err.message || 'Failed to delete user')
+    } finally {
+      setBusy(false)
+    }
+  }
+
   if (loading || checking) {
     return (
       <div className="admin-page">
@@ -358,6 +378,7 @@ export default function Admin() {
                 <th>Name</th>
                 <th>Submissions</th>
                 <th>Last submission</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -369,11 +390,21 @@ export default function Admin() {
                   <td>{[u.first_name, u.last_name].filter(Boolean).join(' ') || '—'}</td>
                   <td>{u.submissions_count || 0}</td>
                   <td>{u.last_submission_at ? new Date(u.last_submission_at).toLocaleString() : '—'}</td>
+                  <td className="admin-actions-cell">
+                    <button
+                      type="button"
+                      className="ghost admin-danger"
+                      onClick={() => deleteUser(u.id)}
+                      disabled={busy}
+                    >
+                      Delete user
+                    </button>
+                  </td>
                 </tr>
               ))}
               {users.length === 0 && (
                 <tr>
-                  <td colSpan={6}>No users found.</td>
+                  <td colSpan={7}>No users found.</td>
                 </tr>
               )}
             </tbody>

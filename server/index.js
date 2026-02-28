@@ -675,6 +675,26 @@ app.get('/api/admin/users', async (req, res) => {
   }
 })
 
+// DELETE /api/admin/users/:id — remove a user account
+app.delete('/api/admin/users/:id', async (req, res) => {
+  const admin = getAdminFromRequest(req)
+  if (!admin) return res.status(401).json({ error: 'Unauthorized' })
+  try {
+    const id = Number(req.params.id)
+    if (!Number.isFinite(id) || id <= 0) return res.status(400).json({ error: 'Invalid user id.' })
+    const conn = await getConnection()
+    try {
+      await conn.execute('DELETE FROM users WHERE id = ?', [id])
+      return res.json({ success: true })
+    } finally {
+      await conn.end()
+    }
+  } catch (err) {
+    console.error('DELETE /api/admin/users/:id:', err.message)
+    return res.status(500).json({ error: 'Failed to delete user.' })
+  }
+})
+
 // PATCH /api/profile — update profile fields
 app.patch('/api/profile', async (req, res) => {
   try {
