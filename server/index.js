@@ -304,6 +304,11 @@ app.post('/api/contact', async (req, res) => {
     if (!verify.success) {
       return res.status(400).json({ error: 'reCAPTCHA verification failed. Please try again.' })
     }
+    // reCAPTCHA v3: optional score check (0.0 = bot, 1.0 = likely human)
+    const score = verify.score
+    if (typeof score === 'number' && score < 0.5) {
+      return res.status(400).json({ error: 'reCAPTCHA verification failed. Please try again.' })
+    }
 
     // 1) Save to database
     const conn = await getConnection()

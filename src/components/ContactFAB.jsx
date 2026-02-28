@@ -1,8 +1,6 @@
-import { useState, useRef } from 'react'
-import ReCAPTCHA from 'react-google-recaptcha'
+import { useState } from 'react'
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 import { FaQuestionCircle } from 'react-icons/fa'
-
-const SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY || '6LeGO3ssAAAAAKvcDYfhTPVFEKDjjNLhjiWq9apa'
 
 const CATEGORIES = [
   { value: '', label: 'Select a category…' },
@@ -17,11 +15,11 @@ const CATEGORIES = [
 ]
 
 export default function ContactFAB() {
+  const { executeRecaptcha } = useGoogleReCaptcha()
   const [open, setOpen] = useState(false)
   const [sending, setSending] = useState(false)
   const [message, setMessage] = useState(null)
   const [form, setForm] = useState({ name: '', email: '', question: '', category: '' })
-  const recaptchaRef = useRef(null)
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -29,15 +27,10 @@ export default function ContactFAB() {
     setMessage(null)
   }
 
-  const onRecaptchaChange = (token) => {
-    setForm((prev) => ({ ...prev, recaptchaToken: token }))
-    setMessage(null)
-  }
-
   const handleSubmit = async (e) => {
     e.preventDefault()
     setMessage(null)
-    const { name, email, question, category, recaptchaToken } = form
+    const { name, email, question, category } = form
     if (!name?.trim() || !email?.trim() || !question?.trim()) {
       setMessage({ type: 'error', text: 'Please fill in name, email, and question.' })
       return
@@ -46,12 +39,13 @@ export default function ContactFAB() {
       setMessage({ type: 'error', text: 'Please select a category.' })
       return
     }
-    if (!recaptchaToken) {
-      setMessage({ type: 'error', text: 'Please complete the reCAPTCHA.' })
+    if (!executeRecaptcha) {
+      setMessage({ type: 'error', text: 'reCAPTCHA is still loading. Please try again in a moment.' })
       return
     }
     setSending(true)
     try {
+      const recaptchaToken = await executeRecaptcha('contact')
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -66,21 +60,16 @@ export default function ContactFAB() {
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
         setMessage({ type: 'error', text: data.error || 'Something went wrong. Please try again.' })
-        recaptchaRef.current?.reset()
-        setForm((prev) => ({ ...prev, recaptchaToken: '' }))
         return
       }
       setMessage({ type: 'success', text: 'Thanks! Your question has been sent.' })
       setForm({ name: '', email: '', question: '', category: '' })
-      recaptchaRef.current?.reset()
       setTimeout(() => {
         setOpen(false)
         setMessage(null)
       }, 2000)
     } catch {
       setMessage({ type: 'error', text: 'Failed to send. Please try again.' })
-      recaptchaRef.current?.reset()
-      setForm((prev) => ({ ...prev, recaptchaToken: '' }))
     } finally {
       setSending(false)
     }
@@ -106,7 +95,7 @@ export default function ContactFAB() {
       </button>
 
       {open && (
-        <div className="contact-fab-overlay" onClick={handleClose} aria-hidden="true">
+        <div className="contact-fab-overlay" onClick={handleClose}>
           <div className="contact-fab-modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="contact-form-title">
             <div className="contact-fab-modal-head">
               <h2 id="contact-form-title">Have More Questions?</h2>
@@ -161,14 +150,6 @@ export default function ContactFAB() {
                 placeholder="Your question…"
                 disabled={sending}
               />
-              <div className="contact-fab-recaptcha">
-                <ReCAPTCHA
-                  ref={recaptchaRef}
-                  sitekey={SITE_KEY}
-                  onChange={onRecaptchaChange}
-                  onExpired={() => setForm((prev) => ({ ...prev, recaptchaToken: '' }))}
-                />
-              </div>
               {message && (
                 <p className={`contact-fab-message contact-fab-message--${message.type}`}>{message.text}</p>
               )}
