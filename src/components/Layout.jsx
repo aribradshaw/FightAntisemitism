@@ -5,6 +5,23 @@ import { FaUserCircle } from 'react-icons/fa'
 import { useTransitionState } from '../context/TransitionContext'
 import { useAuth } from '../context/AuthContext'
 
+function getInitials(user) {
+  const first = (user?.first_name || '').trim()
+  const last = (user?.last_name || '').trim()
+  if (first || last) return `${first[0] || ''}${last[0] || ''}`.toUpperCase()
+
+  const handle = (user?.username || user?.email || '').trim()
+  if (!handle) return 'U'
+
+  const base = handle.includes('@') ? handle.split('@')[0] : handle
+  const cleaned = base.replace(/[^a-z0-9]+/gi, ' ').trim()
+  if (!cleaned) return 'U'
+
+  const parts = cleaned.split(/\s+/).filter(Boolean)
+  if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase()
+  return cleaned.slice(0, 2).toUpperCase()
+}
+
 function getParentPath(pathname) {
   // Detail pages → list page
   if (/^\/definitions\/[^/]+$/.test(pathname)) return '/definitions'
@@ -58,6 +75,7 @@ export default function Layout() {
       : transitionState === 'entering'
         ? `page-transition page-transition--entering${enterActive ? ' page-transition--enter-active' : ''}`
         : 'page-transition'
+  const profileInitials = getInitials(user)
 
   return (
     <div className={`layout ${isExplore ? 'layout--explore' : ''}`}>
@@ -71,6 +89,8 @@ export default function Layout() {
         >
           {user?.profile_image_url ? (
             <img src={user.profile_image_url} alt="" className="layout-profile-avatar" />
+          ) : user ? (
+            <span className="layout-profile-initials" aria-hidden>{profileInitials}</span>
           ) : (
             <FaUserCircle aria-hidden />
           )}
