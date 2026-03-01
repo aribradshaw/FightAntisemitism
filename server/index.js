@@ -393,11 +393,14 @@ async function createUserWithUniqueUsername(conn, email, password, firstName, la
 app.post('/api/auth/register', async (req, res) => {
   if (isRateLimited(req)) return res.status(429).json({ error: 'Too many requests. Please try again later.' })
   try {
-    const username = typeof req.body?.username === 'string' ? req.body.username.trim().toLowerCase() : ''
-    const email = normalizeEmail(req.body?.email)
+    const identifierRaw = typeof req.body?.username === 'string' ? req.body.username.trim().toLowerCase() : ''
+    const explicitEmail = normalizeEmail(req.body?.email)
+    const identifierEmail = identifierRaw.includes('@') ? normalizeEmail(identifierRaw) : ''
+    const email = explicitEmail || identifierEmail
+    const username = /^[a-z0-9_]{3,32}$/.test(identifierRaw) ? identifierRaw : ''
     const password = typeof req.body?.password === 'string' ? req.body.password : ''
-    if (!/^[a-z0-9_]{3,32}$/.test(username)) {
-      return res.status(400).json({ error: 'Username must be 3-32 chars using letters, numbers, or underscores.' })
+    if (!username && !email) {
+      return res.status(400).json({ error: 'Enter a valid username or email to create your account.' })
     }
     if (req.body?.email && !email) {
       return res.status(400).json({ error: 'Please provide a valid email.' })
@@ -407,9 +410,11 @@ app.post('/api/auth/register', async (req, res) => {
     }
     const conn = await getConnection()
     try {
-      const [existing] = await conn.execute('SELECT id FROM users WHERE username = ? LIMIT 1', [username])
-      if (existing && existing.length > 0) {
-        return res.status(409).json({ error: 'Username already exists.' })
+      if (username) {
+        const [existing] = await conn.execute('SELECT id FROM users WHERE username = ? LIMIT 1', [username])
+        if (existing && existing.length > 0) {
+          return res.status(409).json({ error: 'Username already exists.' })
+        }
       }
       if (email) {
         const [emailExisting] = await conn.execute('SELECT id FROM users WHERE email = ? LIMIT 1', [email])
@@ -417,9 +422,14 @@ app.post('/api/auth/register', async (req, res) => {
           return res.status(409).json({ error: 'Email already exists.' })
         }
       }
-      const passwordHash = await bcrypt.hash(password, 12)
-      const [result] = await conn.execute('INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)', [username, email || null, passwordHash])
-      const userId = result.insertId
+      let userId = null
+      if (!username && email) {
+        userId = await createUserWithUniqueUsername(conn, email, password)
+      } else {
+        const passwordHash = await bcrypt.hash(password, 12)
+        const [result] = await conn.execute('INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)', [username, email || null, passwordHash])
+        userId = result.insertId
+      }
       const sessionToken = randomBytes(32).toString('hex')
       const tokenHash = hashSessionToken(sessionToken)
       const expiresAt = new Date(Date.now() + SESSION_TTL_MS)

@@ -137,7 +137,7 @@ export default function Layout() {
                 autoComplete="username"
                 required
                 minLength={3}
-                maxLength={32}
+                maxLength={254}
               />
               <label htmlFor="auth-password">Password</label>
               <input

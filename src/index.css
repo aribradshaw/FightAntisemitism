@@ -2008,6 +2008,7 @@ h3 { font-size: 1.2rem; }
 .conspiracy-detail { max-width: 720px; margin: 0 auto; }
 .detail-page-with-parent { position: relative; }
 .corner-parent-ribbon {
+  display: none;
   position: fixed;
   top: 0;
   right: 0;
