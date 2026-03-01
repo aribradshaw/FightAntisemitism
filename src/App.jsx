@@ -38,6 +38,7 @@ function AppRoutes() {
   const [fabMounted, setFabMounted] = useState(showFabOnRoute)
   const [fabVisible, setFabVisible] = useState(showFabOnRoute)
   const isInitialMount = useRef(true)
+  const lastTrackedPath = useRef('')
 
   useEffect(() => {
     if (isInitialMount.current) {
@@ -68,6 +69,19 @@ function AppRoutes() {
     const hideTimer = setTimeout(() => setFabMounted(false), FAB_FADE_MS)
     return () => clearTimeout(hideTimer)
   }, [showFabOnRoute])
+
+  useEffect(() => {
+    const path = location.pathname || '/'
+    if (lastTrackedPath.current === path) return
+    lastTrackedPath.current = path
+    fetch('/api/page-views', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      keepalive: true,
+      body: JSON.stringify({ path }),
+    }).catch(() => {})
+  }, [location.pathname])
 
   const currentYear = new Date().getFullYear()
   return (

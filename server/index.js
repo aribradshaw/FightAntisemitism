@@ -360,6 +360,15 @@ function normalizeEmail(value) {
   return EMAIL_RE.test(email) ? email : ''
 }
 
+function normalizePagePath(value) {
+  const raw = typeof value === 'string' ? value.trim() : ''
+  if (!raw) return ''
+  if (!raw.startsWith('/')) return ''
+  if (raw.length > 255) return ''
+  if (raw.includes('://') || raw.includes('\n') || raw.includes('\r')) return ''
+  return raw
+}
+
 function usernameFromEmail(email) {
   const local = (email.split('@')[0] || '').toLowerCase()
   const base = local.replace(/[^a-z0-9_]/g, '_').replace(/_+/g, '_').replace(/^_+|_+$/g, '')
@@ -532,6 +541,28 @@ app.get('/api/auth/me', async (req, res) => {
   }
 })
 
+// POST /api/page-views — record a frontend page view (logged-in and anonymous)
+app.post('/api/page-views', async (req, res) => {
+  try {
+    const path = normalizePagePath(req.body?.path)
+    if (!path) return res.status(400).json({ error: 'Invalid page path.' })
+    const conn = await getConnection()
+    try {
+      const user = await getSessionUser(req, conn)
+      await conn.execute(
+        'INSERT INTO page_views (page_path, user_id) VALUES (?, ?)',
+        [path, user?.id || null]
+      )
+      return res.json({ success: true })
+    } finally {
+      await conn.end()
+    }
+  } catch (err) {
+    console.error('POST /api/page-views:', err.message)
+    return res.status(500).json({ error: 'Failed to record page view.' })
+  }
+})
+
 // POST /api/admin/login — admin-only email/password login from env vars
 app.post('/api/admin/login', async (req, res) => {
   try {
@@ -682,6 +713,42 @@ app.get('/api/admin/users', async (req, res) => {
   } catch (err) {
     console.error('GET /api/admin/users:', err.message)
     return res.status(500).json({ error: 'Failed to load users.' })
+  }
+})
+
+// GET /api/admin/page-views — top viewed frontend pages with auth split
+app.get('/api/admin/page-views', async (req, res) => {
+  const admin = getAdminFromRequest(req)
+  if (!admin) return res.status(401).json({ error: 'Unauthorized' })
+  try {
+    const limitRaw = Number(req.query?.limit)
+    const limit = Number.isFinite(limitRaw) ? Math.min(Math.max(Math.floor(limitRaw), 1), 1000) : 200
+    const conn = await getConnection()
+    try {
+      const [rows] = await conn.execute(
+        `SELECT
+           page_path,
+           COUNT(*) AS total_views,
+           SUM(CASE WHEN user_id IS NOT NULL THEN 1 ELSE 0 END) AS registered_views,
+           MAX(viewed_at) AS last_viewed_at
+         FROM page_views
+         GROUP BY page_path
+         ORDER BY total_views DESC, registered_views DESC, page_path ASC
+         LIMIT ?`,
+        [limit]
+      )
+      return res.json({
+        pageViews: (rows || []).map((row) => ({
+          ...row,
+          guest_views: Number(row.total_views || 0) - Number(row.registered_views || 0),
+        })),
+      })
+    } finally {
+      await conn.end()
+    }
+  } catch (err) {
+    console.error('GET /api/admin/page-views:', err.message)
+    return res.status(500).json({ error: 'Failed to load page views.' })
   }
 })
 

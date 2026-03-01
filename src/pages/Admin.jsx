@@ -9,6 +9,7 @@ export default function Admin() {
   const [admin, setAdmin] = useState(null)
   const [entries, setEntries] = useState([])
   const [users, setUsers] = useState([])
+  const [pageViews, setPageViews] = useState([])
   const [includeArchived, setIncludeArchived] = useState(false)
   const [draftAnswers, setDraftAnswers] = useState({})
   const [form, setForm] = useState({ email: 'aribradshawaz@gmail.com', password: '' })
@@ -47,6 +48,13 @@ export default function Admin() {
     setUsers(Array.isArray(data?.users) ? data.users : [])
   }
 
+  const refreshPageViews = async () => {
+    const res = await fetch('/api/admin/page-views?limit=250', { credentials: 'include' })
+    const data = await res.json().catch(() => ({}))
+    if (!res.ok) throw new Error(data?.error || 'Failed to load page views')
+    setPageViews(Array.isArray(data?.pageViews) ? data.pageViews : [])
+  }
+
   useEffect(() => {
     refreshAdmin().catch(() => setAdmin(null))
   }, [])
@@ -57,7 +65,11 @@ export default function Admin() {
       refreshEntries().catch((err) => setError(err.message || 'Failed to load entries'))
       return
     }
-    refreshUsers().catch((err) => setError(err.message || 'Failed to load users'))
+    if (activeDb === 'users') {
+      refreshUsers().catch((err) => setError(err.message || 'Failed to load users'))
+      return
+    }
+    refreshPageViews().catch((err) => setError(err.message || 'Failed to load page views'))
   }, [admin, activeDb, includeArchived])
 
   const onLogin = async (e) => {
@@ -77,6 +89,7 @@ export default function Admin() {
       setForm((prev) => ({ ...prev, password: '' }))
       await refreshEntries()
       await refreshUsers()
+      await refreshPageViews()
     } catch (err) {
       setError(err.message || 'Login failed')
     } finally {
@@ -244,7 +257,12 @@ export default function Admin() {
             type="button"
             className="ghost"
             onClick={() => {
-              const refresher = activeDb === 'submissions' ? refreshEntries : refreshUsers
+              const refresher =
+                activeDb === 'submissions'
+                  ? refreshEntries
+                  : activeDb === 'users'
+                    ? refreshUsers
+                    : refreshPageViews
               refresher().catch((err) => setError(err.message || 'Failed to refresh'))
             }}
             disabled={busy}
@@ -277,6 +295,15 @@ export default function Admin() {
           onClick={() => setActiveDb('users')}
         >
           Users Database
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeDb === 'views'}
+          className={activeDb === 'views' ? 'admin-db-tab admin-db-tab--active' : 'admin-db-tab'}
+          onClick={() => setActiveDb('views')}
+        >
+          Page Views
         </button>
       </div>
 
@@ -405,6 +432,38 @@ export default function Admin() {
               {users.length === 0 && (
                 <tr>
                   <td colSpan={7}>No users found.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </section>
+      )}
+
+      {activeDb === 'views' && (
+        <section className="admin-table-wrap">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Page</th>
+                <th>Overall views</th>
+                <th>Registered-user views</th>
+                <th>Guest views</th>
+                <th>Last viewed</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pageViews.map((row) => (
+                <tr key={row.page_path}>
+                  <td>{row.page_path}</td>
+                  <td>{Number(row.total_views || 0).toLocaleString()}</td>
+                  <td>{Number(row.registered_views || 0).toLocaleString()}</td>
+                  <td>{Number(row.guest_views || 0).toLocaleString()}</td>
+                  <td>{row.last_viewed_at ? new Date(row.last_viewed_at).toLocaleString() : '—'}</td>
+                </tr>
+              ))}
+              {pageViews.length === 0 && (
+                <tr>
+                  <td colSpan={5}>No page views tracked yet.</td>
                 </tr>
               )}
             </tbody>
