@@ -570,10 +570,32 @@ h3 { font-size: 1.2rem; }
   align-items: center;
   padding: 1rem;
 }
+/* Lighter gray back arrow (no curve) under main layout back – previous slide in slideshow */
 .slideshow-back {
-  align-self: flex-start;
-  margin-bottom: 1rem;
-  font-size: 0.9rem;
+  position: fixed;
+  top: calc(1rem + 4rem + 0.5rem);
+  left: 1rem;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.2s, background 0.2s;
+}
+.slideshow-back:hover {
+  color: var(--text-secondary);
+  background: var(--bg-off);
+}
+.slideshow-back svg {
+  width: 2rem;
+  height: 2rem;
 }
 .slideshow-stage {
   flex: 1;
@@ -584,12 +606,433 @@ h3 { font-size: 1.2rem; }
   max-width: 900px;
   min-height: 400px;
   cursor: pointer;
+  position: relative;
 }
+.slideshow-stage--map {
+  max-width: 1100px;
+  min-height: 65vh;
+  align-self: stretch;
+}
+
+/* Slideshow timeline: gray bar at top, white dot + date for current point (~2000 BC to present) */
+.slideshow-timeline {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+  margin-bottom: 1rem;
+  padding-top: 0.25rem;
+}
+.slideshow-timeline--fade-in {
+  animation: slideshow-timeline-fade-in 0.8s ease-out forwards;
+}
+@keyframes slideshow-timeline-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.slideshow-timeline-bar {
+  height: 6px;
+  background: var(--border-strong);
+  border-radius: 3px;
+  width: 100%;
+}
+.slideshow-timeline-marker {
+  position: absolute;
+  top: calc(0.25rem + 3px - 7px);
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  transition: left 0.6s ease-in-out;
+}
+.slideshow-timeline-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--bg-main);
+  border: 2px solid var(--border-strong);
+  box-shadow: 0 0 0 1px var(--border);
+  flex-shrink: 0;
+}
+.slideshow-timeline-date {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
 .slideshow-slide {
   text-align: center;
   padding: 2rem;
   width: 100%;
 }
+
+/* Intro slide: "3,000 years ago" + lines */
+.slideshow-slide--intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  min-height: 360px;
+}
+/* Reserve space and animate open so clicks don't cause layout jump */
+.slideshow-intro-image-slot {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.5s ease-out, opacity 0.4s ease-out;
+}
+.slideshow-intro-image-slot--visible {
+  max-height: 200px;
+  opacity: 1;
+}
+.slideshow-intro-line-slot {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.45s ease-out, opacity 0.35s ease-out;
+}
+.slideshow-intro-line-slot--visible {
+  max-height: 5rem;
+  opacity: 1;
+}
+.slideshow-intro-image {
+  max-width: 280px;
+  max-height: 180px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+  /* Start as the intro line finishes (line fade is 1.2s) */
+  animation: slideshow-fade-in 1s ease-out 1.2s forwards;
+  opacity: 0;
+}
+.slideshow-intro-headline {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  animation: slideshow-fade-in-slow 2s ease-out forwards;
+}
+.slideshow-slide--intro-out {
+  animation: slideshow-intro-out 0.7s ease-out forwards;
+}
+@keyframes slideshow-intro-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+.slideshow-intro-line {
+  font-size: 1.25rem;
+  color: var(--text-secondary);
+  margin: 0;
+  max-width: 520px;
+}
+/* Word-by-word writing-style reveal (staggered fade + slide up) */
+.writing-word {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(0.35em);
+  animation: writing-word-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes writing-word-in {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.slideshow-fade-in {
+  animation: slideshow-fade-in 1.2s ease-out forwards;
+}
+.slideshow-fade-in-slow {
+  animation: slideshow-fade-in-slow 1.8s ease-out forwards;
+}
+@keyframes slideshow-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slideshow-fade-in-slow {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* "Click anywhere to proceed" - near bottom, reappears on slides */
+.slideshow-click-prompt {
+  position: fixed;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  margin: 0;
+  pointer-events: none;
+  z-index: 10;
+  animation: slideshow-fade-in-slow 1.8s ease-out forwards;
+}
+
+/* Map slide: map fixed at 55% width, slides from center to left; sidebar grows 0→45%. No image resize = no jump. */
+.slideshow-slide--map {
+  position: relative;
+  text-align: left;
+  padding: 0;
+  min-height: 70vh;
+  max-width: 100%;
+  overflow: hidden;
+}
+.slideshow-slide--map-in {
+  animation: slideshow-map-in 0.8s ease-out forwards;
+}
+@keyframes slideshow-map-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+/* Map wrap: always 55% width; phase 0 = centered (translateX), phase 1 = left. Image never resizes. */
+.slideshow-map-wrap {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 55%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.8s cubic-bezier(0.33, 1, 0.68, 1);
+  transform: translateX(22.5%);
+}
+.slideshow-slide--map.slideshow-map-phase-1 .slideshow-map-wrap {
+  transform: translateX(0);
+  justify-content: flex-start;
+}
+.slideshow-map-img {
+  max-width: 100%;
+  max-height: 70vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  animation: slideshow-map-enter 1.2s ease-out forwards;
+}
+@keyframes slideshow-map-enter {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+.slideshow-sidebar {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  overflow: hidden;
+  opacity: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2rem;
+  transition: width 0.8s cubic-bezier(0.33, 1, 0.68, 1), opacity 0.5s ease-out 0.2s;
+  background: var(--bg-off);
+  border-radius: var(--radius);
+}
+.slideshow-slide--map.slideshow-map-phase-1 .slideshow-sidebar {
+  width: 45%;
+  opacity: 1;
+}
+.slideshow-sidebar-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 0.5rem;
+  white-space: nowrap;
+}
+.slideshow-sidebar-body {
+  margin-top: 0.5rem;
+}
+.slideshow-sidebar-para {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  margin: 0 0 0.75rem;
+}
+.slideshow-sidebar-para:last-child {
+  margin-bottom: 0;
+}
+
+/* Panel + image slides (Egypt, Slavery): sidebar left, image right */
+.slideshow-slide--panel-image {
+  position: relative;
+  text-align: left;
+  padding: 0;
+  min-height: 70vh;
+  max-width: 100%;
+  overflow: hidden;
+}
+.slideshow-slide--panel-left .slideshow-sidebar--left {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 45%;
+  opacity: 1;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2rem;
+  background: var(--bg-off);
+  border-radius: var(--radius);
+}
+.slideshow-slide--panel-left .slideshow-panel-image-wrap {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 55%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.slideshow-panel-img {
+  max-width: 100%;
+  max-height: 70vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+.slideshow-panel-image-wrap--placeholder {
+  background: var(--bg-off);
+  align-items: center;
+  justify-content: center;
+}
+.slideshow-panel-img-placeholder {
+  width: 120px;
+  height: 120px;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  background: transparent;
+}
+.slideshow-stage--panel-image {
+  min-height: 65vh;
+  align-self: stretch;
+}
+
+/* Content slides (history after map) */
+.slideshow-slide--content {
+  text-align: left;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+.slideshow-content-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 1rem;
+}
+.slideshow-content-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.slideshow-content-para {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Sources button — above "Have More Questions?" (contact FAB at bottom 2.25rem, left 1rem) */
+.slideshow-sources-btn {
+  position: fixed;
+  bottom: calc(2.25rem + 2.75rem + 0.5rem);
+  left: 1rem;
+  z-index: 10;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+.slideshow-sources-btn:hover {
+  color: var(--text-secondary);
+  border-color: var(--border-strong);
+  background: var(--bg-off);
+}
+
+/* Sources modal */
+.slideshow-sources-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.45);
+}
+.slideshow-sources-modal {
+  background: var(--bg-main);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-hover);
+  max-width: 420px;
+  width: 100%;
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.slideshow-sources-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+.slideshow-sources-head h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+.slideshow-sources-close {
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.slideshow-sources-close:hover {
+  color: var(--text-primary);
+  background: var(--bg-off);
+}
+.slideshow-sources-list {
+  list-style: none;
+  margin: 0;
+  padding: 1rem 1.25rem 1.25rem;
+  overflow-y: auto;
+}
+.slideshow-sources-list li {
+  margin-bottom: 1rem;
+}
+.slideshow-sources-list li:last-child {
+  margin-bottom: 0;
+}
+.slideshow-sources-list a {
+  font-weight: 500;
+}
+.slideshow-sources-note {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+}
+
 .slideshow-slide--title .slideshow-slide-title {
   font-size: 2rem;
   margin-bottom: 0.5rem;
@@ -1105,6 +1548,143 @@ h3 { font-size: 1.2rem; }
 .definitions-card:hover { border-color: var(--accent-blue); box-shadow: var(--shadow); text-decoration: none; color: inherit; }
 .definitions-card h3 { margin: 0 0 0.25rem; }
 .definitions-card p { margin: 0; font-size: 0.95rem; color: var(--text-secondary); }
+
+/* Inline definition term: dotted underline, heavier weight, tooltip on hover (reusable in slideshow, articles, etc.) */
+.definition-term {
+  font-weight: 600;
+  border-bottom: 1px dotted var(--text-primary);
+  cursor: help;
+  position: relative;
+}
+.definition-term-tooltip {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(100% + 0.5rem);
+  z-index: 100;
+  max-width: 420px;
+  min-width: 280px;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 400;
+  line-height: 1.35;
+  color: var(--bg-main);
+  background: var(--text-primary);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-hover);
+  white-space: normal;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.definition-term-tooltip-loading {
+  display: block;
+}
+.definition-term-tooltip-summary {
+  display: block;
+}
+.definition-term-tooltip-btn {
+  align-self: center;
+  margin-top: 0.15rem;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: var(--bg-main);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.definition-term-tooltip-btn:hover {
+  background: var(--bg-off);
+}
+.definition-term-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -6px;
+  border: 6px solid transparent;
+  border-top-color: var(--text-primary);
+}
+
+/* Definition term popup: full definition + sources */
+.definition-term-popup-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.45);
+  animation: definition-term-popup-overlay-in 0.2s ease-out forwards;
+}
+.definition-term-popup-panel {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  max-height: 85vh;
+  background: var(--bg-main);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-hover);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: definition-term-popup-panel-in 0.25s ease-out forwards;
+}
+@keyframes definition-term-popup-overlay-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes definition-term-popup-panel-in {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+.definition-term-popup-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.definition-term-popup-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.definition-term-popup-close {
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.definition-term-popup-close:hover {
+  color: var(--text-primary);
+  background: var(--bg-off);
+}
+.definition-term-popup-body {
+  padding: 1.25rem 1.25rem 1.5rem;
+  overflow-y: auto;
+}
+.definition-term-popup-body .definition-body,
+.definition-term-popup-body .definition-sources {
+  color: var(--text-primary);
+}
+.definition-term-popup-body .definition-sources {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+}
 
 .definition-detail .definition-back { display: inline-block; margin-bottom: 1rem; }
 .definition-short {
