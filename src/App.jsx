@@ -34,7 +34,8 @@ function AppRoutes() {
   const location = useLocation()
   const [displayLocation, setDisplayLocation] = useState(location)
   const [transitionState, setTransitionState] = useState('idle')
-  const showFabOnRoute = location.pathname !== '/' && location.pathname !== '/admin' && location.pathname !== '/profile'
+  const isSlideshowRoute = location.pathname === '/slideshow'
+  const showFabOnRoute = location.pathname !== '/' && location.pathname !== '/admin' && location.pathname !== '/profile' && !isSlideshowRoute
   const [fabMounted, setFabMounted] = useState(showFabOnRoute)
   const [fabVisible, setFabVisible] = useState(showFabOnRoute)
   const isInitialMount = useRef(true)
@@ -89,6 +90,7 @@ function AppRoutes() {
       <Routes location={displayLocation}>
         <Route path="/" element={<Landing />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/slideshow" element={<Slideshow />} />
         <Route path="/" element={<Layout />}>
           <Route path="explore" element={<Hub />} />
           <Route path="timeline" element={<Timeline />} />
@@ -104,16 +106,17 @@ function AppRoutes() {
           <Route path="conspiracies/:slug" element={<ConspiracyDetail />} />
           <Route path="talmud" element={<Talmud />} />
           <Route path="talmud/:slug" element={<TalmudDetail />} />
-          <Route path="slideshow" element={<Slideshow />} />
           <Route path="stylesheet" element={<Stylesheet />} />
           <Route path="profile" element={<Profile />} />
         </Route>
       </Routes>
       {fabMounted && <ContactFAB visibilityClass={fabVisible ? 'contact-fab--visible' : 'contact-fab--hidden'} />}
-      <div className="app-copyright" aria-label="Copyright and disclaimer">
-        © {currentYear} Ari Daniel Bradshaw.
-        <span className="app-copyright-rest"> All rights reserved. This site is for educational purposes.</span>
-      </div>
+      {!isSlideshowRoute && (
+        <div className="app-copyright" aria-label="Copyright and disclaimer">
+          © {currentYear} Ari Daniel Bradshaw.
+          <span className="app-copyright-rest"> All rights reserved. This site is for educational purposes.</span>
+        </div>
+      )}
     </TransitionContext.Provider>
   )
 }

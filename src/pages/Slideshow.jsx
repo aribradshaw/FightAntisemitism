@@ -1,351 +1,344 @@
-import { useState, useEffect, useRef } from 'react'
-import { IoArrowBack } from 'react-icons/io5'
-import DefinitionTerm from '../components/DefinitionTerm'
-import WritingText, { WritingWord } from '../components/WritingText'
+import { useEffect, useRef, useState } from 'react'
+import { IoArrowBack, IoArrowForward } from 'react-icons/io5'
+import { Link } from 'react-router-dom'
+import WritingText from '../components/WritingText'
 import SlideshowSourcesModal from '../components/SlideshowSourcesModal'
 import { SLIDES, SLIDESHOW_SOURCES } from '../data/slideshowSlides'
+import { CHAPTER_ONE_SLIDES, CHAPTER_ONE_SOURCES } from '../data/slideshowChapterOne'
+import '../slideshow.css'
 
 const TIMELINE_START = -2000
 const TIMELINE_END = new Date().getFullYear()
-const TOTAL_SLIDES = 4 + SLIDES.length // intro, map, egypt, slavery, then content slides
+const STAGGER_MS = 52
 
-const STAGGER_MS = 90
-
-const FIRST_JEWS_LINES = [
-  'Abraham was born Abram in the city of Ur.',
-  'His story, catalogued in Genesis, leads him to eventually settle and die in Canaan.',
-  'His son, Isaac, is the father of the Jewish people.',
-  'His other son, Ishmael, is the father of the Arabic people.',
-  'Abraham means Father of Nations.',
+const DECK = [
+  ...CHAPTER_ONE_SLIDES,
+  ...SLIDES.map((slide, index) => ({
+    ...slide,
+    id: slide.id || `history-${index}`,
+    kind: slide.kind || 'article',
+    chapter: slide.chapter || 'A people across time',
+    timelineLabel: slide.timelineLabel || formatTimelineYear(slide.timelineYear, slide.timelineYear < 0),
+  })),
 ]
 
-const EGYPT_LINES = [
-  "Isaac's grandson, Joseph, was sold into slavery by his brothers.",
-  'While in Egypt, he rose in status by interpreting dreams of the pharoah.',
-  "When a famine hit the modern day land of Israel where Jacob's family lived, they came to Egypt for refuge.",
-  'The Pharoah and Jacob secured them land for the next 400 years.',
-]
+const ALL_SOURCES = [...CHAPTER_ONE_SOURCES, ...SLIDESHOW_SOURCES]
 
 function formatTimelineYear(year, approximate = false) {
   if (year < 0) {
     const num = (-year).toLocaleString()
-    return approximate ? `~${num} BC` : `${num} BC`
+    return approximate ? `c. ${num} BCE` : `${num} BCE`
   }
-  return String(year)
+  return `${year} CE`
+}
+
+function getStepCount(slide) {
+  if (slide.lines) return slide.lines.length
+  if (slide.paragraphs) return slide.paragraphs.length
+  return 0
+}
+
+function RevealLines({ lines, visibleCount, className = '' }) {
+  return (
+    <div className={`slideshow-reveal-lines ${className}`.trim()}>
+      {lines.slice(0, visibleCount).map((line, index) => (
+        <p className="slideshow-reveal-line" key={`${index}-${line}`}>
+          <span className="slideshow-reveal-number" aria-hidden>{String(index + 1).padStart(2, '0')}</span>
+          <span><WritingText staggerMs={STAGGER_MS}>{line}</WritingText></span>
+        </p>
+      ))}
+    </div>
+  )
+}
+
+function SlideFigure({ slide, className = '' }) {
+  return (
+    <figure className={`slideshow-figure ${className}`.trim()}>
+      <img src={slide.image} alt={slide.imageAlt} />
+      <figcaption>{slide.imageCaption}</figcaption>
+    </figure>
+  )
+}
+
+function OpeningSlide({ slide, step }) {
+  return (
+    <article className="slideshow-opening">
+      <div className="slideshow-opening-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h1>{slide.title}</h1>
+        <RevealLines lines={slide.lines} visibleCount={step} className="slideshow-opening-lines" />
+      </div>
+      <div className={`slideshow-opening-art${step >= 1 ? ' is-visible' : ''}`}>
+        <SlideFigure slide={slide} />
+        <span className="slideshow-orbit slideshow-orbit--one" aria-hidden />
+        <span className="slideshow-orbit slideshow-orbit--two" aria-hidden />
+      </div>
+    </article>
+  )
+}
+
+function StorySlide({ slide, step }) {
+  return (
+    <article className={`slideshow-story slideshow-story--${slide.kind}`}>
+      <SlideFigure slide={slide} className="slideshow-story-figure" />
+      <div className="slideshow-story-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+      </div>
+    </article>
+  )
+}
+
+function ExodusSlide({ slide, step }) {
+  return (
+    <article className="slideshow-exodus">
+      <img className="slideshow-exodus-image" src={slide.image} alt={slide.imageAlt} />
+      <div className="slideshow-exodus-wash" aria-hidden />
+      <div className="slideshow-exodus-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+        <p className={`slideshow-method-note${step >= 3 ? ' is-visible' : ''}`}>
+          Tradition and historical evidence are presented side by side throughout this slideshow.
+        </p>
+      </div>
+      <p className="slideshow-image-credit">{slide.imageCaption}</p>
+    </article>
+  )
+}
+
+function EvidenceSlide({ slide, step }) {
+  return (
+    <article className="slideshow-evidence">
+      <div className="slideshow-evidence-object">
+        <SlideFigure slide={slide} />
+        <div className="slideshow-evidence-date">
+          <strong>{slide.stat}</strong>
+          <span>{slide.statLabel}</span>
+        </div>
+      </div>
+      <div className="slideshow-evidence-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+        <div className={`slideshow-inscription${step >= 3 ? ' is-visible' : ''}`} aria-label="The name Israel appears in the inscription">
+          <span>Inscription</span>
+          <strong>“ISRAEL”</strong>
+        </div>
+      </div>
+    </article>
+  )
+}
+
+function KingdomsSlide({ slide, step }) {
+  return (
+    <article className="slideshow-kingdoms">
+      <div className="slideshow-kingdoms-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+        <div className={`slideshow-kingdom-cards${step >= 2 ? ' is-visible' : ''}`}>
+          {slide.kingdoms.map((kingdom) => (
+            <div className="slideshow-kingdom-card" key={kingdom.name}>
+              <strong>{kingdom.name}</strong>
+              <span>{kingdom.detail}</span>
+            </div>
+          ))}
+        </div>
+        <p className={`slideshow-evidence-chip${step >= 3 ? ' is-visible' : ''}`}>
+          The ninth-century BCE Tel Dan Stele refers to the “House of David.”
+        </p>
+      </div>
+      <SlideFigure slide={slide} className="slideshow-kingdoms-figure" />
+    </article>
+  )
+}
+
+function ArticleSlide({ slide, step }) {
+  return (
+    <article className="slideshow-article">
+      <p className="slideshow-eyebrow">{slide.eyebrow || slide.chapter}</p>
+      <h2>{slide.title}</h2>
+      <RevealLines lines={slide.paragraphs} visibleCount={step} />
+    </article>
+  )
+}
+
+function SlideContent({ slide, step }) {
+  if (slide.kind === 'opening') return <OpeningSlide slide={slide} step={step} />
+  if (slide.kind === 'journey' || slide.kind === 'joseph') return <StorySlide slide={slide} step={step} />
+  if (slide.kind === 'exodus') return <ExodusSlide slide={slide} step={step} />
+  if (slide.kind === 'evidence') return <EvidenceSlide slide={slide} step={step} />
+  if (slide.kind === 'kingdoms') return <KingdomsSlide slide={slide} step={step} />
+  return <ArticleSlide slide={slide} step={step} />
 }
 
 export default function Slideshow() {
   const [slideIndex, setSlideIndex] = useState(0)
-  const [introStep, setIntroStep] = useState(0)
-  const [mapPhase, setMapPhase] = useState(0)
-  const [mapContentStep, setMapContentStep] = useState(0)
-  const [egyptContentStep, setEgyptContentStep] = useState(0)
-  const [slaveryContentStep, setSlaveryContentStep] = useState(0)
-  const [promptVisible, setPromptVisible] = useState(false)
-  const [transitioningToMap, setTransitioningToMap] = useState(false)
-  const [transitionPhase, setTransitionPhase] = useState(null)
+  const [step, setStep] = useState(0)
+  const [transitionPhase, setTransitionPhase] = useState('idle')
   const [sourcesOpen, setSourcesOpen] = useState(false)
-  const mapPhaseDoneRef = useRef(false)
+  const transitionTimerRef = useRef(null)
+  const enterTimerRef = useRef(null)
 
-  useEffect(() => {
-    if (slideIndex !== 0) return
-    const t = setTimeout(() => setPromptVisible(true), 2500)
-    return () => clearTimeout(t)
-  }, [slideIndex])
+  const slide = DECK[slideIndex]
+  const stepCount = getStepCount(slide)
+  const isLastMoment = slideIndex === DECK.length - 1 && step >= stepCount
+  const timelineYear = slide.timelineYear ?? TIMELINE_END
+  const timelinePosition = Math.max(0, Math.min(100,
+    ((timelineYear - TIMELINE_START) / (TIMELINE_END - TIMELINE_START)) * 100,
+  ))
 
-  useEffect(() => {
-    if (!transitioningToMap) return
-    setTransitionPhase('timeline')
-  }, [transitioningToMap])
-  useEffect(() => {
-    if (transitionPhase !== 'timeline') return
-    const t = setTimeout(() => setTransitionPhase('fade-out'), 800)
-    return () => clearTimeout(t)
-  }, [transitionPhase])
-  useEffect(() => {
-    if (transitionPhase !== 'fade-out') return
-    const t = setTimeout(() => {
-      setSlideIndex(1)
-      setTransitioningToMap(false)
-      setTransitionPhase(null)
-    }, 700)
-    return () => clearTimeout(t)
-  }, [transitionPhase])
+  const goToSlide = (nextIndex, nextStep = 0) => {
+    if (transitionPhase !== 'idle') return
+    const boundedIndex = Math.max(0, Math.min(DECK.length - 1, nextIndex))
+    setTransitionPhase('out')
+    clearTimeout(transitionTimerRef.current)
+    clearTimeout(enterTimerRef.current)
+    transitionTimerRef.current = setTimeout(() => {
+      setSlideIndex(boundedIndex)
+      setStep(nextStep)
+      setTransitionPhase('in')
+      enterTimerRef.current = setTimeout(() => setTransitionPhase('idle'), 40)
+    }, 280)
+  }
 
-  useEffect(() => {
-    if (slideIndex !== 1 || mapPhaseDoneRef.current) return
-    mapPhaseDoneRef.current = true
-    const t = setTimeout(() => setMapPhase(1), 1800)
-    return () => clearTimeout(t)
-  }, [slideIndex])
-
-  useEffect(() => {
-    if (!sourcesOpen) return
-    const onKey = (e) => { if (e.key === 'Escape') setSourcesOpen(false) }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [sourcesOpen])
-
-  const handleClick = (e) => {
-    if (e?.target?.closest?.('.slideshow-sources-btn')) return
-    if (slideIndex === 0) {
-      if (introStep < 4) {
-        setIntroStep((s) => s + 1)
-        if (introStep === 3) setTransitioningToMap(true)
-      }
+  const advance = () => {
+    if (sourcesOpen || transitionPhase !== 'idle') return
+    if (step < stepCount) {
+      setStep((current) => current + 1)
       return
     }
-    if (slideIndex === 1 && mapPhase === 1) {
-      if (mapContentStep < FIRST_JEWS_LINES.length) {
-        setMapContentStep((s) => s + 1)
-        return
-      }
-      setSlideIndex(2)
+    if (slideIndex < DECK.length - 1) {
+      goToSlide(slideIndex + 1)
       return
     }
-    if (slideIndex === 2) {
-      if (egyptContentStep < EGYPT_LINES.length) {
-        setEgyptContentStep((s) => s + 1)
-        return
-      }
-      setSlideIndex(3)
+    goToSlide(0)
+  }
+
+  const goBack = () => {
+    if (sourcesOpen || transitionPhase !== 'idle') return
+    if (step > 0) {
+      setStep((current) => current - 1)
       return
     }
-    if (slideIndex === 3) {
-      setSlideIndex(4)
-      return
-    }
-    if (slideIndex >= 1 && slideIndex < TOTAL_SLIDES - 1) {
-      setSlideIndex((i) => i + 1)
+    if (slideIndex > 0) {
+      const previousIndex = slideIndex - 1
+      goToSlide(previousIndex, getStepCount(DECK[previousIndex]))
     }
   }
 
-  const canGoBack = slideIndex >= 1 || (slideIndex === 0 && introStep > 0) || transitioningToMap
-  const handleBack = (e) => {
-    e.stopPropagation()
-    if (transitioningToMap) {
-      setTransitioningToMap(false)
-      setTransitionPhase(null)
-      setIntroStep(2)
-      return
+  useEffect(() => {
+    const onKeyDown = (event) => {
+      if (sourcesOpen) return
+      const target = event.target
+      const isInteractive = target instanceof HTMLElement && target.closest('button, a, input, textarea, select')
+      if (isInteractive) return
+      if (['ArrowRight', 'PageDown', 'Enter', ' '].includes(event.key)) {
+        event.preventDefault()
+        advance()
+      }
+      if (['ArrowLeft', 'PageUp'].includes(event.key)) {
+        event.preventDefault()
+        goBack()
+      }
+      if (event.key === 'Home') {
+        event.preventDefault()
+        goToSlide(0)
+      }
+      if (event.key === 'End') {
+        event.preventDefault()
+        goToSlide(DECK.length - 1)
+      }
     }
-    if (slideIndex >= 1) {
-      if (slideIndex === 1 && mapContentStep > 0) {
-        setMapContentStep((s) => s - 1)
-        return
-      }
-      if (slideIndex === 2 && egyptContentStep > 0) {
-        setEgyptContentStep((s) => s - 1)
-        return
-      }
-      setSlideIndex((i) => i - 1)
-      if (slideIndex === 1) {
-        setMapPhase(0)
-        setMapContentStep(0)
-        mapPhaseDoneRef.current = false
-      }
-      if (slideIndex === 2) setEgyptContentStep(0)
-    } else if (slideIndex === 0 && introStep > 0) {
-      setIntroStep((s) => s - 1)
-    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  })
+
+  useEffect(() => () => {
+    clearTimeout(transitionTimerRef.current)
+    clearTimeout(enterTimerRef.current)
+  }, [])
+
+  const handleStageClick = (event) => {
+    if (event.target.closest('button, a, [data-no-advance]')) return
+    advance()
   }
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault()
-      handleClick()
-    }
-  }
-
-  const showClickPrompt =
-    slideIndex === 0 ? promptVisible
-    : slideIndex === 1 ? mapPhase >= 1
-    : true
-
-  const firstJewsStartIndex = (() => {
-    let n = 0
-    return FIRST_JEWS_LINES.map((line) => {
-      const start = n
-      n += line.trim().split(/\s+/).length
-      return start
-    })
-  })()
-  const egyptLineStartIndex = (() => {
-    let n = 0
-    return EGYPT_LINES.map((line) => {
-      const start = n
-      n += line.trim().split(/\s+/).length
-      return start
-    })
-  })()
-
-  const showTimeline = slideIndex >= 1 || transitioningToMap
-  const timelineYearForSlide =
-    slideIndex === 1 ? -2000
-    : slideIndex === 2 ? -1600
-    : slideIndex === 3 ? -1250
-    : SLIDES[slideIndex - 4]?.timelineYear ?? TIMELINE_END
-  const timelineYear = showTimeline ? timelineYearForSlide : TIMELINE_END
-  const timelinePosition =
-    ((timelineYear - TIMELINE_START) / (TIMELINE_END - TIMELINE_START)) * 100
 
   return (
-    <div className="slideshow-page" onClick={handleClick} role="button" tabIndex={0} onKeyDown={handleKeyDown}>
-      {canGoBack && (
+    <div className={`slideshow-page slideshow-page--${slide.kind}`}>
+      <header className="slideshow-chrome" data-no-advance>
+        <Link className="slideshow-exit" to="/explore" aria-label="Exit story and return to Explore">
+          <IoArrowBack aria-hidden />
+          <span>Explore</span>
+        </Link>
+        <div className="slideshow-chapter-label">
+          <span>{slide.chapter}</span>
+          <strong>{slideIndex + 1} / {DECK.length}</strong>
+        </div>
         <button
           type="button"
-          className="slideshow-back"
-          onClick={handleBack}
-          aria-label="Previous slide"
+          className="slideshow-sources-btn"
+          onClick={() => setSourcesOpen(true)}
         >
-          <IoArrowBack aria-hidden />
+          Sources & image credits
         </button>
-      )}
+      </header>
 
-      <button
-        type="button"
-        className="slideshow-sources-btn"
-        onClick={(e) => { e.stopPropagation(); setSourcesOpen(true) }}
-        aria-label="View sources"
+      <div
+        className="slideshow-timeline"
+        role="img"
+        aria-label={`Timeline position: ${slide.timelineLabel}`}
       >
-        Sources
-      </button>
-
-      {showTimeline && (
-        <div className={`slideshow-timeline ${transitioningToMap ? 'slideshow-timeline--fade-in' : ''}`} aria-hidden="true">
-          <div className="slideshow-timeline-bar" />
+        <span className="slideshow-timeline-start">2000 BCE</span>
+        <div className="slideshow-timeline-track">
+          <div className="slideshow-timeline-fill" style={{ width: `${timelinePosition}%` }} />
           <div className="slideshow-timeline-marker" style={{ left: `${timelinePosition}%` }}>
             <span className="slideshow-timeline-dot" />
-            <span className="slideshow-timeline-date">
-              {formatTimelineYear(timelineYear, timelineYear < 0)}
-            </span>
           </div>
         </div>
-      )}
-
-      <div className={`slideshow-stage${slideIndex === 1 ? ' slideshow-stage--map' : ''}${(slideIndex === 2 || slideIndex === 3) ? ' slideshow-stage--panel-image' : ''}${slideIndex >= 4 ? ' slideshow-stage--content' : ''}`} role="region" aria-label="Presentation">
-        {slideIndex === 0 && (
-          <div className={`slideshow-slide slideshow-slide--intro${transitionPhase === 'fade-out' ? ' slideshow-slide--intro-out' : ''}`}>
-            <div className={`slideshow-intro-image-slot${introStep >= 1 ? ' slideshow-intro-image-slot--visible' : ''}`}>
-              <img
-                src="/slideshow/abraham-angels.jpg"
-                alt="Abraham and the Angels by Aert de Gelder"
-                className="slideshow-intro-image"
-              />
-            </div>
-            <p className="slideshow-intro-headline slideshow-fade-in">3,000 years ago...</p>
-            <div className={`slideshow-intro-line-slot${introStep >= 1 ? ' slideshow-intro-line-slot--visible' : ''}`}>
-              <p className="slideshow-intro-line">
-                <WritingText staggerMs={90}>A man named Abraham roamed the Earth.</WritingText>
-              </p>
-            </div>
-            <div className={`slideshow-intro-line-slot${introStep >= 2 ? ' slideshow-intro-line-slot--visible' : ''}`}>
-              <p className="slideshow-intro-line">
-                <WritingText staggerMs={90}>He lived and died in the land we today call</WritingText>
-                {' '}
-                <WritingWord index={10} staggerMs={90}><DefinitionTerm slug="israel">Israel</DefinitionTerm></WritingWord>
-                <WritingText startIndex={11} staggerMs={90}>.</WritingText>
-              </p>
-            </div>
-            <div className={`slideshow-intro-line-slot${introStep >= 3 ? ' slideshow-intro-line-slot--visible' : ''}`}>
-              <p className="slideshow-intro-line">
-                <WritingText staggerMs={90}>He was the first</WritingText>
-                {' '}
-                <WritingWord index={4} staggerMs={90}><DefinitionTerm slug="jew">Jew</DefinitionTerm></WritingWord>
-                <WritingText startIndex={5} staggerMs={90}>.</WritingText>
-              </p>
-            </div>
-          </div>
-        )}
-
-        {slideIndex === 1 && (
-          <div className={`slideshow-slide slideshow-slide--map slideshow-map-phase-${mapPhase} slideshow-slide--map-in`}>
-            <div className="slideshow-map-wrap">
-              <img src="/slideshow/abraham-map.webp" alt="Map of the region" className="slideshow-map-img" />
-            </div>
-            <aside className="slideshow-sidebar">
-              <h2 className="slideshow-sidebar-title">The First Jews</h2>
-              {mapContentStep >= 1 && (
-                <div className="slideshow-sidebar-body">
-                  {FIRST_JEWS_LINES.slice(0, mapContentStep).map((line, i) => (
-                    <p key={i} className="slideshow-sidebar-para">
-                      <WritingText staggerMs={STAGGER_MS} startIndex={firstJewsStartIndex[i]}>
-                        {line}
-                      </WritingText>
-                    </p>
-                  ))}
-                </div>
-              )}
-            </aside>
-          </div>
-        )}
-
-        {slideIndex === 2 && (
-          <div className="slideshow-slide slideshow-slide--panel-image slideshow-slide--panel-left slideshow-slide--map-in">
-            <aside className="slideshow-sidebar slideshow-sidebar--left">
-              <h2 className="slideshow-sidebar-title">How The Jews Got To Egypt According To The Bible</h2>
-              <div className="slideshow-sidebar-body">
-                {EGYPT_LINES.slice(0, egyptContentStep).map((line, i) => (
-                  <p key={i} className="slideshow-sidebar-para">
-                    <WritingText staggerMs={STAGGER_MS} startIndex={egyptLineStartIndex[i]}>
-                      {line}
-                    </WritingText>
-                  </p>
-                ))}
-              </div>
-            </aside>
-            <div className="slideshow-panel-image-wrap">
-              <img src="/slideshow/genesis-joseph.jpg" alt="Joseph and his brothers, Book of Genesis" className="slideshow-panel-img" />
-            </div>
-          </div>
-        )}
-
-        {slideIndex === 3 && (
-          <div className="slideshow-slide slideshow-slide--panel-image slideshow-slide--panel-left slideshow-slide--map-in">
-            <aside className="slideshow-sidebar slideshow-sidebar--left">
-              <h2 className="slideshow-sidebar-title">Slavery and Exodus</h2>
-              <div className="slideshow-sidebar-body">
-                {/* Placeholder: photo and content to be added */}
-              </div>
-            </aside>
-            <div className="slideshow-panel-image-wrap slideshow-panel-image-wrap--placeholder" aria-hidden="true">
-              <div className="slideshow-panel-img-placeholder" />
-            </div>
-          </div>
-        )}
-
-        {slideIndex >= 4 && (() => {
-          const slide = SLIDES[slideIndex - 4]
-          let wordOffset = 0
-          return (
-            <div className="slideshow-slide slideshow-slide--content slideshow-slide--map-in">
-              <h2 className="slideshow-content-title">{slide.title}</h2>
-              <div className="slideshow-content-body">
-                {slide.paragraphs.map((para, i) => {
-                  const startIndex = wordOffset
-                  wordOffset += para.trim().split(/\s+/).length
-                  return (
-                    <p key={i} className="slideshow-content-para">
-                      <WritingText staggerMs={STAGGER_MS} startIndex={startIndex}>{para}</WritingText>
-                    </p>
-                  )
-                })}
-              </div>
-            </div>
-          )
-        })()}
+        <span className="slideshow-timeline-end">Today</span>
+        <p className="slideshow-timeline-date">{slide.timelineLabel}</p>
       </div>
 
-      {showClickPrompt && (
-        <p className="slideshow-click-prompt slideshow-fade-in-slow" aria-hidden="true">
-          Click anywhere to proceed
+      <main
+        className={`slideshow-stage slideshow-stage--${slide.kind} slideshow-stage--${transitionPhase}`}
+        onClick={handleStageClick}
+        aria-live="polite"
+        aria-label={`${slide.chapter}: ${slide.title}`}
+      >
+        <SlideContent key={slide.id} slide={slide} step={step} />
+      </main>
+
+      <footer className="slideshow-controls" data-no-advance>
+        <button
+          type="button"
+          className="slideshow-nav-btn slideshow-nav-btn--back"
+          onClick={goBack}
+          disabled={slideIndex === 0 && step === 0}
+          aria-label="Previous presentation moment"
+        >
+          <IoArrowBack aria-hidden />
+          <span>Back</span>
+        </button>
+        <p className="slideshow-click-prompt" key={`${slide.id}-${step}`}>
+          Click the stage or use the arrow keys
         </p>
-      )}
+        <button
+          type="button"
+          className="slideshow-nav-btn slideshow-nav-btn--next"
+          onClick={advance}
+        >
+          <span>{isLastMoment ? 'Restart' : step < stepCount ? 'Continue' : 'Next'}</span>
+          <IoArrowForward aria-hidden />
+        </button>
+      </footer>
 
       <SlideshowSourcesModal
         open={sourcesOpen}
         onClose={() => setSourcesOpen(false)}
-        sources={SLIDESHOW_SOURCES}
+        sources={ALL_SOURCES}
       />
     </div>
   )

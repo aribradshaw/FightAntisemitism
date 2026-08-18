@@ -1,160 +1,195 @@
 /**
- * Slideshow content: early Jews through modern history.
- * Primary source: A Two-Page History of the Jewish People (University of Kentucky).
- * @see https://history.as.uky.edu/two-page-history-jewish-people
+ * Later slideshow chapters, from imperial conquest through Jewish life today.
+ * Chapter one is defined separately in slideshowChapterOne.js.
  */
 
 export const SLIDESHOW_SOURCES = [
   {
     label: 'A Two-Page History of the Jewish People',
     url: 'https://history.as.uky.edu/two-page-history-jewish-people',
-    note: 'University of Kentucky College of Arts & Sciences, Department of History',
+    note: 'University of Kentucky College of Arts & Sciences, broad chronology',
   },
   {
-    label: 'Abraham and the Angels (Aert de Gelder)',
-    url: 'https://en.wikipedia.org/wiki/Abraham_and_the_Angels_(De_Gelder)',
-    note: 'Intro slide image',
+    label: 'The Eastern Mediterranean and Syria, 1000 BCE–1 CE',
+    url: 'https://www.metmuseum.org/toah/ht/04/wae.html',
+    note: 'The Metropolitan Museum of Art, Heilbrunn Timeline of Art History',
   },
   {
-    label: "Abraham's Journey and the Exodus (map)",
-    url: 'https://www.britannica.com',
-    note: 'Encyclopædia Britannica, Inc.',
+    label: 'The Cyrus Cylinder and Ancient Persia',
+    url: 'https://www.metmuseum.org/exhibitions/listings/2013/cyrus-cylinder',
+    note: 'The Metropolitan Museum of Art on Persian rule and return from exile',
   },
   {
-    label: 'Book of Genesis, Joseph and his brothers (Bible Illustrations by Sweet Media)',
-    url: 'https://en.wikipedia.org/wiki/Joseph_(Genesis)',
-    note: 'Egypt slide image',
+    label: 'Introduction to Judaism',
+    url: 'https://encyclopedia.ushmm.org/content/en/article/introduction-to-judaism',
+    note: 'United States Holocaust Memorial Museum',
+  },
+  {
+    label: 'Introduction to the Holocaust',
+    url: 'https://encyclopedia.ushmm.org/content/en/article/introduction-to-the-holocaust',
+    note: 'United States Holocaust Memorial Museum',
   },
 ]
 
-/** Content slides (after intro slide 0 and map slide 1). Each needs: timelineYear, title, paragraphs. */
 export const SLIDES = [
   {
-    timelineYear: -1250,
-    title: 'Exodus and the Land',
+    timelineYear: -722,
+    chapter: 'Conquest and exile',
+    eyebrow: 'The Assyrian Empire',
+    title: 'The northern kingdom falls',
     paragraphs: [
-      'Around 1250 BCE, the Israelites left Egypt and became established in the region of Palestine.',
-      'Their story—Exodus, covenant, and settlement in the land that would become the kingdom of Israel—shapes Jewish identity and tradition to this day.',
-    ],
-  },
-  {
-    timelineYear: -900,
-    title: 'Kingdom and First Temple',
-    paragraphs: [
-      'By about 900 BCE, an Israelite kingdom had its capital at Jerusalem. The First Temple was built there.',
-      'Jerusalem became the spiritual and political center of the Israelite people.',
+      'In 722 BCE, Assyria captured Samaria, the capital of the northern kingdom of Israel, and deported part of its population.',
+      'The southern kingdom of Judah survived for more than a century, with Jerusalem at the center of its political and religious life.',
     ],
   },
   {
     timelineYear: -586,
-    title: 'Destruction and Rebuild',
+    chapter: 'Conquest and exile',
+    eyebrow: 'The Babylonian Empire',
+    title: 'Jerusalem falls',
     paragraphs: [
-      'In 586 BCE, the First Temple was destroyed. It was rebuilt in the next century.',
-      'Exile and return deepened the focus on law, text, and community that would define Judaism.',
+      'In 587 or 586 BCE, Babylonian forces captured Jerusalem, destroyed the First Temple, and deported many Judeans to Babylonia.',
+      'Exile transformed Jewish life. Text, prayer, law, and community carried identity beyond the borders of a kingdom.',
     ],
   },
   {
-    timelineYear: -400,
-    title: 'The Hebrew Bible',
+    timelineYear: -539,
+    chapter: 'Return and rebuilding',
+    eyebrow: 'The Persian Empire',
+    title: 'Return to Jerusalem',
     paragraphs: [
-      'After 400 BCE, the text of the Jewish Bible (the Hebrew Bible, or what Christianity calls the Old Testament) reached its final form.',
-      'Much of it had been composed earlier. It became the foundation of Jewish life and later of Christianity and Western culture.',
+      'After Cyrus of Persia conquered Babylon in 539 BCE, deported peoples were permitted to return to their homelands.',
+      'Some Judeans returned to Jerusalem and built the Second Temple. Others remained abroad, making diaspora a lasting part of Jewish life.',
+    ],
+  },
+  {
+    timelineYear: -164,
+    chapter: 'Rule and resistance',
+    eyebrow: 'The Maccabean revolt',
+    title: 'A sanctuary rededicated',
+    paragraphs: [
+      'In the second century BCE, the Maccabees led a revolt against Seleucid rule and restrictions on Jewish practice.',
+      'The Temple was rededicated in 164 BCE. Hanukkah preserves the memory of that rededication and the struggle for Jewish religious life.',
     ],
   },
   {
     timelineYear: 70,
-    title: 'Second Temple Destroyed',
+    chapter: 'Judaism transformed',
+    eyebrow: 'Roman rule',
+    title: 'The Second Temple is destroyed',
     paragraphs: [
-      'In 70 CE, the Romans destroyed the Second Temple. The Jewish state in the land of Israel came to an end until 1948.',
-      'Jews remained in settlements throughout the Roman Empire, beginning a long diaspora.',
+      'In 70 CE, Roman forces destroyed the Second Temple after a Jewish revolt. Jerusalem remained sacred, but Jewish worship could no longer center on Temple sacrifice.',
+      'Jewish communities continued in the land and across a wide diaspora. Study, prayer, law, and synagogue life took on greater importance.',
     ],
   },
   {
-    timelineYear: 400,
-    title: 'Talmudic Period',
+    timelineYear: 500,
+    chapter: 'Judaism transformed',
+    eyebrow: 'Rabbinic Judaism',
+    title: 'A tradition carried in words',
     paragraphs: [
-      'From about 200 to 700 CE, rabbinic Judaism took shape. Orthodox Jewish law was written down in the Talmud.',
-      'The main center of Jewish life was in Babylonia (present-day Iraq).',
+      'Between roughly 200 and 600 CE, generations of rabbis compiled the Mishnah and the two Talmuds.',
+      'Their debates shaped Jewish law, ethics, ritual, and learning. Major centers flourished in the land of Israel and Babylonia.',
+    ],
+  },
+  {
+    timelineYear: 1100,
+    chapter: 'Jewish worlds',
+    eyebrow: 'Across the Mediterranean',
+    title: 'Sephardi life and culture',
+    paragraphs: [
+      'Jewish communities in Iberia lived under changing Muslim and Christian rulers, producing influential poetry, philosophy, science, and religious scholarship.',
+      'The term Sephardi comes from the Hebrew name for Spain and later described communities whose traditions spread across North Africa, the Ottoman world, and beyond.',
     ],
   },
   {
     timelineYear: 1200,
-    title: 'Sephardim and Spain',
+    chapter: 'Jewish worlds',
+    eyebrow: 'Northern and central Europe',
+    title: 'Ashkenazi communities',
     paragraphs: [
-      'From about 900 to 1492, Spain became a main center of Jewish life. Spanish Jews are known as Sephardim.',
-      'A wealthy community integrated into both Muslim and Christian Spanish society until Ferdinand and Isabella expelled all Jews in 1492. Sephardi Jews took refuge in the Ottoman Empire and North Africa.',
+      'Jewish communities developed distinct religious customs and the Yiddish language across northern and central Europe.',
+      'They built durable institutions while facing legal restrictions, expulsions, blood libels, and periodic violence, including massacres during the Crusades.',
     ],
   },
   {
-    timelineYear: 1400,
-    title: 'Ashkenazim and the Jewish Middle Ages',
+    timelineYear: 1492,
+    chapter: 'Expulsion and renewal',
+    eyebrow: 'The Alhambra Decree',
+    title: 'Expelled from Spain',
     paragraphs: [
-      'From about 1000 to 1770, the "Jewish Middle Ages" in northern and central Europe. Jews there, known as Ashkenazim, led a precarious existence—tolerated but confined to certain occupations and special taxes.',
-      'They developed Yiddish. They suffered periodic violence, especially during the First Crusades (around 1100) and the Black Death (1347–48). Mainz, Worms, and Speyer are remembered as the "three cities of martyrdom." Jews were expelled from England in 1290, from France in 1306. Many found refuge in Poland, which became the largest Jewish center. Hasidism began in southern Poland around 1740.',
+      'In 1492, the Spanish monarchy ordered practicing Jews to convert or leave. Portugal imposed forced conversion several years later.',
+      'Sephardi refugees rebuilt communities in the Ottoman Empire, North Africa, Italy, the Netherlands, and the Americas.',
     ],
   },
   {
-    timelineYear: 1820,
-    title: 'Age of Emancipation',
+    timelineYear: 1789,
+    chapter: 'Emancipation',
+    eyebrow: 'Citizenship and modernity',
+    title: 'New rights, new questions',
     paragraphs: [
-      'From 1770 to 1870, small Jewish communities in western Europe and North America gained legal and civil rights, often in exchange for giving up special communal privileges.',
-      'Jews sought assimilation. The Jewish Enlightenment (Haskalah) criticized traditional religion and culture and called for Jews to adopt Hebrew and national languages alongside or instead of Yiddish.',
+      'From the late eighteenth century, Jews in parts of Europe gradually gained civil and political rights.',
+      'Emancipation opened public life while raising difficult questions about assimilation, religious reform, community authority, and national belonging.',
     ],
   },
   {
-    timelineYear: 1900,
-    title: 'Migration and Zionism',
+    timelineYear: 1881,
+    chapter: 'Migration',
+    eyebrow: 'A world in motion',
+    title: 'Millions build new homes',
     paragraphs: [
-      'From 1870 to 1933, rapid change. Persecution in the Russian Empire drove mass migration of Eastern European Jews to the United States and western Europe (1880–1914). The American Jewish community became the world’s largest.',
-      'Rising antisemitism in Europe sparked the Zionist movement (1896), aimed at a Jewish homeland in Palestine. The Balfour Declaration (1917) endorsed the idea. Small Jewish settlements grew in Palestine from the 1880s. In the U.S., the 1924 immigration law was designed to cut off new arrivals. Jews in eastern Europe were drawn to Zionism, socialism, and Communism.',
+      'Pogroms, poverty, and political repression drove mass Jewish migration from the Russian Empire and eastern Europe between the 1880s and the First World War.',
+      'Most went to the United States. Others moved within Europe, to Latin America, South Africa, and to Ottoman Palestine.',
     ],
   },
   {
-    timelineYear: 1938,
-    title: 'Nazi Rise and Persecution',
+    timelineYear: 1897,
+    chapter: 'Zionism',
+    eyebrow: 'A modern national movement',
+    title: 'The call for self-determination',
     paragraphs: [
-      'In 1933, Hitler came to power in Germany and imposed harsh restrictions on Jews. Jews were deprived of citizenship and forbidden to marry non-Jews (1935); synagogues were destroyed and Jewish businesses confiscated (1938).',
-      'In 1939, World War II began. Germany’s occupation of Poland placed the largest European Jewish community under Nazi control.',
+      'Modern political Zionism emerged in nineteenth-century Europe amid nationalism, emancipation, and persistent antisemitism.',
+      'Zionists disagreed about religion, culture, economics, and politics, but shared the goal of renewing Jewish collective life in the ancestral homeland.',
+    ],
+  },
+  {
+    timelineYear: 1933,
+    chapter: 'The Holocaust',
+    eyebrow: 'Nazi persecution',
+    title: 'Rights stripped away',
+    paragraphs: [
+      'After taking power in 1933, Nazi Germany excluded Jews from public life, stripped them of citizenship, seized property, and drove hundreds of thousands to seek refuge abroad.',
+      'Germany’s invasion of Poland in 1939 placed millions more Jews under Nazi rule and began a war that enabled increasingly radical persecution.',
     ],
   },
   {
     timelineYear: 1942,
-    title: 'The Holocaust',
+    chapter: 'The Holocaust',
+    eyebrow: 'Systematic mass murder',
+    title: 'Six million lives',
     paragraphs: [
-      'In 1941, Germany invaded the Soviet Union. Large-scale massacres of Jews began.',
-      'In 1942, death camps opened in eastern Europe. By 1945, Jewish casualties in the Holocaust were estimated at between 5 and 6 million; about 100,000 survivors were found in German camps.',
+      'Nazi Germany and its allies and collaborators murdered six million Jews through mass shootings, ghettos, starvation, forced labor, and killing centers.',
+      'The Holocaust destroyed centuries-old communities across Europe. Survivors carried their histories into new lives around the world.',
     ],
   },
   {
     timelineYear: 1948,
-    title: 'Partition and Israel',
+    chapter: 'Statehood',
+    eyebrow: 'Israel declares independence',
+    title: 'A Jewish state, a regional war',
     paragraphs: [
-      'In 1947, the United Nations voted to partition Palestine into Jewish and Arab states.',
-      'On 14 May 1948, Israel declared independence. Victory in war against invading Arab armies secured the new state but created a Palestinian refugee population.',
-    ],
-  },
-  {
-    timelineYear: 1975,
-    title: 'Wars, Trials, and Peace',
-    paragraphs: [
-      '1961: The Eichmann trial in Israel publicized the Holocaust. 1967: The Six-Day War; Israel gained control of the West Bank, Gaza, and Sinai. U.S. Jews identified more closely with Israel; Soviet Jews faced intensified harassment.',
-      '1973: The Yom Kippur War. 1979: Camp David—first peace treaty between Israel and an Arab state (Egypt). The American TV miniseries Holocaust sparked debate in Germany.',
-    ],
-  },
-  {
-    timelineYear: 1995,
-    title: 'After the Cold War',
-    paragraphs: [
-      '1989–91: The collapse of the Soviet Union allowed many Jews from the world’s third-largest Jewish community to emigrate to Israel, the U.S., and western Europe.',
-      '1993: The U.S. Holocaust Memorial Museum opened; the Oslo agreement between Israel and the Palestinians raised hopes for peace. 2000: Oslo broke down; a new cycle of Israeli–Palestinian violence began. The first openly Jewish major-party candidate ran for U.S. vice president.',
+      'In 1947, the United Nations proposed partitioning British-ruled Palestine into Jewish and Arab states. Jewish leaders accepted the plan; Arab leaders rejected it.',
+      'Israel declared independence on May 14, 1948. War secured the new state and displaced a large Palestinian population, beginning a conflict that remains unresolved.',
     ],
   },
   {
     timelineYear: new Date().getFullYear(),
-    title: 'Jewish Life Today',
+    chapter: 'Jewish life today',
+    eyebrow: 'One people, many communities',
+    title: 'The story is still being written',
     paragraphs: [
-      'Centers of Jewish life today: approximately 5 million Jews in the U.S., 4.5 million in Israel, 1–2 million in the former Soviet Union, about 500,000 in France, 60,000 in Germany, and about 8,000 in Poland.',
-      'A people that began with Abraham in the land we today call Israel has endured exile, diaspora, persecution, and rebirth—and remains a central thread in world history.',
+      'More than 15 million Jews live around the world today, with the largest communities in Israel and the United States.',
+      'Jewish life spans many languages, ethnic backgrounds, religious practices, political views, and cultural traditions, connected by overlapping histories and an enduring conversation about identity.',
     ],
   },
 ]
