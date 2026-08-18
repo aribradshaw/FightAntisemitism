@@ -1,351 +1,827 @@
-import { useState, useEffect, useRef } from 'react'
-import { IoArrowBack } from 'react-icons/io5'
-import DefinitionTerm from '../components/DefinitionTerm'
-import WritingText, { WritingWord } from '../components/WritingText'
+import { useEffect, useRef, useState } from 'react'
+import { IoArrowBack, IoArrowForward } from 'react-icons/io5'
+import { Link } from 'react-router-dom'
+import WritingText from '../components/WritingText'
 import SlideshowSourcesModal from '../components/SlideshowSourcesModal'
 import { SLIDES, SLIDESHOW_SOURCES } from '../data/slideshowSlides'
+import { CHAPTER_ONE_SLIDES, CHAPTER_ONE_SOURCES } from '../data/slideshowChapterOne'
+import { CHAPTER_TWO_SLIDES, CHAPTER_TWO_SOURCES } from '../data/slideshowChapterTwo'
+import { CHAPTER_THREE_SLIDES, CHAPTER_THREE_SOURCES } from '../data/slideshowChapterThree'
+import { CHAPTER_FOUR_SLIDES, CHAPTER_FOUR_SOURCES } from '../data/slideshowChapterFour'
+import { CHAPTER_FIVE_SLIDES, CHAPTER_FIVE_SOURCES } from '../data/slideshowChapterFive'
+import '../slideshow.css'
 
 const TIMELINE_START = -2000
 const TIMELINE_END = new Date().getFullYear()
-const TOTAL_SLIDES = 4 + SLIDES.length // intro, map, egypt, slavery, then content slides
+const STAGGER_MS = 52
 
-const STAGGER_MS = 90
-
-const FIRST_JEWS_LINES = [
-  'Abraham was born Abram in the city of Ur.',
-  'His story, catalogued in Genesis, leads him to eventually settle and die in Canaan.',
-  'His son, Isaac, is the father of the Jewish people.',
-  'His other son, Ishmael, is the father of the Arabic people.',
-  'Abraham means Father of Nations.',
+const DECK = [
+  ...CHAPTER_ONE_SLIDES,
+  ...CHAPTER_TWO_SLIDES,
+  ...CHAPTER_THREE_SLIDES,
+  ...CHAPTER_FOUR_SLIDES,
+  ...CHAPTER_FIVE_SLIDES,
+  ...SLIDES.map((slide, index) => ({
+    ...slide,
+    id: slide.id || `history-${index}`,
+    kind: slide.kind || 'article',
+    chapter: slide.chapter || 'A people across time',
+    timelineLabel: slide.timelineLabel || formatTimelineYear(slide.timelineYear, slide.timelineYear < 0),
+  })),
 ]
 
-const EGYPT_LINES = [
-  "Isaac's grandson, Joseph, was sold into slavery by his brothers.",
-  'While in Egypt, he rose in status by interpreting dreams of the pharoah.',
-  "When a famine hit the modern day land of Israel where Jacob's family lived, they came to Egypt for refuge.",
-  'The Pharoah and Jacob secured them land for the next 400 years.',
-]
+const ALL_SOURCES = Array.from(new Map([
+  ...CHAPTER_ONE_SOURCES,
+  ...CHAPTER_TWO_SOURCES,
+  ...CHAPTER_THREE_SOURCES,
+  ...CHAPTER_FOUR_SOURCES,
+  ...CHAPTER_FIVE_SOURCES,
+  ...SLIDESHOW_SOURCES,
+].map((source) => [source.url, source])).values())
 
 function formatTimelineYear(year, approximate = false) {
   if (year < 0) {
     const num = (-year).toLocaleString()
-    return approximate ? `~${num} BC` : `${num} BC`
+    return approximate ? `c. ${num} BCE` : `${num} BCE`
   }
-  return String(year)
+  return `${year} CE`
+}
+
+function getStepCount(slide) {
+  if (slide.lines) return slide.lines.length
+  if (slide.paragraphs) return slide.paragraphs.length
+  return 0
+}
+
+function RevealLines({ lines, visibleCount, className = '' }) {
+  return (
+    <div className={`slideshow-reveal-lines ${className}`.trim()}>
+      {lines.slice(0, visibleCount).map((line, index) => (
+        <p className="slideshow-reveal-line" key={`${index}-${line}`}>
+          <span className="slideshow-reveal-number" aria-hidden>{String(index + 1).padStart(2, '0')}</span>
+          <span><WritingText staggerMs={STAGGER_MS}>{line}</WritingText></span>
+        </p>
+      ))}
+    </div>
+  )
+}
+
+function SlideFigure({ slide, className = '' }) {
+  return (
+    <figure className={`slideshow-figure ${className}`.trim()}>
+      <img src={slide.image} alt={slide.imageAlt} />
+      <figcaption>{slide.imageCaption}</figcaption>
+    </figure>
+  )
+}
+
+function OpeningSlide({ slide, step }) {
+  return (
+    <article className="slideshow-opening">
+      <div className="slideshow-opening-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h1>{slide.title}</h1>
+        <RevealLines lines={slide.lines} visibleCount={step} className="slideshow-opening-lines" />
+      </div>
+      <div className={`slideshow-opening-art${step >= 1 ? ' is-visible' : ''}`}>
+        <SlideFigure slide={slide} />
+        <span className="slideshow-orbit slideshow-orbit--one" aria-hidden />
+        <span className="slideshow-orbit slideshow-orbit--two" aria-hidden />
+      </div>
+    </article>
+  )
+}
+
+function StorySlide({ slide, step }) {
+  return (
+    <article className={`slideshow-story slideshow-story--${slide.kind}`}>
+      <SlideFigure slide={slide} className="slideshow-story-figure" />
+      <div className="slideshow-story-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+      </div>
+    </article>
+  )
+}
+
+function ExodusSlide({ slide, step }) {
+  return (
+    <article className="slideshow-exodus">
+      <img className="slideshow-exodus-image" src={slide.image} alt={slide.imageAlt} />
+      <div className="slideshow-exodus-wash" aria-hidden />
+      <div className="slideshow-exodus-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+        <p className={`slideshow-method-note${step >= 3 ? ' is-visible' : ''}`}>
+          Tradition and historical evidence are presented side by side throughout this slideshow.
+        </p>
+      </div>
+      <p className="slideshow-image-credit">{slide.imageCaption}</p>
+    </article>
+  )
+}
+
+function EvidenceSlide({ slide, step }) {
+  return (
+    <article className="slideshow-evidence">
+      <div className="slideshow-evidence-object">
+        <SlideFigure slide={slide} />
+        <div className="slideshow-evidence-date">
+          <strong>{slide.stat}</strong>
+          <span>{slide.statLabel}</span>
+        </div>
+      </div>
+      <div className="slideshow-evidence-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+        <div className={`slideshow-inscription${step >= 3 ? ' is-visible' : ''}`} aria-label="The name Israel appears in the inscription">
+          <span>Inscription</span>
+          <strong>“ISRAEL”</strong>
+        </div>
+      </div>
+    </article>
+  )
+}
+
+function KingdomsSlide({ slide, step }) {
+  return (
+    <article className="slideshow-kingdoms">
+      <div className="slideshow-kingdoms-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+        <div className={`slideshow-kingdom-cards${step >= 2 ? ' is-visible' : ''}`}>
+          {slide.kingdoms.map((kingdom) => (
+            <div className="slideshow-kingdom-card" key={kingdom.name}>
+              <strong>{kingdom.name}</strong>
+              <span>{kingdom.detail}</span>
+            </div>
+          ))}
+        </div>
+        <p className={`slideshow-evidence-chip${step >= 3 ? ' is-visible' : ''}`}>
+          The ninth-century BCE Tel Dan Stele refers to the “House of David.”
+        </p>
+      </div>
+      <SlideFigure slide={slide} className="slideshow-kingdoms-figure" />
+    </article>
+  )
+}
+
+function EmpireSlide({ slide, step }) {
+  return (
+    <article className="slideshow-empire">
+      <SlideFigure slide={slide} className="slideshow-empire-figure" />
+      <div className="slideshow-empire-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+        <div className="slideshow-empire-events" aria-label="Assyrian campaign milestones">
+          {slide.events.map((event, index) => (
+            <div className={step > index ? 'is-visible' : ''} key={`${event.year}-${event.label}`}>
+              <strong>{event.year}</strong>
+              <span>{event.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </article>
+  )
+}
+
+function RuptureSlide({ slide, step }) {
+  return (
+    <article className="slideshow-rupture">
+      <div className="slideshow-rupture-year" aria-hidden>{slide.stat}</div>
+      <div className="slideshow-rupture-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+        <div className="slideshow-rupture-consequences" aria-label="Consequences of the Babylonian conquest">
+          {slide.consequences.map((consequence, index) => (
+            <span className={step > index ? 'is-visible' : ''} key={consequence}>{consequence}</span>
+          ))}
+        </div>
+      </div>
+    </article>
+  )
+}
+
+function ReturnSlide({ slide, step }) {
+  return (
+    <article className="slideshow-return">
+      <div className="slideshow-return-object">
+        <SlideFigure slide={slide} />
+        <p className={`slideshow-artifact-note${step >= 2 ? ' is-visible' : ''}`}>
+          The Cylinder does not name Judeans. Its restoration policy helps explain the world behind the biblical return accounts.
+        </p>
+      </div>
+      <div className="slideshow-return-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+        <div className={`slideshow-return-branches${step >= 3 ? ' is-visible' : ''}`}>
+          {slide.branches.map((branch) => (
+            <div key={branch.name}>
+              <strong>{branch.name}</strong>
+              <span>{branch.detail}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </article>
+  )
+}
+
+function ResistanceSlide({ slide, step }) {
+  return (
+    <article className="slideshow-resistance">
+      <div className="slideshow-resistance-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+        <div className={`slideshow-era-track${step >= 2 ? ' is-visible' : ''}`} aria-label="Second Temple era political timeline">
+          {slide.eras.map((era) => (
+            <div key={era.year}>
+              <strong>{era.year}</strong>
+              <span>{era.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <SlideFigure slide={slide} className="slideshow-resistance-figure" />
+    </article>
+  )
+}
+
+function TransformationSlide({ slide, step }) {
+  return (
+    <article className="slideshow-transformation">
+      <SlideFigure slide={slide} className="slideshow-transformation-figure" />
+      <div className="slideshow-transformation-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+        <div className={`slideshow-shift-grid${step >= 3 ? ' is-visible' : ''}`}>
+          {slide.shifts.map((shift) => (
+            <div key={shift.from}>
+              <span>{shift.from}</span>
+              <IoArrowForward aria-hidden />
+              <strong>{shift.to}</strong>
+            </div>
+          ))}
+        </div>
+      </div>
+    </article>
+  )
+}
+
+function DialogueSlide({ slide, step }) {
+  return (
+    <article className="slideshow-dialogue">
+      <div className="slideshow-dialogue-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+        <div className={`slideshow-text-layers${step >= 3 ? ' is-visible' : ''}`} aria-label="Rabbinic text chronology">
+          {slide.layers.map((layer) => (
+            <div key={layer.name}>
+              <span>{layer.date}</span>
+              <strong>{layer.name}</strong>
+            </div>
+          ))}
+        </div>
+      </div>
+      <SlideFigure slide={slide} className="slideshow-dialogue-figure" />
+    </article>
+  )
+}
+
+function IlluminationSlide({ slide, step }) {
+  return (
+    <article className="slideshow-illumination">
+      <SlideFigure slide={slide} className="slideshow-illumination-figure" />
+      <div className="slideshow-illumination-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+        <div className={`slideshow-field-grid${step >= 3 ? ' is-visible' : ''}`} aria-label="Fields of Sephardi cultural life">
+          {slide.fields.map((field) => <span key={field}>{field}</span>)}
+        </div>
+      </div>
+    </article>
+  )
+}
+
+function CommunitiesSlide({ slide, step }) {
+  return (
+    <article className="slideshow-communities">
+      <SlideFigure slide={slide} className="slideshow-communities-figure" />
+      <div className="slideshow-communities-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+        <div className={`slideshow-city-network${step >= 2 ? ' is-visible' : ''}`} aria-label="ShUM city network">
+          {slide.cities.map((city) => (
+            <div key={city.name}>
+              <strong>{city.name}</strong>
+              <span>{city.role}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </article>
+  )
+}
+
+function DispersionSlide({ slide, step }) {
+  return (
+    <article className="slideshow-dispersion">
+      <img className="slideshow-dispersion-image" src={slide.image} alt={slide.imageAlt} />
+      <div className="slideshow-dispersion-wash" aria-hidden />
+      <div className="slideshow-dispersion-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+        <div className={`slideshow-route-list${step >= 3 ? ' is-visible' : ''}`} aria-label="Major destinations of Sephardi refugees">
+          <span className="slideshow-route-origin">Iberia</span>
+          {slide.routes.map((route) => (
+            <span key={route}><IoArrowForward aria-hidden />{route}</span>
+          ))}
+        </div>
+      </div>
+      <p className="slideshow-image-credit">{slide.imageCaption}</p>
+    </article>
+  )
+}
+
+function RenewalSlide({ slide, step }) {
+  return (
+    <article className="slideshow-renewal">
+      <div className="slideshow-renewal-visual">
+        <SlideFigure slide={slide} className="slideshow-renewal-figure" />
+        <div className={`slideshow-renewal-seal${step >= 1 ? ' is-visible' : ''}`} aria-hidden>
+          <span>1492</span>
+          <strong>becomes</strong>
+          <span>renewal</span>
+        </div>
+      </div>
+      <div className="slideshow-renewal-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+        <div className={`slideshow-renewal-centers${step >= 2 ? ' is-visible' : ''}`} aria-label="New centers of early modern Jewish life">
+          {slide.centers.map((center, index) => (
+            <div style={{ '--center-index': index }} key={center.name}>
+              <span>{center.place}</span>
+              <strong>{center.name}</strong>
+              <small>{center.role}</small>
+            </div>
+          ))}
+        </div>
+      </div>
+    </article>
+  )
+}
+
+function EmancipationSlide({ slide, step }) {
+  return (
+    <article className="slideshow-emancipation">
+      <div className="slideshow-emancipation-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+      </div>
+      <div className="slideshow-rights-panel" aria-label="Areas affected by Jewish emancipation">
+        <div className="slideshow-rights-year">
+          <span>France</span>
+          <strong>1791</strong>
+          <small>one early national milestone</small>
+        </div>
+        <div className={`slideshow-rights-grid${step >= 2 ? ' is-visible' : ''}`}>
+          {slide.rights.map((right, index) => (
+            <div style={{ '--right-index': index }} key={right.label}>
+              <span>{right.label}</span>
+              <strong>{right.status}</strong>
+            </div>
+          ))}
+        </div>
+        <p className={`slideshow-rights-caveat${step >= 3 ? ' is-visible' : ''}`}>
+          Legal equality advanced by fits and starts. Social acceptance never automatically followed.
+        </p>
+      </div>
+    </article>
+  )
+}
+
+function MigrationSlide({ slide, step }) {
+  return (
+    <article className="slideshow-migration">
+      <div className="slideshow-migration-visual">
+        <SlideFigure slide={slide} className="slideshow-migration-figure" />
+        <div className={`slideshow-migration-flow${step >= 2 ? ' is-visible' : ''}`} aria-label="Destinations of Jewish migrants from eastern Europe">
+          <span className="slideshow-migration-origin">Eastern Europe</span>
+          <div>
+            {slide.destinations.map((destination) => (
+              <span key={destination}><IoArrowForward aria-hidden />{destination}</span>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="slideshow-migration-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+      </div>
+    </article>
+  )
+}
+
+function ResponsesSlide({ slide, step }) {
+  return (
+    <article className="slideshow-responses">
+      <div className="slideshow-responses-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+        <div className={`slideshow-response-grid${step >= 2 ? ' is-visible' : ''}`} aria-label="Jewish responses to modern insecurity">
+          {slide.responses.map((response) => (
+            <div className={response.highlight && step >= 3 ? 'is-highlighted' : ''} key={response.name}>
+              <strong>{response.name}</strong>
+              <span>{response.detail}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <SlideFigure slide={slide} className="slideshow-responses-figure" />
+    </article>
+  )
+}
+
+function BuildingSlide({ slide, step }) {
+  return (
+    <article className="slideshow-building">
+      <img className="slideshow-building-image" src={slide.image} alt={slide.imageAlt} />
+      <div className="slideshow-building-grid" aria-hidden />
+      <div className="slideshow-building-wash" aria-hidden />
+      <div className="slideshow-building-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+        <div className={`slideshow-building-milestones${step >= 2 ? ' is-visible' : ''}`} aria-label="Milestones in building the modern Jewish homeland">
+          {slide.milestones.map((milestone, index) => (
+            <div style={{ '--milestone-index': index }} key={milestone.year}>
+              <strong>{milestone.year}</strong>
+              <span>{milestone.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <p className="slideshow-image-credit">{slide.imageCaption}</p>
+    </article>
+  )
+}
+
+function PersecutionSlide({ slide, step }) {
+  return (
+    <article className="slideshow-persecution">
+      <SlideFigure slide={slide} className="slideshow-persecution-figure" />
+      <div className="slideshow-persecution-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+        <div className={`slideshow-persecution-track${step >= 2 ? ' is-visible' : ''}`} aria-label="Escalation of Nazi persecution">
+          {slide.events.map((event) => (
+            <div key={event.year}>
+              <strong>{event.year}</strong>
+              <span>{event.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </article>
+  )
+}
+
+function ShoahSlide({ slide, step }) {
+  return (
+    <article className="slideshow-shoah">
+      <img className="slideshow-shoah-image" src={slide.image} alt={slide.imageAlt} />
+      <div className="slideshow-shoah-wash" aria-hidden />
+      <div className="slideshow-shoah-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <div className={`slideshow-shoah-stat${step >= 1 ? ' is-visible' : ''}`}>
+          <strong>{slide.stat}</strong>
+          <span>Jews murdered</span>
+        </div>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+        <div className={`slideshow-shoah-systems${step >= 2 ? ' is-visible' : ''}`} aria-label="Systems used in the Holocaust">
+          {slide.systems.map((system) => <span key={system}>{system}</span>)}
+        </div>
+      </div>
+      <p className="slideshow-image-credit">{slide.imageCaption}</p>
+    </article>
+  )
+}
+
+function StatehoodSlide({ slide, step }) {
+  return (
+    <article className="slideshow-statehood">
+      <div className="slideshow-statehood-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+        <div className={`slideshow-declaration-principles${step >= 2 ? ' is-visible' : ''}`} aria-label="Principles in Israel’s Declaration of Independence">
+          {slide.principles.map((principle) => (
+            <div key={principle.name}>
+              <strong>{principle.name}</strong>
+              <span>{principle.detail}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <SlideFigure slide={slide} className="slideshow-statehood-figure" />
+    </article>
+  )
+}
+
+function IngatheringSlide({ slide, step }) {
+  return (
+    <article className="slideshow-ingathering">
+      <div className="slideshow-ingathering-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+      </div>
+      <div className="slideshow-ingathering-visual">
+        <SlideFigure slide={slide} className="slideshow-ingathering-figure" />
+        <div className={`slideshow-aliyah-waves${step >= 2 ? ' is-visible' : ''}`} aria-label="Selected milestones in Israel’s ingathering of Jewish communities">
+          {slide.waves.map((wave, index) => (
+            <div style={{ '--wave-index': index }} key={`${wave.era}-${wave.label}`}>
+              <p><span>{wave.era}</span><strong>{wave.value}</strong></p>
+              <div><span style={{ width: `${wave.size}%` }} /></div>
+              <small>{wave.label}</small>
+            </div>
+          ))}
+        </div>
+      </div>
+    </article>
+  )
+}
+
+function LivingSlide({ slide, step }) {
+  return (
+    <article className="slideshow-living">
+      <div className="slideshow-living-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+        <p className={`slideshow-living-closing${step >= 3 ? ' is-visible' : ''}`}>{slide.closing}</p>
+      </div>
+      <div className="slideshow-population-panel">
+        <div className={`slideshow-population-total${step >= 1 ? ' is-visible' : ''}`}>
+          <strong>{slide.total}</strong>
+          <span>{slide.totalLabel}</span>
+        </div>
+        <div className={`slideshow-population-bars${step >= 2 ? ' is-visible' : ''}`} aria-label="Estimated core Jewish population by location in 2024">
+          {slide.populations.map((population) => (
+            <div key={population.name}>
+              <p><strong>{population.name}</strong><span>{population.value}</span></p>
+              <div><span style={{ width: `${population.share}%` }} /></div>
+              <small>{population.share}% of world Jewry</small>
+            </div>
+          ))}
+        </div>
+        <p className="slideshow-population-source">DellaPergola, World Jewish Population 2024</p>
+      </div>
+    </article>
+  )
+}
+
+function ArticleSlide({ slide, step }) {
+  return (
+    <article className="slideshow-article">
+      <p className="slideshow-eyebrow">{slide.eyebrow || slide.chapter}</p>
+      <h2>{slide.title}</h2>
+      <RevealLines lines={slide.paragraphs} visibleCount={step} />
+    </article>
+  )
+}
+
+function SlideContent({ slide, step }) {
+  if (slide.kind === 'opening') return <OpeningSlide slide={slide} step={step} />
+  if (slide.kind === 'journey' || slide.kind === 'joseph') return <StorySlide slide={slide} step={step} />
+  if (slide.kind === 'exodus') return <ExodusSlide slide={slide} step={step} />
+  if (slide.kind === 'evidence') return <EvidenceSlide slide={slide} step={step} />
+  if (slide.kind === 'kingdoms') return <KingdomsSlide slide={slide} step={step} />
+  if (slide.kind === 'empire') return <EmpireSlide slide={slide} step={step} />
+  if (slide.kind === 'rupture') return <RuptureSlide slide={slide} step={step} />
+  if (slide.kind === 'return') return <ReturnSlide slide={slide} step={step} />
+  if (slide.kind === 'resistance') return <ResistanceSlide slide={slide} step={step} />
+  if (slide.kind === 'transformation') return <TransformationSlide slide={slide} step={step} />
+  if (slide.kind === 'dialogue') return <DialogueSlide slide={slide} step={step} />
+  if (slide.kind === 'illumination') return <IlluminationSlide slide={slide} step={step} />
+  if (slide.kind === 'communities') return <CommunitiesSlide slide={slide} step={step} />
+  if (slide.kind === 'dispersion') return <DispersionSlide slide={slide} step={step} />
+  if (slide.kind === 'renewal') return <RenewalSlide slide={slide} step={step} />
+  if (slide.kind === 'emancipation') return <EmancipationSlide slide={slide} step={step} />
+  if (slide.kind === 'migration') return <MigrationSlide slide={slide} step={step} />
+  if (slide.kind === 'responses') return <ResponsesSlide slide={slide} step={step} />
+  if (slide.kind === 'building') return <BuildingSlide slide={slide} step={step} />
+  if (slide.kind === 'persecution') return <PersecutionSlide slide={slide} step={step} />
+  if (slide.kind === 'shoah') return <ShoahSlide slide={slide} step={step} />
+  if (slide.kind === 'statehood') return <StatehoodSlide slide={slide} step={step} />
+  if (slide.kind === 'ingathering') return <IngatheringSlide slide={slide} step={step} />
+  if (slide.kind === 'living') return <LivingSlide slide={slide} step={step} />
+  return <ArticleSlide slide={slide} step={step} />
 }
 
 export default function Slideshow() {
   const [slideIndex, setSlideIndex] = useState(0)
-  const [introStep, setIntroStep] = useState(0)
-  const [mapPhase, setMapPhase] = useState(0)
-  const [mapContentStep, setMapContentStep] = useState(0)
-  const [egyptContentStep, setEgyptContentStep] = useState(0)
-  const [slaveryContentStep, setSlaveryContentStep] = useState(0)
-  const [promptVisible, setPromptVisible] = useState(false)
-  const [transitioningToMap, setTransitioningToMap] = useState(false)
-  const [transitionPhase, setTransitionPhase] = useState(null)
+  const [step, setStep] = useState(0)
+  const [transitionPhase, setTransitionPhase] = useState('idle')
   const [sourcesOpen, setSourcesOpen] = useState(false)
-  const mapPhaseDoneRef = useRef(false)
+  const transitionTimerRef = useRef(null)
+  const enterTimerRef = useRef(null)
 
-  useEffect(() => {
-    if (slideIndex !== 0) return
-    const t = setTimeout(() => setPromptVisible(true), 2500)
-    return () => clearTimeout(t)
-  }, [slideIndex])
+  const slide = DECK[slideIndex]
+  const stepCount = getStepCount(slide)
+  const isLastMoment = slideIndex === DECK.length - 1 && step >= stepCount
+  const timelineYear = slide.timelineYear ?? TIMELINE_END
+  const timelinePosition = Math.max(0, Math.min(100,
+    ((timelineYear - TIMELINE_START) / (TIMELINE_END - TIMELINE_START)) * 100,
+  ))
 
-  useEffect(() => {
-    if (!transitioningToMap) return
-    setTransitionPhase('timeline')
-  }, [transitioningToMap])
-  useEffect(() => {
-    if (transitionPhase !== 'timeline') return
-    const t = setTimeout(() => setTransitionPhase('fade-out'), 800)
-    return () => clearTimeout(t)
-  }, [transitionPhase])
-  useEffect(() => {
-    if (transitionPhase !== 'fade-out') return
-    const t = setTimeout(() => {
-      setSlideIndex(1)
-      setTransitioningToMap(false)
-      setTransitionPhase(null)
-    }, 700)
-    return () => clearTimeout(t)
-  }, [transitionPhase])
+  const goToSlide = (nextIndex, nextStep = 0) => {
+    if (transitionPhase !== 'idle') return
+    const boundedIndex = Math.max(0, Math.min(DECK.length - 1, nextIndex))
+    setTransitionPhase('out')
+    clearTimeout(transitionTimerRef.current)
+    clearTimeout(enterTimerRef.current)
+    transitionTimerRef.current = setTimeout(() => {
+      setSlideIndex(boundedIndex)
+      setStep(nextStep)
+      setTransitionPhase('in')
+      enterTimerRef.current = setTimeout(() => setTransitionPhase('idle'), 40)
+    }, 280)
+  }
 
-  useEffect(() => {
-    if (slideIndex !== 1 || mapPhaseDoneRef.current) return
-    mapPhaseDoneRef.current = true
-    const t = setTimeout(() => setMapPhase(1), 1800)
-    return () => clearTimeout(t)
-  }, [slideIndex])
-
-  useEffect(() => {
-    if (!sourcesOpen) return
-    const onKey = (e) => { if (e.key === 'Escape') setSourcesOpen(false) }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [sourcesOpen])
-
-  const handleClick = (e) => {
-    if (e?.target?.closest?.('.slideshow-sources-btn')) return
-    if (slideIndex === 0) {
-      if (introStep < 4) {
-        setIntroStep((s) => s + 1)
-        if (introStep === 3) setTransitioningToMap(true)
-      }
+  const advance = () => {
+    if (sourcesOpen || transitionPhase !== 'idle') return
+    if (step < stepCount) {
+      setStep((current) => current + 1)
       return
     }
-    if (slideIndex === 1 && mapPhase === 1) {
-      if (mapContentStep < FIRST_JEWS_LINES.length) {
-        setMapContentStep((s) => s + 1)
-        return
-      }
-      setSlideIndex(2)
+    if (slideIndex < DECK.length - 1) {
+      goToSlide(slideIndex + 1)
       return
     }
-    if (slideIndex === 2) {
-      if (egyptContentStep < EGYPT_LINES.length) {
-        setEgyptContentStep((s) => s + 1)
-        return
-      }
-      setSlideIndex(3)
+    goToSlide(0)
+  }
+
+  const goBack = () => {
+    if (sourcesOpen || transitionPhase !== 'idle') return
+    if (step > 0) {
+      setStep((current) => current - 1)
       return
     }
-    if (slideIndex === 3) {
-      setSlideIndex(4)
-      return
-    }
-    if (slideIndex >= 1 && slideIndex < TOTAL_SLIDES - 1) {
-      setSlideIndex((i) => i + 1)
+    if (slideIndex > 0) {
+      const previousIndex = slideIndex - 1
+      goToSlide(previousIndex, getStepCount(DECK[previousIndex]))
     }
   }
 
-  const canGoBack = slideIndex >= 1 || (slideIndex === 0 && introStep > 0) || transitioningToMap
-  const handleBack = (e) => {
-    e.stopPropagation()
-    if (transitioningToMap) {
-      setTransitioningToMap(false)
-      setTransitionPhase(null)
-      setIntroStep(2)
-      return
+  useEffect(() => {
+    const onKeyDown = (event) => {
+      if (sourcesOpen) return
+      const target = event.target
+      const isInteractive = target instanceof HTMLElement && target.closest('button, a, input, textarea, select')
+      if (isInteractive) return
+      if (['ArrowRight', 'PageDown', 'Enter', ' '].includes(event.key)) {
+        event.preventDefault()
+        advance()
+      }
+      if (['ArrowLeft', 'PageUp'].includes(event.key)) {
+        event.preventDefault()
+        goBack()
+      }
+      if (event.key === 'Home') {
+        event.preventDefault()
+        goToSlide(0)
+      }
+      if (event.key === 'End') {
+        event.preventDefault()
+        goToSlide(DECK.length - 1)
+      }
     }
-    if (slideIndex >= 1) {
-      if (slideIndex === 1 && mapContentStep > 0) {
-        setMapContentStep((s) => s - 1)
-        return
-      }
-      if (slideIndex === 2 && egyptContentStep > 0) {
-        setEgyptContentStep((s) => s - 1)
-        return
-      }
-      setSlideIndex((i) => i - 1)
-      if (slideIndex === 1) {
-        setMapPhase(0)
-        setMapContentStep(0)
-        mapPhaseDoneRef.current = false
-      }
-      if (slideIndex === 2) setEgyptContentStep(0)
-    } else if (slideIndex === 0 && introStep > 0) {
-      setIntroStep((s) => s - 1)
-    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  })
+
+  useEffect(() => () => {
+    clearTimeout(transitionTimerRef.current)
+    clearTimeout(enterTimerRef.current)
+  }, [])
+
+  const handleStageClick = (event) => {
+    if (event.target.closest('button, a, [data-no-advance]')) return
+    advance()
   }
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault()
-      handleClick()
-    }
-  }
-
-  const showClickPrompt =
-    slideIndex === 0 ? promptVisible
-    : slideIndex === 1 ? mapPhase >= 1
-    : true
-
-  const firstJewsStartIndex = (() => {
-    let n = 0
-    return FIRST_JEWS_LINES.map((line) => {
-      const start = n
-      n += line.trim().split(/\s+/).length
-      return start
-    })
-  })()
-  const egyptLineStartIndex = (() => {
-    let n = 0
-    return EGYPT_LINES.map((line) => {
-      const start = n
-      n += line.trim().split(/\s+/).length
-      return start
-    })
-  })()
-
-  const showTimeline = slideIndex >= 1 || transitioningToMap
-  const timelineYearForSlide =
-    slideIndex === 1 ? -2000
-    : slideIndex === 2 ? -1600
-    : slideIndex === 3 ? -1250
-    : SLIDES[slideIndex - 4]?.timelineYear ?? TIMELINE_END
-  const timelineYear = showTimeline ? timelineYearForSlide : TIMELINE_END
-  const timelinePosition =
-    ((timelineYear - TIMELINE_START) / (TIMELINE_END - TIMELINE_START)) * 100
 
   return (
-    <div className="slideshow-page" onClick={handleClick} role="button" tabIndex={0} onKeyDown={handleKeyDown}>
-      {canGoBack && (
+    <div className={`slideshow-page slideshow-page--${slide.kind}`}>
+      <header className="slideshow-chrome" data-no-advance>
+        <Link className="slideshow-exit" to="/explore" aria-label="Exit story and return to Explore">
+          <IoArrowBack aria-hidden />
+          <span>Explore</span>
+        </Link>
+        <div className="slideshow-chapter-label">
+          <span>{slide.chapter}</span>
+          <strong>{slideIndex + 1} / {DECK.length}</strong>
+        </div>
         <button
           type="button"
-          className="slideshow-back"
-          onClick={handleBack}
-          aria-label="Previous slide"
+          className="slideshow-sources-btn"
+          onClick={() => setSourcesOpen(true)}
         >
-          <IoArrowBack aria-hidden />
+          Sources & image credits
         </button>
-      )}
+      </header>
 
-      <button
-        type="button"
-        className="slideshow-sources-btn"
-        onClick={(e) => { e.stopPropagation(); setSourcesOpen(true) }}
-        aria-label="View sources"
+      <div
+        className="slideshow-timeline"
+        role="img"
+        aria-label={`Timeline position: ${slide.timelineLabel}`}
       >
-        Sources
-      </button>
-
-      {showTimeline && (
-        <div className={`slideshow-timeline ${transitioningToMap ? 'slideshow-timeline--fade-in' : ''}`} aria-hidden="true">
-          <div className="slideshow-timeline-bar" />
+        <span className="slideshow-timeline-start">2000 BCE</span>
+        <div className="slideshow-timeline-track">
+          <div className="slideshow-timeline-fill" style={{ width: `${timelinePosition}%` }} />
           <div className="slideshow-timeline-marker" style={{ left: `${timelinePosition}%` }}>
             <span className="slideshow-timeline-dot" />
-            <span className="slideshow-timeline-date">
-              {formatTimelineYear(timelineYear, timelineYear < 0)}
-            </span>
           </div>
         </div>
-      )}
-
-      <div className={`slideshow-stage${slideIndex === 1 ? ' slideshow-stage--map' : ''}${(slideIndex === 2 || slideIndex === 3) ? ' slideshow-stage--panel-image' : ''}${slideIndex >= 4 ? ' slideshow-stage--content' : ''}`} role="region" aria-label="Presentation">
-        {slideIndex === 0 && (
-          <div className={`slideshow-slide slideshow-slide--intro${transitionPhase === 'fade-out' ? ' slideshow-slide--intro-out' : ''}`}>
-            <div className={`slideshow-intro-image-slot${introStep >= 1 ? ' slideshow-intro-image-slot--visible' : ''}`}>
-              <img
-                src="/slideshow/abraham-angels.jpg"
-                alt="Abraham and the Angels by Aert de Gelder"
-                className="slideshow-intro-image"
-              />
-            </div>
-            <p className="slideshow-intro-headline slideshow-fade-in">3,000 years ago...</p>
-            <div className={`slideshow-intro-line-slot${introStep >= 1 ? ' slideshow-intro-line-slot--visible' : ''}`}>
-              <p className="slideshow-intro-line">
-                <WritingText staggerMs={90}>A man named Abraham roamed the Earth.</WritingText>
-              </p>
-            </div>
-            <div className={`slideshow-intro-line-slot${introStep >= 2 ? ' slideshow-intro-line-slot--visible' : ''}`}>
-              <p className="slideshow-intro-line">
-                <WritingText staggerMs={90}>He lived and died in the land we today call</WritingText>
-                {' '}
-                <WritingWord index={10} staggerMs={90}><DefinitionTerm slug="israel">Israel</DefinitionTerm></WritingWord>
-                <WritingText startIndex={11} staggerMs={90}>.</WritingText>
-              </p>
-            </div>
-            <div className={`slideshow-intro-line-slot${introStep >= 3 ? ' slideshow-intro-line-slot--visible' : ''}`}>
-              <p className="slideshow-intro-line">
-                <WritingText staggerMs={90}>He was the first</WritingText>
-                {' '}
-                <WritingWord index={4} staggerMs={90}><DefinitionTerm slug="jew">Jew</DefinitionTerm></WritingWord>
-                <WritingText startIndex={5} staggerMs={90}>.</WritingText>
-              </p>
-            </div>
-          </div>
-        )}
-
-        {slideIndex === 1 && (
-          <div className={`slideshow-slide slideshow-slide--map slideshow-map-phase-${mapPhase} slideshow-slide--map-in`}>
-            <div className="slideshow-map-wrap">
-              <img src="/slideshow/abraham-map.webp" alt="Map of the region" className="slideshow-map-img" />
-            </div>
-            <aside className="slideshow-sidebar">
-              <h2 className="slideshow-sidebar-title">The First Jews</h2>
-              {mapContentStep >= 1 && (
-                <div className="slideshow-sidebar-body">
-                  {FIRST_JEWS_LINES.slice(0, mapContentStep).map((line, i) => (
-                    <p key={i} className="slideshow-sidebar-para">
-                      <WritingText staggerMs={STAGGER_MS} startIndex={firstJewsStartIndex[i]}>
-                        {line}
-                      </WritingText>
-                    </p>
-                  ))}
-                </div>
-              )}
-            </aside>
-          </div>
-        )}
-
-        {slideIndex === 2 && (
-          <div className="slideshow-slide slideshow-slide--panel-image slideshow-slide--panel-left slideshow-slide--map-in">
-            <aside className="slideshow-sidebar slideshow-sidebar--left">
-              <h2 className="slideshow-sidebar-title">How The Jews Got To Egypt According To The Bible</h2>
-              <div className="slideshow-sidebar-body">
-                {EGYPT_LINES.slice(0, egyptContentStep).map((line, i) => (
-                  <p key={i} className="slideshow-sidebar-para">
-                    <WritingText staggerMs={STAGGER_MS} startIndex={egyptLineStartIndex[i]}>
-                      {line}
-                    </WritingText>
-                  </p>
-                ))}
-              </div>
-            </aside>
-            <div className="slideshow-panel-image-wrap">
-              <img src="/slideshow/genesis-joseph.jpg" alt="Joseph and his brothers, Book of Genesis" className="slideshow-panel-img" />
-            </div>
-          </div>
-        )}
-
-        {slideIndex === 3 && (
-          <div className="slideshow-slide slideshow-slide--panel-image slideshow-slide--panel-left slideshow-slide--map-in">
-            <aside className="slideshow-sidebar slideshow-sidebar--left">
-              <h2 className="slideshow-sidebar-title">Slavery and Exodus</h2>
-              <div className="slideshow-sidebar-body">
-                {/* Placeholder: photo and content to be added */}
-              </div>
-            </aside>
-            <div className="slideshow-panel-image-wrap slideshow-panel-image-wrap--placeholder" aria-hidden="true">
-              <div className="slideshow-panel-img-placeholder" />
-            </div>
-          </div>
-        )}
-
-        {slideIndex >= 4 && (() => {
-          const slide = SLIDES[slideIndex - 4]
-          let wordOffset = 0
-          return (
-            <div className="slideshow-slide slideshow-slide--content slideshow-slide--map-in">
-              <h2 className="slideshow-content-title">{slide.title}</h2>
-              <div className="slideshow-content-body">
-                {slide.paragraphs.map((para, i) => {
-                  const startIndex = wordOffset
-                  wordOffset += para.trim().split(/\s+/).length
-                  return (
-                    <p key={i} className="slideshow-content-para">
-                      <WritingText staggerMs={STAGGER_MS} startIndex={startIndex}>{para}</WritingText>
-                    </p>
-                  )
-                })}
-              </div>
-            </div>
-          )
-        })()}
+        <span className="slideshow-timeline-end">Today</span>
+        <p className="slideshow-timeline-date">{slide.timelineLabel}</p>
       </div>
 
-      {showClickPrompt && (
-        <p className="slideshow-click-prompt slideshow-fade-in-slow" aria-hidden="true">
-          Click anywhere to proceed
-        </p>
-      )}
+      <main
+        className={`slideshow-stage slideshow-stage--${slide.kind} slideshow-stage--${transitionPhase}`}
+        onClick={handleStageClick}
+        aria-live="polite"
+        aria-label={`${slide.chapter}: ${slide.title}`}
+      >
+        <SlideContent key={slide.id} slide={slide} step={step} />
+      </main>
+
+      <footer className="slideshow-controls" data-no-advance>
+        <button
+          type="button"
+          className="slideshow-nav-btn slideshow-nav-btn--back"
+          onClick={goBack}
+          disabled={slideIndex === 0 && step === 0}
+          aria-label="Previous presentation moment"
+        >
+          <IoArrowBack aria-hidden />
+          <span>Back</span>
+        </button>
+        <div className="slideshow-moment-status">
+          <div
+            className="slideshow-moment-meter"
+            role="progressbar"
+            aria-label="Progress through this slide"
+            aria-valuemin={0}
+            aria-valuemax={stepCount}
+            aria-valuenow={step}
+          >
+            {Array.from({ length: stepCount + 1 }, (_, index) => (
+              <span
+                className={`${index <= step ? 'is-complete ' : ''}${index === step ? 'is-current' : ''}`.trim()}
+                key={index}
+                aria-hidden
+              />
+            ))}
+          </div>
+          <p className="slideshow-click-prompt" key={`${slide.id}-${step}`}>
+            Click the stage or use the arrow keys
+          </p>
+        </div>
+        <button
+          type="button"
+          className="slideshow-nav-btn slideshow-nav-btn--next"
+          onClick={advance}
+        >
+          <span>{isLastMoment ? 'Restart' : step < stepCount ? 'Continue' : 'Next'}</span>
+          <IoArrowForward aria-hidden />
+        </button>
+      </footer>
 
       <SlideshowSourcesModal
         open={sourcesOpen}
         onClose={() => setSourcesOpen(false)}
-        sources={SLIDESHOW_SOURCES}
+        sources={ALL_SOURCES}
       />
     </div>
   )
