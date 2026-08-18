@@ -8,6 +8,7 @@ import { CHAPTER_ONE_SLIDES, CHAPTER_ONE_SOURCES } from '../data/slideshowChapte
 import { CHAPTER_TWO_SLIDES, CHAPTER_TWO_SOURCES } from '../data/slideshowChapterTwo'
 import { CHAPTER_THREE_SLIDES, CHAPTER_THREE_SOURCES } from '../data/slideshowChapterThree'
 import { CHAPTER_FOUR_SLIDES, CHAPTER_FOUR_SOURCES } from '../data/slideshowChapterFour'
+import { CHAPTER_FIVE_SLIDES, CHAPTER_FIVE_SOURCES } from '../data/slideshowChapterFive'
 import '../slideshow.css'
 
 const TIMELINE_START = -2000
@@ -19,6 +20,7 @@ const DECK = [
   ...CHAPTER_TWO_SLIDES,
   ...CHAPTER_THREE_SLIDES,
   ...CHAPTER_FOUR_SLIDES,
+  ...CHAPTER_FIVE_SLIDES,
   ...SLIDES.map((slide, index) => ({
     ...slide,
     id: slide.id || `history-${index}`,
@@ -33,6 +35,7 @@ const ALL_SOURCES = [
   ...CHAPTER_TWO_SOURCES,
   ...CHAPTER_THREE_SOURCES,
   ...CHAPTER_FOUR_SOURCES,
+  ...CHAPTER_FIVE_SOURCES,
   ...SLIDESHOW_SOURCES,
 ]
 
@@ -428,6 +431,99 @@ function ResponsesSlide({ slide, step }) {
   )
 }
 
+function PersecutionSlide({ slide, step }) {
+  return (
+    <article className="slideshow-persecution">
+      <SlideFigure slide={slide} className="slideshow-persecution-figure" />
+      <div className="slideshow-persecution-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+        <div className={`slideshow-persecution-track${step >= 2 ? ' is-visible' : ''}`} aria-label="Escalation of Nazi persecution">
+          {slide.events.map((event) => (
+            <div key={event.year}>
+              <strong>{event.year}</strong>
+              <span>{event.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </article>
+  )
+}
+
+function ShoahSlide({ slide, step }) {
+  return (
+    <article className="slideshow-shoah">
+      <img className="slideshow-shoah-image" src={slide.image} alt={slide.imageAlt} />
+      <div className="slideshow-shoah-wash" aria-hidden />
+      <div className="slideshow-shoah-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <div className={`slideshow-shoah-stat${step >= 1 ? ' is-visible' : ''}`}>
+          <strong>{slide.stat}</strong>
+          <span>Jews murdered</span>
+        </div>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+        <div className={`slideshow-shoah-systems${step >= 2 ? ' is-visible' : ''}`} aria-label="Systems used in the Holocaust">
+          {slide.systems.map((system) => <span key={system}>{system}</span>)}
+        </div>
+      </div>
+      <p className="slideshow-image-credit">{slide.imageCaption}</p>
+    </article>
+  )
+}
+
+function StatehoodSlide({ slide, step }) {
+  return (
+    <article className="slideshow-statehood">
+      <div className="slideshow-statehood-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+        <div className={`slideshow-declaration-principles${step >= 2 ? ' is-visible' : ''}`} aria-label="Principles in Israel’s Declaration of Independence">
+          {slide.principles.map((principle) => (
+            <div key={principle.name}>
+              <strong>{principle.name}</strong>
+              <span>{principle.detail}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <SlideFigure slide={slide} className="slideshow-statehood-figure" />
+    </article>
+  )
+}
+
+function LivingSlide({ slide, step }) {
+  return (
+    <article className="slideshow-living">
+      <div className="slideshow-living-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+        <p className={`slideshow-living-closing${step >= 3 ? ' is-visible' : ''}`}>{slide.closing}</p>
+      </div>
+      <div className="slideshow-population-panel">
+        <div className={`slideshow-population-total${step >= 1 ? ' is-visible' : ''}`}>
+          <strong>{slide.total}</strong>
+          <span>{slide.totalLabel}</span>
+        </div>
+        <div className={`slideshow-population-bars${step >= 2 ? ' is-visible' : ''}`} aria-label="Estimated core Jewish population by location in 2024">
+          {slide.populations.map((population) => (
+            <div key={population.name}>
+              <p><strong>{population.name}</strong><span>{population.value}</span></p>
+              <div><span style={{ width: `${population.share}%` }} /></div>
+              <small>{population.share}% of world Jewry</small>
+            </div>
+          ))}
+        </div>
+        <p className="slideshow-population-source">DellaPergola, World Jewish Population 2024</p>
+      </div>
+    </article>
+  )
+}
+
 function ArticleSlide({ slide, step }) {
   return (
     <article className="slideshow-article">
@@ -456,6 +552,10 @@ function SlideContent({ slide, step }) {
   if (slide.kind === 'emancipation') return <EmancipationSlide slide={slide} step={step} />
   if (slide.kind === 'migration') return <MigrationSlide slide={slide} step={step} />
   if (slide.kind === 'responses') return <ResponsesSlide slide={slide} step={step} />
+  if (slide.kind === 'persecution') return <PersecutionSlide slide={slide} step={step} />
+  if (slide.kind === 'shoah') return <ShoahSlide slide={slide} step={step} />
+  if (slide.kind === 'statehood') return <StatehoodSlide slide={slide} step={step} />
+  if (slide.kind === 'living') return <LivingSlide slide={slide} step={step} />
   return <ArticleSlide slide={slide} step={step} />
 }
 

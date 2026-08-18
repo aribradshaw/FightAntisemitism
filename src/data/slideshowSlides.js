@@ -31,45 +31,4 @@ export const SLIDESHOW_SOURCES = [
   },
 ]
 
-export const SLIDES = [
-  {
-    timelineYear: 1933,
-    chapter: 'The Holocaust',
-    eyebrow: 'Nazi persecution',
-    title: 'Rights stripped away',
-    paragraphs: [
-      'After taking power in 1933, Nazi Germany excluded Jews from public life, stripped them of citizenship, seized property, and drove hundreds of thousands to seek refuge abroad.',
-      'Germany’s invasion of Poland in 1939 placed millions more Jews under Nazi rule and began a war that enabled increasingly radical persecution.',
-    ],
-  },
-  {
-    timelineYear: 1942,
-    chapter: 'The Holocaust',
-    eyebrow: 'Systematic mass murder',
-    title: 'Six million lives',
-    paragraphs: [
-      'Nazi Germany and its allies and collaborators murdered six million Jews through mass shootings, ghettos, starvation, forced labor, and killing centers.',
-      'The Holocaust destroyed centuries-old communities across Europe. Survivors carried their histories into new lives around the world.',
-    ],
-  },
-  {
-    timelineYear: 1948,
-    chapter: 'Statehood',
-    eyebrow: 'Israel declares independence',
-    title: 'A Jewish state, a regional war',
-    paragraphs: [
-      'In 1947, the United Nations proposed partitioning British-ruled Palestine into Jewish and Arab states. Jewish leaders accepted the plan; Arab leaders rejected it.',
-      'Israel declared independence on May 14, 1948. War secured the new state and displaced a large Palestinian population, beginning a conflict that remains unresolved.',
-    ],
-  },
-  {
-    timelineYear: new Date().getFullYear(),
-    chapter: 'Jewish life today',
-    eyebrow: 'One people, many communities',
-    title: 'The story is still being written',
-    paragraphs: [
-      'More than 15 million Jews live around the world today, with the largest communities in Israel and the United States.',
-      'Jewish life spans many languages, ethnic backgrounds, religious practices, political views, and cultural traditions, connected by overlapping histories and an enduring conversation about identity.',
-    ],
-  },
-]
+export const SLIDES = []
