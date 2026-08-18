@@ -33,46 +33,6 @@ export const SLIDESHOW_SOURCES = [
 
 export const SLIDES = [
   {
-    timelineYear: 500,
-    chapter: 'Judaism transformed',
-    eyebrow: 'Rabbinic Judaism',
-    title: 'A tradition carried in words',
-    paragraphs: [
-      'Between roughly 200 and 600 CE, generations of rabbis compiled the Mishnah and the two Talmuds.',
-      'Their debates shaped Jewish law, ethics, ritual, and learning. Major centers flourished in the land of Israel and Babylonia.',
-    ],
-  },
-  {
-    timelineYear: 1100,
-    chapter: 'Jewish worlds',
-    eyebrow: 'Across the Mediterranean',
-    title: 'Sephardi life and culture',
-    paragraphs: [
-      'Jewish communities in Iberia lived under changing Muslim and Christian rulers, producing influential poetry, philosophy, science, and religious scholarship.',
-      'The term Sephardi comes from the Hebrew name for Spain and later described communities whose traditions spread across North Africa, the Ottoman world, and beyond.',
-    ],
-  },
-  {
-    timelineYear: 1200,
-    chapter: 'Jewish worlds',
-    eyebrow: 'Northern and central Europe',
-    title: 'Ashkenazi communities',
-    paragraphs: [
-      'Jewish communities developed distinct religious customs and the Yiddish language across northern and central Europe.',
-      'They built durable institutions while facing legal restrictions, expulsions, blood libels, and periodic violence, including massacres during the Crusades.',
-    ],
-  },
-  {
-    timelineYear: 1492,
-    chapter: 'Expulsion and renewal',
-    eyebrow: 'The Alhambra Decree',
-    title: 'Expelled from Spain',
-    paragraphs: [
-      'In 1492, the Spanish monarchy ordered practicing Jews to convert or leave. Portugal imposed forced conversion several years later.',
-      'Sephardi refugees rebuilt communities in the Ottoman Empire, North Africa, Italy, the Netherlands, and the Americas.',
-    ],
-  },
-  {
     timelineYear: 1789,
     chapter: 'Emancipation',
     eyebrow: 'Citizenship and modernity',

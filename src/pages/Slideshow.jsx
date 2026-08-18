@@ -6,6 +6,7 @@ import SlideshowSourcesModal from '../components/SlideshowSourcesModal'
 import { SLIDES, SLIDESHOW_SOURCES } from '../data/slideshowSlides'
 import { CHAPTER_ONE_SLIDES, CHAPTER_ONE_SOURCES } from '../data/slideshowChapterOne'
 import { CHAPTER_TWO_SLIDES, CHAPTER_TWO_SOURCES } from '../data/slideshowChapterTwo'
+import { CHAPTER_THREE_SLIDES, CHAPTER_THREE_SOURCES } from '../data/slideshowChapterThree'
 import '../slideshow.css'
 
 const TIMELINE_START = -2000
@@ -15,6 +16,7 @@ const STAGGER_MS = 52
 const DECK = [
   ...CHAPTER_ONE_SLIDES,
   ...CHAPTER_TWO_SLIDES,
+  ...CHAPTER_THREE_SLIDES,
   ...SLIDES.map((slide, index) => ({
     ...slide,
     id: slide.id || `history-${index}`,
@@ -24,7 +26,12 @@ const DECK = [
   })),
 ]
 
-const ALL_SOURCES = [...CHAPTER_ONE_SOURCES, ...CHAPTER_TWO_SOURCES, ...SLIDESHOW_SOURCES]
+const ALL_SOURCES = [
+  ...CHAPTER_ONE_SOURCES,
+  ...CHAPTER_TWO_SOURCES,
+  ...CHAPTER_THREE_SOURCES,
+  ...SLIDESHOW_SOURCES,
+]
 
 function formatTimelineYear(year, approximate = false) {
   if (year < 0) {
@@ -265,6 +272,85 @@ function TransformationSlide({ slide, step }) {
   )
 }
 
+function DialogueSlide({ slide, step }) {
+  return (
+    <article className="slideshow-dialogue">
+      <div className="slideshow-dialogue-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+        <div className={`slideshow-text-layers${step >= 3 ? ' is-visible' : ''}`} aria-label="Rabbinic text chronology">
+          {slide.layers.map((layer) => (
+            <div key={layer.name}>
+              <span>{layer.date}</span>
+              <strong>{layer.name}</strong>
+            </div>
+          ))}
+        </div>
+      </div>
+      <SlideFigure slide={slide} className="slideshow-dialogue-figure" />
+    </article>
+  )
+}
+
+function IlluminationSlide({ slide, step }) {
+  return (
+    <article className="slideshow-illumination">
+      <SlideFigure slide={slide} className="slideshow-illumination-figure" />
+      <div className="slideshow-illumination-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+        <div className={`slideshow-field-grid${step >= 3 ? ' is-visible' : ''}`} aria-label="Fields of Sephardi cultural life">
+          {slide.fields.map((field) => <span key={field}>{field}</span>)}
+        </div>
+      </div>
+    </article>
+  )
+}
+
+function CommunitiesSlide({ slide, step }) {
+  return (
+    <article className="slideshow-communities">
+      <SlideFigure slide={slide} className="slideshow-communities-figure" />
+      <div className="slideshow-communities-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+        <div className={`slideshow-city-network${step >= 2 ? ' is-visible' : ''}`} aria-label="ShUM city network">
+          {slide.cities.map((city) => (
+            <div key={city.name}>
+              <strong>{city.name}</strong>
+              <span>{city.role}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </article>
+  )
+}
+
+function DispersionSlide({ slide, step }) {
+  return (
+    <article className="slideshow-dispersion">
+      <img className="slideshow-dispersion-image" src={slide.image} alt={slide.imageAlt} />
+      <div className="slideshow-dispersion-wash" aria-hidden />
+      <div className="slideshow-dispersion-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+        <div className={`slideshow-route-list${step >= 3 ? ' is-visible' : ''}`} aria-label="Major destinations of Sephardi refugees">
+          <span className="slideshow-route-origin">Iberia</span>
+          {slide.routes.map((route) => (
+            <span key={route}><IoArrowForward aria-hidden />{route}</span>
+          ))}
+        </div>
+      </div>
+      <p className="slideshow-image-credit">{slide.imageCaption}</p>
+    </article>
+  )
+}
+
 function ArticleSlide({ slide, step }) {
   return (
     <article className="slideshow-article">
@@ -286,6 +372,10 @@ function SlideContent({ slide, step }) {
   if (slide.kind === 'return') return <ReturnSlide slide={slide} step={step} />
   if (slide.kind === 'resistance') return <ResistanceSlide slide={slide} step={step} />
   if (slide.kind === 'transformation') return <TransformationSlide slide={slide} step={step} />
+  if (slide.kind === 'dialogue') return <DialogueSlide slide={slide} step={step} />
+  if (slide.kind === 'illumination') return <IlluminationSlide slide={slide} step={step} />
+  if (slide.kind === 'communities') return <CommunitiesSlide slide={slide} step={step} />
+  if (slide.kind === 'dispersion') return <DispersionSlide slide={slide} step={step} />
   return <ArticleSlide slide={slide} step={step} />
 }
 

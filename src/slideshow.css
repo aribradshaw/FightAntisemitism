@@ -1000,6 +1000,272 @@
   color: var(--slide-blue);
 }
 
+.slideshow-dialogue,
+.slideshow-illumination,
+.slideshow-communities {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1.12fr) minmax(340px, 0.88fr);
+  align-items: center;
+  gap: clamp(2rem, 5vw, 5rem);
+}
+
+.slideshow-dialogue-figure {
+  height: clamp(360px, 42vw, 490px);
+  background: #d8c5a2;
+}
+
+.slideshow-dialogue-figure img {
+  object-fit: cover;
+  filter: sepia(0.15) saturate(0.8);
+}
+
+.slideshow-text-layers {
+  margin: 1.1rem 0 0 2.75rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+
+.slideshow-text-layers div {
+  min-height: 72px;
+  padding: 0.68rem;
+  display: grid;
+  align-content: center;
+  gap: 0.2rem;
+  background: rgba(255, 253, 248, 0.76);
+  border-bottom: 3px solid var(--slide-gold);
+  border-radius: 9px;
+  box-shadow: 0 8px 20px rgba(23, 32, 51, 0.07);
+}
+
+.slideshow-text-layers div:nth-child(2) {
+  transform: translateY(8px);
+}
+
+.slideshow-text-layers div:nth-child(3) {
+  transform: translateY(16px);
+}
+
+.slideshow-text-layers span {
+  color: var(--slide-gold);
+  font-size: 0.58rem;
+  font-weight: 700;
+}
+
+.slideshow-text-layers strong {
+  color: var(--slide-blue);
+  font-family: "Iowan Old Style", Georgia, serif;
+  font-size: 0.84rem;
+}
+
+.slideshow-text-layers.is-visible,
+.slideshow-field-grid.is-visible,
+.slideshow-city-network.is-visible,
+.slideshow-route-list.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.slideshow-illumination {
+  grid-template-columns: minmax(300px, 0.72fr) minmax(0, 1.28fr);
+}
+
+.slideshow-illumination-figure {
+  height: clamp(420px, 49vw, 560px);
+  background: #9d7137;
+}
+
+.slideshow-illumination-figure img {
+  object-fit: cover;
+}
+
+.slideshow-field-grid {
+  margin: 1.15rem 0 0 2.75rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.46rem;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+
+.slideshow-field-grid span {
+  padding: 0.52rem 0.6rem;
+  color: var(--slide-blue);
+  background: linear-gradient(135deg, rgba(241, 226, 191, 0.75), rgba(255, 253, 248, 0.8));
+  border: 1px solid rgba(173, 130, 65, 0.18);
+  border-radius: 8px;
+  font-size: 0.67rem;
+  font-weight: 650;
+  text-align: center;
+}
+
+.slideshow-communities {
+  grid-template-columns: minmax(340px, 0.92fr) minmax(0, 1.08fr);
+}
+
+.slideshow-communities-figure {
+  height: clamp(380px, 45vw, 510px);
+  background: #665f53;
+}
+
+.slideshow-communities-figure img {
+  object-fit: cover;
+}
+
+.slideshow-city-network {
+  position: relative;
+  margin: 1.15rem 0 0 2.75rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+
+.slideshow-city-network::before {
+  content: "ShUM";
+  position: absolute;
+  top: -1.05rem;
+  left: 50%;
+  padding: 0 0.45rem;
+  color: var(--slide-gold);
+  background: var(--slide-paper);
+  font-family: "Iowan Old Style", Georgia, serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+.slideshow-city-network::after {
+  content: "";
+  position: absolute;
+  top: -0.6rem;
+  right: 7%;
+  left: 7%;
+  height: 1px;
+  background: var(--slide-gold);
+}
+
+.slideshow-city-network div {
+  padding: 0.72rem;
+  display: grid;
+  gap: 0.2rem;
+  background: rgba(255, 253, 248, 0.77);
+  border-radius: 9px;
+}
+
+.slideshow-city-network strong {
+  color: var(--slide-blue);
+  font-family: "Iowan Old Style", Georgia, serif;
+  font-size: 0.88rem;
+}
+
+.slideshow-city-network span {
+  color: var(--slide-ink-soft);
+  font-size: 0.58rem;
+  line-height: 1.35;
+}
+
+.slideshow-dispersion {
+  position: absolute;
+  inset: 7.7rem 2.5rem 5.3rem;
+  overflow: hidden;
+  color: #fff;
+  background: var(--slide-night);
+  border-radius: 22px;
+  box-shadow: 0 28px 55px rgba(17, 24, 39, 0.2);
+}
+
+.slideshow-dispersion-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 33%;
+  animation: slideshow-dispersion-drift 20s ease-in-out infinite alternate;
+}
+
+@keyframes slideshow-dispersion-drift {
+  from { transform: scale(1.02) translateX(0); }
+  to { transform: scale(1.08) translateX(-1.2%); }
+}
+
+.slideshow-dispersion-wash {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(10, 16, 27, 0.96) 0%, rgba(10, 16, 27, 0.88) 47%, rgba(10, 16, 27, 0.28) 100%);
+}
+
+.slideshow-dispersion-copy {
+  position: relative;
+  z-index: 2;
+  width: min(650px, 58%);
+  height: 100%;
+  padding: clamp(2rem, 4.2vw, 4.2rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.slideshow-dispersion h2 {
+  color: #fff;
+}
+
+.slideshow-dispersion .slideshow-reveal-line {
+  color: rgba(255, 255, 255, 0.84);
+}
+
+.slideshow-dispersion .slideshow-reveal-number {
+  color: var(--slide-gold-light);
+}
+
+.slideshow-route-list {
+  margin: 1.1rem 0 0 2.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.42rem;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+
+.slideshow-route-list span {
+  padding: 0.4rem 0.58rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: rgba(255, 255, 255, 0.84);
+  background: rgba(255, 255, 255, 0.09);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  font-size: 0.61rem;
+}
+
+.slideshow-route-list .slideshow-route-origin {
+  color: var(--slide-night);
+  background: var(--slide-gold-light);
+  border-color: var(--slide-gold-light);
+  font-weight: 700;
+}
+
+.slideshow-route-list svg {
+  color: var(--slide-gold-light);
+}
+
+.slideshow-dispersion .slideshow-image-credit {
+  z-index: 3;
+}
+
 .slideshow-article {
   width: min(820px, 100%);
   margin: auto;
@@ -1186,7 +1452,10 @@
   .slideshow-empire,
   .slideshow-return,
   .slideshow-resistance,
-  .slideshow-transformation {
+  .slideshow-transformation,
+  .slideshow-dialogue,
+  .slideshow-illumination,
+  .slideshow-communities {
     gap: 2rem;
   }
 
@@ -1283,6 +1552,9 @@
   .slideshow-return,
   .slideshow-resistance,
   .slideshow-transformation,
+  .slideshow-dialogue,
+  .slideshow-illumination,
+  .slideshow-communities,
   .slideshow-rupture {
     grid-template-columns: minmax(0, 1fr);
     align-items: start;
@@ -1297,6 +1569,9 @@
   .slideshow-return-copy,
   .slideshow-resistance-copy,
   .slideshow-transformation-copy,
+  .slideshow-dialogue-copy,
+  .slideshow-illumination-copy,
+  .slideshow-communities-copy,
   .slideshow-rupture-copy {
     order: 1;
   }
@@ -1309,6 +1584,9 @@
   .slideshow-return-object,
   .slideshow-resistance-figure,
   .slideshow-transformation-figure,
+  .slideshow-dialogue-figure,
+  .slideshow-illumination-figure,
+  .slideshow-communities-figure,
   .slideshow-story--joseph .slideshow-story-figure {
     order: 2;
   }
@@ -1320,7 +1598,10 @@
   .slideshow-empire-figure,
   .slideshow-return-object .slideshow-figure,
   .slideshow-resistance-figure,
-  .slideshow-transformation-figure {
+  .slideshow-transformation-figure,
+  .slideshow-dialogue-figure,
+  .slideshow-illumination-figure,
+  .slideshow-communities-figure {
     height: 260px;
   }
 
@@ -1369,7 +1650,11 @@
   .slideshow-return-branches,
   .slideshow-era-track,
   .slideshow-shift-grid,
-  .slideshow-rupture-consequences {
+  .slideshow-rupture-consequences,
+  .slideshow-text-layers,
+  .slideshow-field-grid,
+  .slideshow-city-network,
+  .slideshow-route-list {
     margin-left: 2rem;
   }
 
@@ -1401,6 +1686,34 @@
 
   .slideshow-era-track {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .slideshow-text-layers,
+  .slideshow-field-grid,
+  .slideshow-city-network {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .slideshow-dispersion {
+    position: relative;
+    inset: auto;
+    min-height: calc(100dvh - 13.5rem);
+    border-radius: 16px;
+  }
+
+  .slideshow-dispersion-wash {
+    background: linear-gradient(0deg, rgba(10, 16, 27, 0.98) 8%, rgba(10, 16, 27, 0.9) 73%, rgba(10, 16, 27, 0.26) 100%);
+  }
+
+  .slideshow-dispersion-copy {
+    width: 100%;
+    min-height: calc(100dvh - 13.5rem);
+    padding: 4.8rem 1.15rem 3.2rem;
+    justify-content: flex-end;
+  }
+
+  .slideshow-dispersion-copy .slideshow-reveal-line {
+    font-size: 0.8rem;
   }
 
   .slideshow-evidence-date {
