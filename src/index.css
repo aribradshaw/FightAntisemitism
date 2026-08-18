@@ -1577,6 +1577,11 @@ h3 { font-size: 1.2rem; }
   flex-direction: column;
   gap: 0.5rem;
 }
+/* Portaled tooltip (slideshow etc.): fixed so it isn't clipped by overflow:hidden */
+.definition-term-tooltip--portaled {
+  position: fixed;
+  z-index: 1100;
+}
 .definition-term-tooltip-loading {
   display: block;
 }

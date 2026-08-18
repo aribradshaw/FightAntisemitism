@@ -1,16 +1,20 @@
-import { useState, useId, useEffect } from 'react'
+import { useState, useId, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { HASHEM_FAITH_LABEL } from '../data/hashemFaithSources'
 
 /**
  * Renders a term with dotted underline and heavier weight.
  * Fetches the short definition from the API; tooltip shows summary + "Read full definition".
  * Clicking the button opens a popup with the long definition and sources.
+ * Tooltip is portaled to body so it isn't clipped by overflow:hidden ancestors (e.g. slideshow intro).
  */
 export default function DefinitionTerm({ slug, children }) {
   const [hover, setHover] = useState(false)
   const [definition, setDefinition] = useState(null)
   const [loading, setLoading] = useState(false)
   const [popupOpen, setPopupOpen] = useState(false)
+  const [tooltipRect, setTooltipRect] = useState(null)
+  const triggerRef = useRef(null)
   const tooltipId = useId()
 
   // Fetch definition from API when tooltip is shown (hover)
@@ -47,9 +51,69 @@ export default function DefinitionTerm({ slug, children }) {
     return () => window.removeEventListener('keydown', onKey)
   }, [popupOpen])
 
+  // Position tooltip from trigger (so we can portal it and avoid overflow clipping)
+  useEffect(() => {
+    if (!hover || !triggerRef.current) {
+      setTooltipRect(null)
+      return
+    }
+    const update = () => {
+      if (triggerRef.current) {
+        const r = triggerRef.current.getBoundingClientRect()
+        setTooltipRect({
+          left: r.left + r.width / 2,
+          bottom: window.innerHeight - r.top + 8,
+        })
+      }
+    }
+    update()
+    window.addEventListener('scroll', update, true)
+    window.addEventListener('resize', update)
+    return () => {
+      window.removeEventListener('scroll', update, true)
+      window.removeEventListener('resize', update)
+    }
+  }, [hover])
+
+  const tooltipEl = hover && tooltipRect && (
+    <span
+      id={tooltipId}
+      className="definition-term-tooltip definition-term-tooltip--portaled"
+      role="tooltip"
+      onClick={(e) => e.stopPropagation()}
+      style={
+        tooltipRect
+          ? {
+              left: tooltipRect.left,
+              bottom: tooltipRect.bottom,
+              transform: 'translateX(-50%)',
+            }
+          : undefined
+      }
+    >
+      {loading ? (
+        <span className="definition-term-tooltip-loading">Loading…</span>
+      ) : (
+        <>
+          {summary && <span className="definition-term-tooltip-summary">{summary}</span>}
+          {hasLong && (
+            <button
+              type="button"
+              className="definition-term-tooltip-btn"
+              onClick={openPopup}
+            >
+              Read full definition
+            </button>
+          )}
+        </>
+      )}
+    </span>
+  )
+
   return (
     <>
       <span
+        ref={triggerRef}
         className="definition-term"
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
@@ -57,32 +121,8 @@ export default function DefinitionTerm({ slug, children }) {
         aria-describedby={hover && (summary || loading) ? tooltipId : undefined}
       >
         {children}
-        {hover && (
-          <span
-            id={tooltipId}
-            className="definition-term-tooltip"
-            role="tooltip"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {loading ? (
-              <span className="definition-term-tooltip-loading">Loading…</span>
-            ) : (
-              <>
-                {summary && <span className="definition-term-tooltip-summary">{summary}</span>}
-                {hasLong && (
-                  <button
-                    type="button"
-                    className="definition-term-tooltip-btn"
-                    onClick={openPopup}
-                  >
-                    Read full definition
-                  </button>
-                )}
-              </>
-            )}
-          </span>
-        )}
       </span>
+      {typeof document !== 'undefined' && tooltipEl && createPortal(tooltipEl, document.body)}
 
       {popupOpen && definition && (
         <div
