@@ -33,36 +33,6 @@ export const SLIDESHOW_SOURCES = [
 
 export const SLIDES = [
   {
-    timelineYear: 1789,
-    chapter: 'Emancipation',
-    eyebrow: 'Citizenship and modernity',
-    title: 'New rights, new questions',
-    paragraphs: [
-      'From the late eighteenth century, Jews in parts of Europe gradually gained civil and political rights.',
-      'Emancipation opened public life while raising difficult questions about assimilation, religious reform, community authority, and national belonging.',
-    ],
-  },
-  {
-    timelineYear: 1881,
-    chapter: 'Migration',
-    eyebrow: 'A world in motion',
-    title: 'Millions build new homes',
-    paragraphs: [
-      'Pogroms, poverty, and political repression drove mass Jewish migration from the Russian Empire and eastern Europe between the 1880s and the First World War.',
-      'Most went to the United States. Others moved within Europe, to Latin America, South Africa, and to Ottoman Palestine.',
-    ],
-  },
-  {
-    timelineYear: 1897,
-    chapter: 'Zionism',
-    eyebrow: 'A modern national movement',
-    title: 'The call for self-determination',
-    paragraphs: [
-      'Modern political Zionism emerged in nineteenth-century Europe amid nationalism, emancipation, and persistent antisemitism.',
-      'Zionists disagreed about religion, culture, economics, and politics, but shared the goal of renewing Jewish collective life in the ancestral homeland.',
-    ],
-  },
-  {
     timelineYear: 1933,
     chapter: 'The Holocaust',
     eyebrow: 'Nazi persecution',

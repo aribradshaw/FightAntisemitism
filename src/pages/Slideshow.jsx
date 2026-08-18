@@ -7,6 +7,7 @@ import { SLIDES, SLIDESHOW_SOURCES } from '../data/slideshowSlides'
 import { CHAPTER_ONE_SLIDES, CHAPTER_ONE_SOURCES } from '../data/slideshowChapterOne'
 import { CHAPTER_TWO_SLIDES, CHAPTER_TWO_SOURCES } from '../data/slideshowChapterTwo'
 import { CHAPTER_THREE_SLIDES, CHAPTER_THREE_SOURCES } from '../data/slideshowChapterThree'
+import { CHAPTER_FOUR_SLIDES, CHAPTER_FOUR_SOURCES } from '../data/slideshowChapterFour'
 import '../slideshow.css'
 
 const TIMELINE_START = -2000
@@ -17,6 +18,7 @@ const DECK = [
   ...CHAPTER_ONE_SLIDES,
   ...CHAPTER_TWO_SLIDES,
   ...CHAPTER_THREE_SLIDES,
+  ...CHAPTER_FOUR_SLIDES,
   ...SLIDES.map((slide, index) => ({
     ...slide,
     id: slide.id || `history-${index}`,
@@ -30,6 +32,7 @@ const ALL_SOURCES = [
   ...CHAPTER_ONE_SOURCES,
   ...CHAPTER_TWO_SOURCES,
   ...CHAPTER_THREE_SOURCES,
+  ...CHAPTER_FOUR_SOURCES,
   ...SLIDESHOW_SOURCES,
 ]
 
@@ -351,6 +354,80 @@ function DispersionSlide({ slide, step }) {
   )
 }
 
+function EmancipationSlide({ slide, step }) {
+  return (
+    <article className="slideshow-emancipation">
+      <div className="slideshow-emancipation-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+      </div>
+      <div className="slideshow-rights-panel" aria-label="Areas affected by Jewish emancipation">
+        <div className="slideshow-rights-year">
+          <span>France</span>
+          <strong>1791</strong>
+          <small>one early national milestone</small>
+        </div>
+        <div className={`slideshow-rights-grid${step >= 2 ? ' is-visible' : ''}`}>
+          {slide.rights.map((right, index) => (
+            <div style={{ '--right-index': index }} key={right.label}>
+              <span>{right.label}</span>
+              <strong>{right.status}</strong>
+            </div>
+          ))}
+        </div>
+        <p className={`slideshow-rights-caveat${step >= 3 ? ' is-visible' : ''}`}>
+          Legal equality advanced by fits and starts. Social acceptance never automatically followed.
+        </p>
+      </div>
+    </article>
+  )
+}
+
+function MigrationSlide({ slide, step }) {
+  return (
+    <article className="slideshow-migration">
+      <div className="slideshow-migration-visual">
+        <SlideFigure slide={slide} className="slideshow-migration-figure" />
+        <div className={`slideshow-migration-flow${step >= 2 ? ' is-visible' : ''}`} aria-label="Destinations of Jewish migrants from eastern Europe">
+          <span className="slideshow-migration-origin">Eastern Europe</span>
+          <div>
+            {slide.destinations.map((destination) => (
+              <span key={destination}><IoArrowForward aria-hidden />{destination}</span>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="slideshow-migration-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+      </div>
+    </article>
+  )
+}
+
+function ResponsesSlide({ slide, step }) {
+  return (
+    <article className="slideshow-responses">
+      <div className="slideshow-responses-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+        <div className={`slideshow-response-grid${step >= 2 ? ' is-visible' : ''}`} aria-label="Jewish responses to modern insecurity">
+          {slide.responses.map((response) => (
+            <div className={response.highlight && step >= 3 ? 'is-highlighted' : ''} key={response.name}>
+              <strong>{response.name}</strong>
+              <span>{response.detail}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <SlideFigure slide={slide} className="slideshow-responses-figure" />
+    </article>
+  )
+}
+
 function ArticleSlide({ slide, step }) {
   return (
     <article className="slideshow-article">
@@ -376,6 +453,9 @@ function SlideContent({ slide, step }) {
   if (slide.kind === 'illumination') return <IlluminationSlide slide={slide} step={step} />
   if (slide.kind === 'communities') return <CommunitiesSlide slide={slide} step={step} />
   if (slide.kind === 'dispersion') return <DispersionSlide slide={slide} step={step} />
+  if (slide.kind === 'emancipation') return <EmancipationSlide slide={slide} step={step} />
+  if (slide.kind === 'migration') return <MigrationSlide slide={slide} step={step} />
+  if (slide.kind === 'responses') return <ResponsesSlide slide={slide} step={step} />
   return <ArticleSlide slide={slide} step={step} />
 }
 

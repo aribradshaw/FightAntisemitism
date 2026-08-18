@@ -29,6 +29,7 @@ import './App.css'
 const EXIT_MS = 320
 const ENTER_MS = 320
 const FAB_FADE_MS = 220
+const RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY || '6LeGO3ssAAAAAKvcDYfhTPVFEKDjjNLhjiWq9apa'
 
 function AppRoutes() {
   const location = useLocation()
@@ -110,7 +111,11 @@ function AppRoutes() {
           <Route path="profile" element={<Profile />} />
         </Route>
       </Routes>
-      {fabMounted && <ContactFAB visibilityClass={fabVisible ? 'contact-fab--visible' : 'contact-fab--hidden'} />}
+      {fabMounted && (
+        <GoogleReCaptchaProvider reCaptchaKey={RECAPTCHA_SITE_KEY}>
+          <ContactFAB visibilityClass={fabVisible ? 'contact-fab--visible' : 'contact-fab--hidden'} />
+        </GoogleReCaptchaProvider>
+      )}
       {!isSlideshowRoute && (
         <div className="app-copyright" aria-label="Copyright and disclaimer">
           © {currentYear} Ari Daniel Bradshaw.
@@ -121,16 +126,12 @@ function AppRoutes() {
   )
 }
 
-const RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY || '6LeGO3ssAAAAAKvcDYfhTPVFEKDjjNLhjiWq9apa'
-
 function App() {
   return (
     <AuthProvider>
-      <GoogleReCaptchaProvider reCaptchaKey={RECAPTCHA_SITE_KEY}>
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
-      </GoogleReCaptchaProvider>
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
     </AuthProvider>
   )
 }
