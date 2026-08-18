@@ -30,14 +30,14 @@ const DECK = [
   })),
 ]
 
-const ALL_SOURCES = [
+const ALL_SOURCES = Array.from(new Map([
   ...CHAPTER_ONE_SOURCES,
   ...CHAPTER_TWO_SOURCES,
   ...CHAPTER_THREE_SOURCES,
   ...CHAPTER_FOUR_SOURCES,
   ...CHAPTER_FIVE_SOURCES,
   ...SLIDESHOW_SOURCES,
-]
+].map((source) => [source.url, source])).values())
 
 function formatTimelineYear(year, approximate = false) {
   if (year < 0) {
@@ -707,9 +707,27 @@ export default function Slideshow() {
           <IoArrowBack aria-hidden />
           <span>Back</span>
         </button>
-        <p className="slideshow-click-prompt" key={`${slide.id}-${step}`}>
-          Click the stage or use the arrow keys
-        </p>
+        <div className="slideshow-moment-status">
+          <div
+            className="slideshow-moment-meter"
+            role="progressbar"
+            aria-label="Progress through this slide"
+            aria-valuemin={0}
+            aria-valuemax={stepCount}
+            aria-valuenow={step}
+          >
+            {Array.from({ length: stepCount + 1 }, (_, index) => (
+              <span
+                className={`${index <= step ? 'is-complete ' : ''}${index === step ? 'is-current' : ''}`.trim()}
+                key={index}
+                aria-hidden
+              />
+            ))}
+          </div>
+          <p className="slideshow-click-prompt" key={`${slide.id}-${step}`}>
+            Click the stage or use the arrow keys
+          </p>
+        </div>
         <button
           type="button"
           className="slideshow-nav-btn slideshow-nav-btn--next"

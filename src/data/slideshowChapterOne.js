@@ -134,11 +134,6 @@ export const CHAPTER_ONE_SOURCES = [
     note: 'Sefaria Library, JPS translation',
   },
   {
-    label: 'How biblical texts relate to history',
-    url: 'https://www.bibleodyssey.org/articles/how-does-the-new-testament-relate-to-history/',
-    note: 'Bible Odyssey overview of text, tradition, and historical evidence',
-  },
-  {
     label: 'Assyria to Iberia: Art and Culture in the Iron Age',
     url: 'https://resources.metmuseum.org/resources/metpublications/pdf/Assyria_to_Iberia_Art_and_Culture_in_the_Iron_Age.pdf',
     note: 'The Metropolitan Museum of Art, including the Merneptah reference to Israel',
