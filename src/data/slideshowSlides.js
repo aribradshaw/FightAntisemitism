@@ -33,56 +33,6 @@ export const SLIDESHOW_SOURCES = [
 
 export const SLIDES = [
   {
-    timelineYear: -722,
-    chapter: 'Conquest and exile',
-    eyebrow: 'The Assyrian Empire',
-    title: 'The northern kingdom falls',
-    paragraphs: [
-      'In 722 BCE, Assyria captured Samaria, the capital of the northern kingdom of Israel, and deported part of its population.',
-      'The southern kingdom of Judah survived for more than a century, with Jerusalem at the center of its political and religious life.',
-    ],
-  },
-  {
-    timelineYear: -586,
-    chapter: 'Conquest and exile',
-    eyebrow: 'The Babylonian Empire',
-    title: 'Jerusalem falls',
-    paragraphs: [
-      'In 587 or 586 BCE, Babylonian forces captured Jerusalem, destroyed the First Temple, and deported many Judeans to Babylonia.',
-      'Exile transformed Jewish life. Text, prayer, law, and community carried identity beyond the borders of a kingdom.',
-    ],
-  },
-  {
-    timelineYear: -539,
-    chapter: 'Return and rebuilding',
-    eyebrow: 'The Persian Empire',
-    title: 'Return to Jerusalem',
-    paragraphs: [
-      'After Cyrus of Persia conquered Babylon in 539 BCE, deported peoples were permitted to return to their homelands.',
-      'Some Judeans returned to Jerusalem and built the Second Temple. Others remained abroad, making diaspora a lasting part of Jewish life.',
-    ],
-  },
-  {
-    timelineYear: -164,
-    chapter: 'Rule and resistance',
-    eyebrow: 'The Maccabean revolt',
-    title: 'A sanctuary rededicated',
-    paragraphs: [
-      'In the second century BCE, the Maccabees led a revolt against Seleucid rule and restrictions on Jewish practice.',
-      'The Temple was rededicated in 164 BCE. Hanukkah preserves the memory of that rededication and the struggle for Jewish religious life.',
-    ],
-  },
-  {
-    timelineYear: 70,
-    chapter: 'Judaism transformed',
-    eyebrow: 'Roman rule',
-    title: 'The Second Temple is destroyed',
-    paragraphs: [
-      'In 70 CE, Roman forces destroyed the Second Temple after a Jewish revolt. Jerusalem remained sacred, but Jewish worship could no longer center on Temple sacrifice.',
-      'Jewish communities continued in the land and across a wide diaspora. Study, prayer, law, and synagogue life took on greater importance.',
-    ],
-  },
-  {
     timelineYear: 500,
     chapter: 'Judaism transformed',
     eyebrow: 'Rabbinic Judaism',

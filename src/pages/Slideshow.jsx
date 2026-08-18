@@ -5,6 +5,7 @@ import WritingText from '../components/WritingText'
 import SlideshowSourcesModal from '../components/SlideshowSourcesModal'
 import { SLIDES, SLIDESHOW_SOURCES } from '../data/slideshowSlides'
 import { CHAPTER_ONE_SLIDES, CHAPTER_ONE_SOURCES } from '../data/slideshowChapterOne'
+import { CHAPTER_TWO_SLIDES, CHAPTER_TWO_SOURCES } from '../data/slideshowChapterTwo'
 import '../slideshow.css'
 
 const TIMELINE_START = -2000
@@ -13,6 +14,7 @@ const STAGGER_MS = 52
 
 const DECK = [
   ...CHAPTER_ONE_SLIDES,
+  ...CHAPTER_TWO_SLIDES,
   ...SLIDES.map((slide, index) => ({
     ...slide,
     id: slide.id || `history-${index}`,
@@ -22,7 +24,7 @@ const DECK = [
   })),
 ]
 
-const ALL_SOURCES = [...CHAPTER_ONE_SOURCES, ...SLIDESHOW_SOURCES]
+const ALL_SOURCES = [...CHAPTER_ONE_SOURCES, ...CHAPTER_TWO_SOURCES, ...SLIDESHOW_SOURCES]
 
 function formatTimelineYear(year, approximate = false) {
   if (year < 0) {
@@ -155,6 +157,114 @@ function KingdomsSlide({ slide, step }) {
   )
 }
 
+function EmpireSlide({ slide, step }) {
+  return (
+    <article className="slideshow-empire">
+      <SlideFigure slide={slide} className="slideshow-empire-figure" />
+      <div className="slideshow-empire-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+        <div className="slideshow-empire-events" aria-label="Assyrian campaign milestones">
+          {slide.events.map((event, index) => (
+            <div className={step > index ? 'is-visible' : ''} key={`${event.year}-${event.label}`}>
+              <strong>{event.year}</strong>
+              <span>{event.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </article>
+  )
+}
+
+function RuptureSlide({ slide, step }) {
+  return (
+    <article className="slideshow-rupture">
+      <div className="slideshow-rupture-year" aria-hidden>{slide.stat}</div>
+      <div className="slideshow-rupture-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+        <div className="slideshow-rupture-consequences" aria-label="Consequences of the Babylonian conquest">
+          {slide.consequences.map((consequence, index) => (
+            <span className={step > index ? 'is-visible' : ''} key={consequence}>{consequence}</span>
+          ))}
+        </div>
+      </div>
+    </article>
+  )
+}
+
+function ReturnSlide({ slide, step }) {
+  return (
+    <article className="slideshow-return">
+      <div className="slideshow-return-object">
+        <SlideFigure slide={slide} />
+        <p className={`slideshow-artifact-note${step >= 2 ? ' is-visible' : ''}`}>
+          The Cylinder does not name Judeans. Its restoration policy helps explain the world behind the biblical return accounts.
+        </p>
+      </div>
+      <div className="slideshow-return-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+        <div className={`slideshow-return-branches${step >= 3 ? ' is-visible' : ''}`}>
+          {slide.branches.map((branch) => (
+            <div key={branch.name}>
+              <strong>{branch.name}</strong>
+              <span>{branch.detail}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </article>
+  )
+}
+
+function ResistanceSlide({ slide, step }) {
+  return (
+    <article className="slideshow-resistance">
+      <div className="slideshow-resistance-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+        <div className={`slideshow-era-track${step >= 2 ? ' is-visible' : ''}`} aria-label="Second Temple era political timeline">
+          {slide.eras.map((era) => (
+            <div key={era.year}>
+              <strong>{era.year}</strong>
+              <span>{era.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <SlideFigure slide={slide} className="slideshow-resistance-figure" />
+    </article>
+  )
+}
+
+function TransformationSlide({ slide, step }) {
+  return (
+    <article className="slideshow-transformation">
+      <SlideFigure slide={slide} className="slideshow-transformation-figure" />
+      <div className="slideshow-transformation-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+        <div className={`slideshow-shift-grid${step >= 3 ? ' is-visible' : ''}`}>
+          {slide.shifts.map((shift) => (
+            <div key={shift.from}>
+              <span>{shift.from}</span>
+              <IoArrowForward aria-hidden />
+              <strong>{shift.to}</strong>
+            </div>
+          ))}
+        </div>
+      </div>
+    </article>
+  )
+}
+
 function ArticleSlide({ slide, step }) {
   return (
     <article className="slideshow-article">
@@ -171,6 +281,11 @@ function SlideContent({ slide, step }) {
   if (slide.kind === 'exodus') return <ExodusSlide slide={slide} step={step} />
   if (slide.kind === 'evidence') return <EvidenceSlide slide={slide} step={step} />
   if (slide.kind === 'kingdoms') return <KingdomsSlide slide={slide} step={step} />
+  if (slide.kind === 'empire') return <EmpireSlide slide={slide} step={step} />
+  if (slide.kind === 'rupture') return <RuptureSlide slide={slide} step={step} />
+  if (slide.kind === 'return') return <ReturnSlide slide={slide} step={step} />
+  if (slide.kind === 'resistance') return <ResistanceSlide slide={slide} step={step} />
+  if (slide.kind === 'transformation') return <TransformationSlide slide={slide} step={step} />
   return <ArticleSlide slide={slide} step={step} />
 }
 
