@@ -65,6 +65,29 @@ export const CHAPTER_FIVE_SLIDES = [
     ],
   },
   {
+    id: 'ingathering-exiles',
+    kind: 'ingathering',
+    chapter: 'Ingathering',
+    timelineYear: 1991,
+    timelineLabel: '1948 CE onward · Israel receives Jews from across the world',
+    eyebrow: 'A sovereign refuge for an ancient people',
+    title: 'A homeland becomes a haven',
+    image: '/slideshow/operation-magic-carpet.webp',
+    imageAlt: 'Yemenite Jewish families seated aboard an airplane during Operation Magic Carpet',
+    imageCaption: 'Yemenite Jews fly to Israel during Operation Magic Carpet, 1949–1950',
+    lines: [
+      'By the end of 1951, 687,000 immigrants had entered the young state, including Holocaust survivors and refugees from European and Arab countries. Israel’s Jewish population nearly doubled in little more than three years.',
+      'Jews leaving ancient communities across the Middle East and North Africa brought their languages, learning, music, foodways, and memory. Many had faced persecution, dispossession, denaturalization, or expulsion; others came from Zionist conviction.',
+      'Later waves brought Soviet Jews long denied free emigration and Beta Israel through perilous journeys from Ethiopia. Ingathering did not erase distinct identities. It joined them in a sovereign national home able to receive and defend Jewish life.',
+    ],
+    waves: [
+      { era: '1948–1951', value: '687,000', label: 'Europe, the Middle East, and North Africa', size: 69 },
+      { era: '1949–1950', value: 'c. 50,000', label: 'Yemen, Operation Magic Carpet', size: 42 },
+      { era: '1991', value: '14,324', label: 'Ethiopia, Operation Solomon in 36 hours', size: 34 },
+      { era: '1990–2000', value: 'c. 1 million', label: 'Including 875,000 born in the former USSR', size: 100 },
+    ],
+  },
+  {
     id: 'jewish-life-today',
     kind: 'living',
     chapter: 'Jewish life today',
@@ -123,5 +146,30 @@ export const CHAPTER_FIVE_SOURCES = [
     label: 'Declaration of the State of Israel photograph',
     url: 'https://commons.wikimedia.org/wiki/File:Declaration_of_State_of_Israel_1948.jpg',
     note: 'Wikimedia Commons and Israel Government Press Office, public domain photograph',
+  },
+  {
+    label: 'Immigrant absorption in Israel',
+    url: 'https://m.knesset.gov.il/EN/activity/mmm/me02775.pdf',
+    note: 'Knesset research on the major immigration waves from 1948 to the former Soviet aliyah',
+  },
+  {
+    label: 'Yemenite Jewry',
+    url: 'https://www.nli.org.il/en/discover/judaism/jewish-communities/jews-in-islamic-countries/yemenite-jews',
+    note: 'National Library of Israel on the Yemenite Jewish community and Operation Magic Carpet',
+  },
+  {
+    label: 'Immigration to Israel, 1948–2000',
+    url: 'https://www.cbs.gov.il/en/Statistical/population_e.pdf',
+    note: 'Israel Central Bureau of Statistics summary of post-statehood immigration waves',
+  },
+  {
+    label: 'Ethiopian Jews who perished on the way to Israel',
+    url: 'https://m.knesset.gov.il/en/about/pages/memorialethiopian3.aspx',
+    note: 'Knesset history of the Ethiopian aliyah, Operation Moses, and Operation Solomon',
+  },
+  {
+    label: 'Operation Magic Carpet photograph',
+    url: 'https://commons.wikimedia.org/wiki/File:Op_Magic_Carpet_(Yemenites).jpg',
+    note: 'Wikimedia Commons, public domain photograph of Yemenite Jews aboard an airlift to Israel',
   },
 ]

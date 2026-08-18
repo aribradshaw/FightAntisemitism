@@ -460,6 +460,30 @@ function ResponsesSlide({ slide, step }) {
   )
 }
 
+function BuildingSlide({ slide, step }) {
+  return (
+    <article className="slideshow-building">
+      <img className="slideshow-building-image" src={slide.image} alt={slide.imageAlt} />
+      <div className="slideshow-building-grid" aria-hidden />
+      <div className="slideshow-building-wash" aria-hidden />
+      <div className="slideshow-building-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+        <div className={`slideshow-building-milestones${step >= 2 ? ' is-visible' : ''}`} aria-label="Milestones in building the modern Jewish homeland">
+          {slide.milestones.map((milestone, index) => (
+            <div style={{ '--milestone-index': index }} key={milestone.year}>
+              <strong>{milestone.year}</strong>
+              <span>{milestone.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <p className="slideshow-image-credit">{slide.imageCaption}</p>
+    </article>
+  )
+}
+
 function PersecutionSlide({ slide, step }) {
   return (
     <article className="slideshow-persecution">
@@ -524,6 +548,30 @@ function StatehoodSlide({ slide, step }) {
   )
 }
 
+function IngatheringSlide({ slide, step }) {
+  return (
+    <article className="slideshow-ingathering">
+      <div className="slideshow-ingathering-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+      </div>
+      <div className="slideshow-ingathering-visual">
+        <SlideFigure slide={slide} className="slideshow-ingathering-figure" />
+        <div className={`slideshow-aliyah-waves${step >= 2 ? ' is-visible' : ''}`} aria-label="Selected milestones in Israel’s ingathering of Jewish communities">
+          {slide.waves.map((wave, index) => (
+            <div style={{ '--wave-index': index }} key={`${wave.era}-${wave.label}`}>
+              <p><span>{wave.era}</span><strong>{wave.value}</strong></p>
+              <div><span style={{ width: `${wave.size}%` }} /></div>
+              <small>{wave.label}</small>
+            </div>
+          ))}
+        </div>
+      </div>
+    </article>
+  )
+}
+
 function LivingSlide({ slide, step }) {
   return (
     <article className="slideshow-living">
@@ -582,9 +630,11 @@ function SlideContent({ slide, step }) {
   if (slide.kind === 'emancipation') return <EmancipationSlide slide={slide} step={step} />
   if (slide.kind === 'migration') return <MigrationSlide slide={slide} step={step} />
   if (slide.kind === 'responses') return <ResponsesSlide slide={slide} step={step} />
+  if (slide.kind === 'building') return <BuildingSlide slide={slide} step={step} />
   if (slide.kind === 'persecution') return <PersecutionSlide slide={slide} step={step} />
   if (slide.kind === 'shoah') return <ShoahSlide slide={slide} step={step} />
   if (slide.kind === 'statehood') return <StatehoodSlide slide={slide} step={step} />
+  if (slide.kind === 'ingathering') return <IngatheringSlide slide={slide} step={step} />
   if (slide.kind === 'living') return <LivingSlide slide={slide} step={step} />
   return <ArticleSlide slide={slide} step={step} />
 }

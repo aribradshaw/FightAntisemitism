@@ -61,6 +61,30 @@ export const CHAPTER_FOUR_SLIDES = [
       { name: 'Zionism', detail: 'The Jewish people’s right to national revival and self-determination', highlight: true },
     ],
   },
+  {
+    id: 'homeland-building',
+    kind: 'building',
+    chapter: 'Return and rebuilding',
+    timelineYear: 1914,
+    timelineLabel: '1882–1948 CE · The modern Jewish homeland takes shape',
+    eyebrow: 'Zionism becomes lived reality',
+    title: 'A homeland is built before it is declared',
+    image: '/slideshow/tel-aviv-founding.webp',
+    imageAlt: 'Jewish families gathered on sand dunes during the 1909 founding of Tel Aviv',
+    imageCaption: 'Founders of Ahuzat Bayit, the future Tel Aviv, gather on the dunes in 1909',
+    lines: [
+      'The First and Second Aliyah brought Jews from Europe and Yemen to the ancestral homeland, where they joined the continuous communities of the Old Yishuv and founded new farms, villages, schools, and civic institutions.',
+      'Hebrew was revived as a language of daily life. In 1909, sixty founding families allocated plots for Ahuzat Bayit, the neighborhood that became Tel Aviv, the first modern Hebrew city.',
+      'Across decades, the Yishuv built an economy, a culture, elected institutions, universities, health systems, labor organizations, and the capacity for defense. Jewish sovereignty in 1948 rested on a homeland already being rebuilt.',
+    ],
+    milestones: [
+      { year: '1882', label: 'First Aliyah' },
+      { year: '1905', label: 'Hebrew education' },
+      { year: '1909', label: 'Tel Aviv founded' },
+      { year: '1920s–30s', label: 'National institutions grow' },
+      { year: '1948', label: 'Sovereignty' },
+    ],
+  },
 ]
 
 export const CHAPTER_FOUR_SOURCES = [
@@ -88,5 +112,25 @@ export const CHAPTER_FOUR_SOURCES = [
     label: 'Delegates at the First Zionist Congress image',
     url: 'https://commons.wikimedia.org/wiki/File:Delegates_at_First_Zionist_Congress.jpg',
     note: 'Wikimedia Commons reproduction from the Israel Government Press Office collection',
+  },
+  {
+    label: 'History of Zionism',
+    url: 'https://www.nli.org.il/en/discover/israel/zionism/zionism-history',
+    note: 'National Library of Israel on the Old Yishuv, the aliyot, Hebrew revival, and institutions of the new Yishuv',
+  },
+  {
+    label: 'The First Aliyah',
+    url: 'https://www.nli.org.il/en/discover/israel/zionism/zionism-history/first-aliyah',
+    note: 'National Library of Israel on the first mass Zionist immigration wave and the new Hebrew settlements',
+  },
+  {
+    label: 'The Second Aliyah and the founding of Tel Aviv',
+    url: 'https://www.nli.org.il/en/discover/israel/zionism/zionism-history/second-aliyah',
+    note: 'National Library of Israel on Hebrew education and the 1909 founding of Ahuzat Bayit',
+  },
+  {
+    label: 'Founding of Tel Aviv photograph',
+    url: 'https://commons.wikimedia.org/wiki/File:TelAviv-Founding.jpg',
+    note: 'Wikimedia Commons, public domain photograph of the 1909 gathering on the dunes',
   },
 ]
