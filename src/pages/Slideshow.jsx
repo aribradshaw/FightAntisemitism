@@ -357,6 +357,35 @@ function DispersionSlide({ slide, step }) {
   )
 }
 
+function RenewalSlide({ slide, step }) {
+  return (
+    <article className="slideshow-renewal">
+      <div className="slideshow-renewal-visual">
+        <SlideFigure slide={slide} className="slideshow-renewal-figure" />
+        <div className={`slideshow-renewal-seal${step >= 1 ? ' is-visible' : ''}`} aria-hidden>
+          <span>1492</span>
+          <strong>becomes</strong>
+          <span>renewal</span>
+        </div>
+      </div>
+      <div className="slideshow-renewal-copy">
+        <p className="slideshow-eyebrow">{slide.eyebrow}</p>
+        <h2>{slide.title}</h2>
+        <RevealLines lines={slide.lines} visibleCount={step} />
+        <div className={`slideshow-renewal-centers${step >= 2 ? ' is-visible' : ''}`} aria-label="New centers of early modern Jewish life">
+          {slide.centers.map((center, index) => (
+            <div style={{ '--center-index': index }} key={center.name}>
+              <span>{center.place}</span>
+              <strong>{center.name}</strong>
+              <small>{center.role}</small>
+            </div>
+          ))}
+        </div>
+      </div>
+    </article>
+  )
+}
+
 function EmancipationSlide({ slide, step }) {
   return (
     <article className="slideshow-emancipation">
@@ -549,6 +578,7 @@ function SlideContent({ slide, step }) {
   if (slide.kind === 'illumination') return <IlluminationSlide slide={slide} step={step} />
   if (slide.kind === 'communities') return <CommunitiesSlide slide={slide} step={step} />
   if (slide.kind === 'dispersion') return <DispersionSlide slide={slide} step={step} />
+  if (slide.kind === 'renewal') return <RenewalSlide slide={slide} step={step} />
   if (slide.kind === 'emancipation') return <EmancipationSlide slide={slide} step={step} />
   if (slide.kind === 'migration') return <MigrationSlide slide={slide} step={step} />
   if (slide.kind === 'responses') return <ResponsesSlide slide={slide} step={step} />

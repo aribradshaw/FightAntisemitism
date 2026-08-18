@@ -79,6 +79,29 @@ export const CHAPTER_THREE_SLIDES = [
     ],
     routes: ['North Africa', 'Italy', 'Ottoman lands', 'Netherlands', 'Americas'],
   },
+  {
+    id: 'early-modern-renewal',
+    kind: 'renewal',
+    chapter: 'Expulsion and renewal',
+    timelineYear: 1600,
+    timelineLabel: '16th–18th centuries · New centers of Jewish life',
+    eyebrow: 'A scattered people builds again',
+    title: 'New centers rise from displacement',
+    image: '/slideshow/early-modern-synagogue.webp',
+    imageAlt: 'Emanuel de Witte’s painting of worship inside Amsterdam’s Portuguese Synagogue around 1680',
+    imageCaption: 'Emanuel de Witte, Portuguese Synagogue in Amsterdam, c. 1680',
+    lines: [
+      'Sephardi refugees carried learning, trade networks, languages, and communal institutions into Ottoman cities, North Africa, Italy, the Netherlands, and the Americas.',
+      'Safed in the ancestral homeland became a sixteenth-century center of Jewish law, mysticism, poetry, and Hebrew printing. Istanbul and Salonika flourished, while Amsterdam became a center of synagogue life and publishing.',
+      'In Poland-Lithuania, Ashkenazi communities built far-reaching networks of study and self-government. Jewish life did not merely survive displacement. It created new centers of spiritual and cultural power.',
+    ],
+    centers: [
+      { name: 'Safed', place: 'Land of Israel', role: 'Law, Kabbalah, poetry, printing' },
+      { name: 'Istanbul + Salonika', place: 'Ottoman Empire', role: 'Sephardi learning and commerce' },
+      { name: 'Poland-Lithuania', place: 'Eastern Europe', role: 'Study and communal self-government' },
+      { name: 'Amsterdam', place: 'Netherlands', role: 'Synagogue life and Hebrew publishing' },
+    ],
+  },
 ]
 
 export const CHAPTER_THREE_SOURCES = [
@@ -126,5 +149,20 @@ export const CHAPTER_THREE_SOURCES = [
     label: 'Spanish expulsion painting image',
     url: 'https://commons.wikimedia.org/wiki/File:Expulsión_de_los_judíos.jpg',
     note: 'Wikimedia Commons, public domain reproduction of Emilio Sala’s 1889 painting',
+  },
+  {
+    label: 'Communal Life: Jewish communities in the Diaspora',
+    url: 'https://www.nli.org.il/media/10771/diaspora-exhibit.pdf',
+    note: 'National Library of Israel exhibition on the new Jewish centers that followed the Spanish expulsion',
+  },
+  {
+    label: 'Archives of the Sephardi Chief Rabbinate in Istanbul',
+    url: 'https://www.nli.org.il/en/archives/nnl_cahjp990043428270205171/NLI',
+    note: 'National Library of Israel on Istanbul as a major sixteenth-century Jewish center',
+  },
+  {
+    label: 'Portuguese Synagogue in Amsterdam painting',
+    url: 'https://commons.wikimedia.org/wiki/File:Emanuel_de_Witte_-_Interieur_van_de_Portugese_synagoge_te_Amsterdam.jpg',
+    note: 'Wikimedia Commons, public domain reproduction of Emanuel de Witte’s c. 1680 painting',
   },
 ]

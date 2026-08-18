@@ -1277,6 +1277,148 @@
   z-index: 3;
 }
 
+.slideshow-renewal {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(340px, 0.86fr) minmax(0, 1.14fr);
+  align-items: center;
+  gap: clamp(2.2rem, 5vw, 5.4rem);
+}
+
+.slideshow-renewal-visual {
+  position: relative;
+  min-width: 0;
+}
+
+.slideshow-renewal-figure {
+  height: clamp(430px, 50vw, 570px);
+  background: #4a3b2d;
+  border-radius: 180px 180px 18px 18px;
+}
+
+.slideshow-renewal-figure::after {
+  background: linear-gradient(180deg, transparent 48%, rgba(20, 15, 11, 0.38));
+}
+
+.slideshow-renewal-figure img {
+  object-fit: cover;
+  object-position: center;
+  filter: saturate(0.78) contrast(1.03);
+  animation: slideshow-renewal-light 12s ease-in-out infinite alternate;
+}
+
+@keyframes slideshow-renewal-light {
+  from { transform: scale(1.01); filter: saturate(0.72) brightness(0.92); }
+  to { transform: scale(1.055); filter: saturate(0.88) brightness(1.04); }
+}
+
+.slideshow-renewal-seal {
+  position: absolute;
+  right: -1.15rem;
+  bottom: 2rem;
+  width: 112px;
+  height: 112px;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  opacity: 0;
+  color: var(--slide-paper-bright);
+  background: var(--slide-blue);
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  border-radius: 50%;
+  box-shadow: 0 0 0 7px rgba(39, 79, 116, 0.15), 0 18px 38px rgba(23, 32, 51, 0.28);
+  transform: scale(0.82) rotate(-8deg);
+  transition: opacity 0.65s ease, transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.slideshow-renewal-seal.is-visible {
+  opacity: 1;
+  transform: scale(1) rotate(-4deg);
+}
+
+.slideshow-renewal-seal span,
+.slideshow-renewal-seal strong {
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.slideshow-renewal-seal span {
+  color: var(--slide-gold-light);
+  font-family: "Iowan Old Style", Georgia, serif;
+  font-size: 1.35rem;
+}
+
+.slideshow-renewal-seal strong {
+  margin: 0.22rem 0;
+  font-size: 0.43rem;
+  letter-spacing: 0.18em;
+}
+
+.slideshow-renewal-centers {
+  position: relative;
+  margin: 1.05rem 0 0 2.75rem;
+  padding-left: 1.1rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.44rem;
+}
+
+.slideshow-renewal-centers::before {
+  content: "";
+  position: absolute;
+  top: 8%;
+  bottom: 8%;
+  left: 0;
+  width: 2px;
+  background: linear-gradient(var(--slide-gold), var(--slide-blue));
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 0.75s ease;
+}
+
+.slideshow-renewal-centers.is-visible::before {
+  transform: scaleY(1);
+}
+
+.slideshow-renewal-centers div {
+  min-height: 76px;
+  padding: 0.62rem 0.68rem;
+  display: grid;
+  align-content: center;
+  gap: 0.12rem;
+  opacity: 0;
+  background: rgba(255, 253, 248, 0.74);
+  border: 1px solid rgba(79, 89, 107, 0.11);
+  border-radius: 9px;
+  transform: translateX(-9px);
+  transition: opacity 0.45s ease calc(var(--center-index) * 100ms), transform 0.45s ease calc(var(--center-index) * 100ms);
+}
+
+.slideshow-renewal-centers.is-visible div {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.slideshow-renewal-centers span {
+  color: var(--slide-gold);
+  font-size: 0.5rem;
+  font-weight: 750;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.slideshow-renewal-centers strong {
+  color: var(--slide-blue);
+  font-family: "Iowan Old Style", Georgia, serif;
+  font-size: 0.76rem;
+}
+
+.slideshow-renewal-centers small {
+  color: var(--slide-ink-soft);
+  font-size: 0.5rem;
+  line-height: 1.25;
+}
+
 .slideshow-emancipation,
 .slideshow-migration,
 .slideshow-responses {
@@ -2155,6 +2297,7 @@
   .slideshow-dialogue,
   .slideshow-illumination,
   .slideshow-communities,
+  .slideshow-renewal,
   .slideshow-emancipation,
   .slideshow-migration,
   .slideshow-responses,
@@ -2272,6 +2415,7 @@
   .slideshow-dialogue,
   .slideshow-illumination,
   .slideshow-communities,
+  .slideshow-renewal,
   .slideshow-emancipation,
   .slideshow-migration,
   .slideshow-responses,
@@ -2295,6 +2439,7 @@
   .slideshow-dialogue-copy,
   .slideshow-illumination-copy,
   .slideshow-communities-copy,
+  .slideshow-renewal-copy,
   .slideshow-emancipation-copy,
   .slideshow-migration-copy,
   .slideshow-responses-copy,
@@ -2316,6 +2461,7 @@
   .slideshow-dialogue-figure,
   .slideshow-illumination-figure,
   .slideshow-communities-figure,
+  .slideshow-renewal-visual,
   .slideshow-rights-panel,
   .slideshow-migration-visual,
   .slideshow-responses-figure,
@@ -2338,6 +2484,22 @@
   .slideshow-illumination-figure,
   .slideshow-communities-figure {
     height: 260px;
+  }
+
+  .slideshow-renewal-visual {
+    width: 100%;
+  }
+
+  .slideshow-renewal-figure {
+    height: 330px;
+    border-radius: 120px 120px 16px 16px;
+  }
+
+  .slideshow-renewal-seal {
+    right: 0.75rem;
+    bottom: 1.25rem;
+    width: 92px;
+    height: 92px;
   }
 
   .slideshow-rights-panel {
@@ -2422,6 +2584,10 @@
   .slideshow-city-network,
   .slideshow-route-list,
   .slideshow-response-grid {
+    margin-left: 2rem;
+  }
+
+  .slideshow-renewal-centers {
     margin-left: 2rem;
   }
 
