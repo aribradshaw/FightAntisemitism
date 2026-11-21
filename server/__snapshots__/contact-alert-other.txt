@@ -1,0 +1,8 @@
+Subject: [Site contact] other: pat@example.test
+
+Name: pat@example.test
+Email: pat@example.test
+Category: other
+
+Question:
+Short question.

@@ -15,6 +15,7 @@ import bcrypt from 'bcryptjs'
 import { promises as dns } from 'dns'
 import net from 'net'
 import tls from 'tls'
+import { contactAlertEmail, DEFAULT_EMAIL_FROM } from './contactEmail.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 // Load .env from project root (override: false so Railway/platform env vars win)
@@ -102,7 +103,7 @@ if (!RECAPTCHA_SECRET && !isProduction) {
   console.warn('Contact form: RECAPTCHA_SECRET_KEY not set. Add it to .env in the project root and restart the server.')
 }
 const CONTACT_EMAIL_TO = process.env.CONTACT_EMAIL_TO || 'aribradshawaz@gmail.com'
-const EMAIL_FROM = process.env.EMAIL_FROM || 'no-reply@hashem.faith'
+const EMAIL_FROM = process.env.EMAIL_FROM || DEFAULT_EMAIL_FROM
 const EMAIL_USER = process.env.EMAIL_USER
 const EMAIL_PASS = process.env.EMAIL_PASS
 const SMTP_HOST = process.env.SMTP_HOST
@@ -1302,13 +1303,14 @@ app.post('/api/contact', async (req, res) => {
           ? { ...baseOpts, host: SMTP_HOST, port: SMTP_PORT, secure: SMTP_SECURE }
           : { ...baseOpts, service: 'gmail' }
         const transporter = nodemailer.createTransport(transporterOpts)
+        const alert = contactAlertEmail({ fullName, email: emailStr, category: categoryStr, question: questionStr })
         await transporter.sendMail({
           from: EMAIL_FROM,
           to: CONTACT_EMAIL_TO,
           replyTo: emailStr,
-          subject: `[Site contact] ${categoryStr}: ${fullName.slice(0, 50)}`,
-          text: `Name: ${fullName}\nEmail: ${emailStr}\nCategory: ${categoryStr}\n\nQuestion:\n${questionStr}`,
-          html: `<p><strong>Name:</strong> ${escapeHtml(fullName)}</p><p><strong>Email:</strong> ${escapeHtml(emailStr)}</p><p><strong>Category:</strong> ${escapeHtml(categoryStr)}</p><p><strong>Question:</strong></p><p>${escapeHtml(questionStr).replace(/\n/g, '<br>')}</p>`,
+          subject: alert.subject,
+          text: alert.text,
+          html: alert.html,
         })
       } catch (mailErr) {
         console.error(
@@ -1337,16 +1339,6 @@ app.post('/api/contact', async (req, res) => {
     res.status(500).json({ error: 'Failed to send your message. Please try again.' })
   }
 })
-
-function escapeHtml(s) {
-  if (typeof s !== 'string') return ''
-  return s
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;')
-}
 
 // GET /api/by-tag?tag=... — items (conspiracies, talmud, etc.) that have this tag
 app.get('/api/by-tag', async (req, res) => {
