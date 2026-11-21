@@ -25,6 +25,7 @@
     "db:migrate:page-views": "node database/run-migrate-page-views.js"
   },
   "dependencies": {
+    "@aribradshaw/onemail": "file:vendor/aribradshaw-onemail-1.0.1.tgz",
     "@tmcw/togeojson": "^7.1.2",
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.3.1",
