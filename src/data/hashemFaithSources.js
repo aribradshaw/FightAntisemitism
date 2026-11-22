@@ -1,6 +1,6 @@
 /**
  * Further reading from Hashem.Faith (https://hashem.faith).
- * Post sitemap: https://hashem.faith/post-sitemap.xml
+ * Sitemap: https://hashem.faith/sitemap.xml
  */
 
 const BASE = 'https://hashem.faith'

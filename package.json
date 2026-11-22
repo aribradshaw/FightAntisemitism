@@ -24,7 +24,8 @@
     "db:migrate:contact-users": "node database/run-migrate-contact-user-answers.js",
     "db:migrate:contact-archive": "node database/run-migrate-contact-archive.js",
     "db:migrate:page-views": "node database/run-migrate-page-views.js",
-    "db:migrate:age-verified": "node database/run-migrate-user-age-verified.js"
+    "db:migrate:age-verified": "node database/run-migrate-user-age-verified.js",
+    "check:links": "node scripts/check-links.js"
   },
   "dependencies": {
     "@aribradshaw/onemail": "file:vendor/aribradshaw-onemail-1.0.1.tgz",
