@@ -44,13 +44,17 @@ export default function Layout() {
   const parentPath = getParentPath(pathname)
   const isAtTop = pathname === '/explore'
   const transitionState = useTransitionState()
-  const { user, authLoading, login, register, logout } = useAuth()
+  const { user, authLoading, login, register, getAgeScreen, submitAgeScreen, logout } = useAuth()
   const [enterActive, setEnterActive] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [authModalMode, setAuthModalMode] = useState(null) // "login" | "register" | null
   const [authBusy, setAuthBusy] = useState(false)
   const [authError, setAuthError] = useState('')
   const [authForm, setAuthForm] = useState({ username: '', password: '' })
+  // Sign-up starts with a neutral birth-date step; the server decides and remembers the result.
+  const [ageStep, setAgeStep] = useState('checking') // "checking" | "date" | "form" | "blocked"
+  const [birthDate, setBirthDate] = useState('')
+  const [blockedMessage, setBlockedMessage] = useState('')
   const menuRef = useRef(null)
 
   useEffect(() => {
@@ -77,6 +81,23 @@ export default function Layout() {
         : 'page-transition'
   const profileInitials = getInitials(user)
 
+  const openRegister = async () => {
+    setAuthModalMode('register')
+    setMenuOpen(false)
+    setAuthError('')
+    setBirthDate('')
+    setAgeStep('checking')
+    const status = await getAgeScreen().catch(() => 'unknown')
+    setAgeStep(status === 'eligible' ? 'form' : status === 'blocked' ? 'blocked' : 'date')
+  }
+
+  const closeAuthModal = () => {
+    setAuthModalMode(null)
+    setBirthDate('')
+  }
+
+  const ageScreenStep = authModalMode === 'register' && ageStep !== 'form'
+
   return (
     <div className={`layout ${isExplore ? 'layout--explore' : ''}`}>
       <div className="layout-profile" ref={menuRef}>
@@ -100,7 +121,7 @@ export default function Layout() {
             {!authLoading && !user && (
               <>
                 <button type="button" onClick={() => { setAuthModalMode('login'); setMenuOpen(false); setAuthError('') }}>Log in</button>
-                <button type="button" onClick={() => { setAuthModalMode('register'); setMenuOpen(false); setAuthError('') }}>Register</button>
+                <button type="button" onClick={openRegister}>Register</button>
               </>
             )}
             {!authLoading && user && (
@@ -126,9 +147,60 @@ export default function Layout() {
         </div>
       </main>
       {authModalMode && (
-        <div className="layout-auth-overlay" onClick={() => (!authBusy ? setAuthModalMode(null) : null)}>
+        <div className="layout-auth-overlay" onClick={() => (!authBusy ? closeAuthModal() : null)}>
           <div className="layout-auth-modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="auth-title">
             <h2 id="auth-title">{authModalMode === 'register' ? 'Create account' : 'Log in'}</h2>
+            {ageScreenStep && ageStep === 'checking' && <p className="layout-auth-note">Please wait…</p>}
+            {ageScreenStep && ageStep === 'blocked' && (
+              <div className="layout-auth-form">
+                <p className="layout-auth-note" role="status">{blockedMessage || "Sorry, we can't create an account for you right now."}</p>
+                <div className="layout-auth-actions">
+                  <button type="button" className="primary" onClick={closeAuthModal}>Close</button>
+                </div>
+              </div>
+            )}
+            {ageScreenStep && ageStep === 'date' && (
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault()
+                  setAuthBusy(true)
+                  setAuthError('')
+                  try {
+                    const status = await submitAgeScreen(birthDate)
+                    setBirthDate('')
+                    if (status === 'eligible') setAgeStep('form')
+                    else {
+                      setBlockedMessage('')
+                      setAgeStep('blocked')
+                    }
+                  } catch (err) {
+                    setAuthError(err.message || 'Request failed.')
+                  } finally {
+                    setAuthBusy(false)
+                  }
+                }}
+                className="layout-auth-form"
+              >
+                <label htmlFor="auth-birth-date">Date of birth</label>
+                <input
+                  id="auth-birth-date"
+                  type="date"
+                  name="birthDate"
+                  value={birthDate}
+                  onChange={(e) => setBirthDate(e.target.value)}
+                  autoComplete="off"
+                  required
+                />
+                {authError && <p className="layout-auth-error">{authError}</p>}
+                <div className="layout-auth-actions">
+                  <button type="button" className="ghost" disabled={authBusy} onClick={closeAuthModal}>Cancel</button>
+                  <button type="submit" className="primary" disabled={authBusy || !birthDate}>
+                    {authBusy ? 'Please wait…' : 'Continue'}
+                  </button>
+                </div>
+              </form>
+            )}
+            {!ageScreenStep && (
             <form
               onSubmit={async (e) => {
                 e.preventDefault()
@@ -138,10 +210,18 @@ export default function Layout() {
                   const payload = { username: authForm.username.trim(), password: authForm.password }
                   if (authModalMode === 'register') await register(payload)
                   else await login(payload)
-                  setAuthModalMode(null)
+                  closeAuthModal()
                   setAuthForm({ username: '', password: '' })
                 } catch (err) {
-                  setAuthError(err.message || 'Request failed.')
+                  // The server refuses sign-up without a current age screen (it lasts 30 minutes).
+                  if (err.code === 'age_blocked') {
+                    setBlockedMessage(err.message)
+                    setAgeStep('blocked')
+                  } else if (err.code === 'age_screen_required') {
+                    setAgeStep('date')
+                  } else {
+                    setAuthError(err.message || 'Request failed.')
+                  }
                 } finally {
                   setAuthBusy(false)
                 }
@@ -172,12 +252,13 @@ export default function Layout() {
               />
               {authError && <p className="layout-auth-error">{authError}</p>}
               <div className="layout-auth-actions">
-                <button type="button" className="ghost" disabled={authBusy} onClick={() => setAuthModalMode(null)}>Cancel</button>
+                <button type="button" className="ghost" disabled={authBusy} onClick={closeAuthModal}>Cancel</button>
                 <button type="submit" className="primary" disabled={authBusy}>
                   {authBusy ? 'Please wait…' : authModalMode === 'register' ? 'Register' : 'Log in'}
                 </button>
               </div>
             </form>
+            )}
           </div>
         </div>
       )}

@@ -182,6 +182,7 @@ CREATE TABLE IF NOT EXISTS users (
   first_name VARCHAR(128) DEFAULT NULL,
   last_name VARCHAR(128) DEFAULT NULL,
   zip_code VARCHAR(20) DEFAULT NULL,
+  age_verified_at DATETIME DEFAULT NULL COMMENT 'when the account passed the 13+ age screen; no birth date is stored',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
