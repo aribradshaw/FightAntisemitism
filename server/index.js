@@ -4,10 +4,11 @@
  * Run: node server/index.js  (default port 3001)
  */
 
+/* global process, Buffer */
 import express from 'express'
 import mysql from 'mysql2/promise'
-import { existsSync } from 'fs'
-import { fileURLToPath } from 'url'
+import { existsSync, realpathSync } from 'fs'
+import { fileURLToPath, pathToFileURL } from 'url'
 import { dirname, join } from 'path'
 import { config as loadEnv } from 'dotenv'
 import { randomBytes, createHash, createHmac, timingSafeEqual } from 'crypto'
@@ -16,6 +17,7 @@ import { promises as dns } from 'dns'
 import net from 'net'
 import tls from 'tls'
 import { contactAlertEmail, DEFAULT_EMAIL_FROM } from './contactEmail.js'
+import { createAgeGate, mountAgeScreenRoutes } from './ageGate.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 // Load .env from project root (override: false so Railway/platform env vars win)
@@ -133,7 +135,14 @@ const PROGRESS_CATEGORY_SQL = {
 }
 const VALID_PROGRESS_CATEGORIES = new Set(Object.keys(PROGRESS_CATEGORY_SQL))
 
+// Tests swap in a fake connection; everything else uses MySQL.
+let connectionFactory = null
+export function setConnectionFactoryForTests(factory) {
+  connectionFactory = factory
+}
+
 async function getConnection() {
+  if (connectionFactory) return connectionFactory()
   if (!config.password) {
     const hint = process.env.RAILWAY_ENVIRONMENT
       ? 'Set DB_PASSWORD in Railway → Variables for this service and redeploy.'
@@ -399,8 +408,24 @@ async function createUserWithUniqueUsername(conn, email, password, firstName, la
   return createdUserId
 }
 
-// POST /api/auth/register — create account and session
-app.post('/api/auth/register', async (req, res) => {
+// 13+ age screen (server/ageGate.js). Sign-up needs an eligible screen first.
+const ageGate = createAgeGate(SESSION_SECRET, { secure: isProduction })
+mountAgeScreenRoutes(app, ageGate, { isRateLimited })
+
+// Accounts made after the age screen get age_verified_at (no birth date is
+// kept). Until database/migrate-user-age-verified.sql is applied the column is
+// missing; sign-up still works and the gap is logged.
+async function markAgeVerified(conn, userId) {
+  try {
+    await conn.execute('UPDATE users SET age_verified_at = CURRENT_TIMESTAMP WHERE id = ?', [userId])
+  } catch (err) {
+    if (err?.code !== 'ER_BAD_FIELD_ERROR') throw err
+    console.warn('users.age_verified_at is missing; run npm run db:migrate:age-verified')
+  }
+}
+
+// POST /api/auth/register — create account and session (after an eligible age screen)
+app.post('/api/auth/register', ageGate.requireEligible, async (req, res) => {
   if (isRateLimited(req)) return res.status(429).json({ error: 'Too many requests. Please try again later.' })
   try {
     const identifierRaw = typeof req.body?.username === 'string' ? req.body.username.trim().toLowerCase() : ''
@@ -440,6 +465,7 @@ app.post('/api/auth/register', async (req, res) => {
         const [result] = await conn.execute('INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)', [username, email || null, passwordHash])
         userId = result.insertId
       }
+      await markAgeVerified(conn, userId)
       const sessionToken = randomBytes(32).toString('hex')
       const tokenHash = hashSessionToken(sessionToken)
       const expiresAt = new Date(Date.now() + SESSION_TTL_MS)
@@ -1380,6 +1406,11 @@ if (isProduction) {
   }
 }
 
-app.listen(PORT, () => {
-  console.log(`API server running at http://localhost:${PORT}`)
-})
+export { app }
+
+// Listen only when run as the server, so tests can import the app.
+if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
+  app.listen(PORT, () => {
+    console.log(`API server running at http://localhost:${PORT}`)
+  })
+}

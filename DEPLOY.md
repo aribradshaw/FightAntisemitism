@@ -19,6 +19,18 @@ The app is a Node.js server (Express + MySQL) that serves the API and, in produc
 
 You can keep using your existing MySQL (e.g. on HostGator) by setting `DB_HOST` to that server and opening remote MySQL access if needed.
 
+### 13+ age screen on sign-up
+
+Reader sign-up starts with a neutral date-of-birth step (`server/ageGate.js`). The server works out the age, keeps only a signed result cookie (30 minutes if accepted, 24 hours if refused, so the same browser can't retry with another date), and `/api/auth/register` refuses to create an account without an accepted result. Birth dates are never stored.
+
+Before or with the deploy that ships it, run the additive migration once against the production database:
+
+```bash
+npm run db:migrate:age-verified
+```
+
+It adds `users.age_verified_at` (set when a new account passed the screen; existing accounts stay empty). Sign-up keeps working if the migration hasn't run yet, but the server logs a warning and the time isn't recorded. Set `SESSION_SECRET` in Variables: it signs the age cookie as well as sessions.
+
 ### Database not loading (500 on /api/*, blank pages)
 
 If the app deploys but API calls return **500** and pages are blank, the server cannot reach MySQL.

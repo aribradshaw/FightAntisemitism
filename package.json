@@ -7,6 +7,7 @@
     "dev": "concurrently \"npm run server\" \"vite\"",
     "build": "vite build",
     "lint": "eslint .",
+    "test": "node --test server/*.test.js",
     "preview": "vite preview",
     "server": "node server/index.js",
     "start": "node server/index.js",
@@ -22,7 +23,8 @@
     "db:migrate:auth": "node database/run-migrate-user-auth-progress.js",
     "db:migrate:contact-users": "node database/run-migrate-contact-user-answers.js",
     "db:migrate:contact-archive": "node database/run-migrate-contact-archive.js",
-    "db:migrate:page-views": "node database/run-migrate-page-views.js"
+    "db:migrate:page-views": "node database/run-migrate-page-views.js",
+    "db:migrate:age-verified": "node database/run-migrate-user-age-verified.js"
   },
   "dependencies": {
     "@aribradshaw/onemail": "file:vendor/aribradshaw-onemail-1.0.1.tgz",

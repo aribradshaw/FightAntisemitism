@@ -5,7 +5,9 @@ const AuthContext = createContext(null)
 async function jsonOrError(res) {
   const data = await res.json().catch(() => ({}))
   if (!res.ok) {
-    throw new Error(data?.error || 'Request failed')
+    const err = new Error(data?.error || 'Request failed')
+    err.code = data?.code
+    throw err
   }
   return data
 }
@@ -35,6 +37,24 @@ export function AuthProvider({ children }) {
     const data = await jsonOrError(res)
     setUser(data.user || null)
     return data.user || null
+  }
+
+  // 13+ age screen before sign-up. The server decides; the answer is 'eligible' | 'blocked' | 'unknown'.
+  const getAgeScreen = async () => {
+    const res = await fetch('/api/auth/age-screen', { credentials: 'include', cache: 'no-store' })
+    const data = await jsonOrError(res)
+    return data.status || 'unknown'
+  }
+
+  const submitAgeScreen = async (birthDate) => {
+    const res = await fetch('/api/auth/age-screen', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ birthDate }),
+    })
+    const data = await jsonOrError(res)
+    return data.status || 'unknown'
   }
 
   const login = async ({ username, password }) => {
@@ -70,6 +90,8 @@ export function AuthProvider({ children }) {
     user,
     authLoading,
     register,
+    getAgeScreen,
+    submitAgeScreen,
     login,
     logout,
     refreshMe,

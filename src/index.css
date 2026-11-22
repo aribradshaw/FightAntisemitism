@@ -287,6 +287,11 @@ h3 { font-size: 1.2rem; }
   border-radius: var(--radius-sm);
   font-size: 0.95rem;
 }
+.layout-auth-note {
+  margin: 0 0 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
 .layout-auth-error {
   margin: 0.15rem 0 0;
   color: #b91c1c;
