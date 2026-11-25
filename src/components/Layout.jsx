@@ -30,7 +30,9 @@ function getParentPath(pathname) {
   if (/^\/misconceptions\/[^/]+$/.test(pathname)) return '/misconceptions'
   if (/^\/conspiracies\/[^/]+$/.test(pathname)) return '/conspiracies'
   // List/top-level sections → hub
-  if (/^\/(definitions|agitators|misconceptions|conspiracies|timeline|stylesheet)$/.test(pathname)) return '/explore'
+  if (/^\/hanukkah\//.test(pathname)) return '/hanukkah'
+  if (pathname === '/hanukkah') return '/explore'
+  if (/^\/(definitions|agitators|misconceptions|conspiracies|timeline|stylesheet|talmud)$/.test(pathname)) return '/explore'
   // Hub → landing
   if (pathname === '/explore') return '/'
   return '/explore'

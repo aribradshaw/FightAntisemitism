@@ -12,6 +12,9 @@ export default function Landing() {
         <Link to="/explore" className="landing-enter ghost">
           Enter
         </Link>
+        <Link to="/hanukkah" className="landing-enter ghost" style={{ marginTop: '0.75rem' }}>
+          Eight nights of Hanukkah
+        </Link>
       </div>
     </div>
   )
