@@ -19,6 +19,7 @@ import TalmudDetail from './pages/TalmudDetail'
 import Slideshow from './pages/Slideshow'
 import Stylesheet from './pages/Stylesheet'
 import Profile from './pages/Profile'
+import Hanukkah from './pages/Hanukkah'
 import Admin from './pages/Admin'
 import Layout from './components/Layout'
 import ContactFAB from './components/ContactFAB'
@@ -36,7 +37,7 @@ function AppRoutes() {
   const [displayLocation, setDisplayLocation] = useState(location)
   const [transitionState, setTransitionState] = useState('idle')
   const isSlideshowRoute = location.pathname === '/slideshow'
-  const showFabOnRoute = location.pathname !== '/' && location.pathname !== '/admin' && location.pathname !== '/profile' && !isSlideshowRoute
+  const showFabOnRoute = location.pathname !== '/' && location.pathname !== '/admin' && location.pathname !== '/profile' && !isSlideshowRoute && location.pathname !== '/hanukkah/ask'
   const [fabMounted, setFabMounted] = useState(showFabOnRoute)
   const [fabVisible, setFabVisible] = useState(showFabOnRoute)
   const isInitialMount = useRef(true)
@@ -109,6 +110,7 @@ function AppRoutes() {
           <Route path="talmud/:slug" element={<TalmudDetail />} />
           <Route path="stylesheet" element={<Stylesheet />} />
           <Route path="profile" element={<Profile />} />
+          <Route path="hanukkah/*" element={<Hanukkah />} />
         </Route>
       </Routes>
       {fabMounted && (

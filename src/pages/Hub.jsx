@@ -27,6 +27,9 @@ export default function Hub() {
         <Link to="/slideshow" className="hub-slideshow-button">
           Slideshow
         </Link>
+        <Link to="/hanukkah" className="hub-slideshow-button">
+          Eight nights
+        </Link>
       </div>
     </div>
   )
